@@ -1,2 +1,2 @@
 # nauty
- Create nauty in java
+ Create nauty in c++

@@ -1,0 +1,684 @@
+\documentclass[11pt,a4paper]{report}
+
+\usepackage{amsmath,amssymb,amsthm,amsfonts}
+\usepackage{mathtools}
+\usepackage[style=trad-abbrv]{biblatex}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[most]{tcolorbox} % dans le préambule
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks,
+  linkcolor={red!50!black},
+  citecolor={blue!50!black},
+  urlcolor={blue!80!black}
+}
+\usepackage[nameinlink,capitalise]{cleveref}
+\usepackage{cancel}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+%%%%% amsthm
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}{Claim}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem*{remark}{Remark}
+
+\usepackage[sanserif]{complexity}
+\newclass\LOGSPACE{LOGSPACE}
+
+\usepackage{parskip}
+\usepackage{xspace}
+\usepackage{svg}
+
+\DeclareMathOperator{\Aut}{Aut}
+\newcommand{\Naut}{\textit{Nauty}\xspace}
+
+\newcommand{\robin}[1]{{\color{blue!60!black}[{\bf Robin:} #1]}}
+\newcommand{\rodolphe}[1]{{\color{green!60!black}[{\bf Rodolphe:} #1]}}
+
+\addbibresource{references.bib}
+
+\title{MA-Thesis - Rodolphe}
+\author{Rodolphe Prévot}
+\date{2024-2025}
+
+%%% Consignes : https://maarten.jansen.web.ulb.be/teaching/MEMO-F-403/index.html
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\begin{minipage}{\textwidth}
+\begin{Large}
+Faculty of Sciences
+\hfill
+Departement of Computer Science
+\end{Large}
+\end{minipage}
+\\[1cm]
+\includegraphics[scale=0.15]{imgs/titlepage/sceau-a-quadri.jpg}\\[1cm]
+
+\begin{minipage}{\textwidth}
+\begin{center}
+\textsc{\Large Preparatory work for the Master thesis}
+\end{center}
+\end{minipage}\\[1cm]
+
+% Title
+\rule{\textwidth}{1mm}
+\textbf{\huge Exhaustive generation of non-isomorphic graphs\\[0.4cm] }
+\rule{\textwidth}{1mm} 
+\vspace*{10mm}
+
+\LARGE \textbf{Auteur~:} Rodolphe Prévot\\[0.4cm]
+\LARGE \textbf{Promoteur~:} Robin Petit\\[0.4cm]
+\LARGE \textbf{Directeur~:} Gwenaël Joret\\
+
+\vfill
+
+% Bottom of the page
+\Large Academic year 2024--2025
+
+\end{center}
+\end{titlepage}
+
+{\hypersetup{linkcolor=black}\tableofcontents}
+
+
+\chapter{Introduction}
+
+In graph theory, the graph isomorphism problem (GI) is a well-known challenge: determining whether two given graphs are isomorphic. Fully retracing its history is nearly impossible due to the vast number of works on the topic, but we will go over the most significant milestones. Throughout the 20th century, considerable research efforts were devoted to solving GI, with varying degrees of efficiency. One of the earliest and simplest approaches was backtracking — a widely known and relatively easy-to-implement technique, though it suffers from poor scalability and optimality~\cite{schmidt1976fast}. Another method that emerged involved the construction of a so-called representative graph and a reordered graph to test for isomorphism~\cite{corneil1970efficient}. Although the overall approach to solving the GI problem was later invalidated, it played a key role in stimulating deeper investigations into the problem.
+
+Eventually, a more promising direction emerged: reducing graphs to their canonical form. The idea is straightforward — every graph can be transformed into a \textit{unique} canonical representation~\cite{arlazarov1974algorithm}, meaning that two isomorphic graphs will share the same canonical form. This shift in perspective turned GI from a problem of structural equivalence into one of equality: rather than directly checking isomorphism, we now simply compare canonical forms. This change led to more efficient solutions.
+
+In 1981, Brendan D. McKay introduced a breakthrough with his software \Naut ("No Automorphisms, Yes?")~\cite{mckay1981practical}, which offered a much more efficient way of tackling GI. Initially written in Fortran and assembly, and later finalized in C, \Naut has undergone continuous optimization to maximise its speed and efficiency. The key idea behind \Naut is to compute a graph’s canonical form without relying on matrix representations. Instead, it uses a search tree combined with a partitioning system to generate the canonical form. 
+
+Nowadays, this canonical form capability opens the door to a powerful application: the exhaustive generation of non-isomorphic graphs. Given $n$ vertices (and optionally, additional constraints), the goal is to enumerate all possible graphs that are non-isomorphic. Isomorph-free exhaustive generation is a problem that researchers have been working on for decades. For instance, the generation of cubic graphs has been studied since the 1960s, as these graphs are useful in various fields: in chemistry, they can model carbon networks; in mathematics and computer science, they often serve as minimal counterexamples in graph theory~\cite{brinkmann2013history}. McKay, for his part, successfully connected his tool Nauty to the generation of non-isomorphic graphs.~\cite{MCKAY1998306}
+
+\Naut is much more than just a tool for canonical labelling and the generation of non-isomorphic graphs. It has evolved into a comprehensive program that supports a wide range of graph families and offers additional features, such as output graph statistics and other advanced analysis tools~\cite{mckay2024nug}. Furthermore, libraries based on \Naut have been developed for several programming languages—for example, Pynauty in Python~\cite{pynauty}, NautyGraphs in Julia~\cite{nautygraphs_jl} or even pl-nauty in Prolog.~\cite{frank2016logic}
+
+The goal of this Master's thesis is to reimplement part of \Naut in a more modern programming language: Java. Recreating \Naut from scratch in Java will allow us to evaluate optimization differences, refresh its design, and extend its capabilities. For instance, the original \Naut does not support exhaustive generation or comparison for all possible graph families. In this updated version, we aim to include both some of the families already supported and additional ones, thereby contributing novel features to the tool. 
+
+As part of the preparatory work for this Master's thesis, our focus will be on the canonical form of graphs: generating the unique representative graph for various types of input graphs. This represents the foundation for the first stage of the \Naut-inspired code — solving the Graph Isomorphism problem.
+
+This document is structured as follows: first, we introduce the fundamentals and preliminaries required to fully understand the key concepts discussed in this thesis. We then present a comprehensive state-of-the-art section that summarizes previous research on the Graph Isomorphism problem. Finally, we explain how McKay’s canonical labelling algorithm works.
+
+
+\chapter{Preliminaries}
+
+This chapter introduces all the definitions necessary to understand this document. For further details on the following concepts, refer to Reinhard Diestel’s book on graph theory~\cite{diestel2025}.
+\section{Algebra Definitions}
+
+\begin{definition}[informal]
+An \emph{isomorphism} is a one-to-one correspondence (mapping) between two sets that preserves binary relationships between elements of the sets.
+
+An \emph{automorphism} is an isomorphism from a set to itself.
+\end{definition}
+\vspace{1em}
+\begin{definition}
+
+A \emph{group} is a set with a binary operation that satisfies the following constraints: the operation is associative, it has an identity element, and every element of the set has an inverse. For example, $(\mathbb{R}, +)$ is a group: it consists of the set of real numbers with addition as the binary operation. It has as identify element : 0, every element has an inverse element (each number with its opposite) and it's associative : for all numbers $a, b, c$ in $\mathbb{R}$: $a + (b + c) = (a+b) + c$.
+
+A \emph{homomorphism} is a transformation of one set into another that preserves in the second set the relations between elements of the first. For example, given two groups, $(G, \cdot)$ and $(H, \circ)$, a \emph{group homomorphism} from $(G, \cdot)$ to $(H, \circ)$ is a function  $\phi : G \to H$  such that $\phi(g_1 \cdot g_2) = \phi(g_1)\circ\phi(g_2)$ for every $g_1, g_2 \in G_1$.
+
+Let $(G, *)$ be a group with identity element $e$, and let $X$ be a non-empty set. A \emph{group action} of $G$ on $X$ exists if there is a map
+\[
+\cdot : G \times X \to X, \quad (g, x) \mapsto g \cdot x
+\]
+such that the following two properties hold:
+\begin{enumerate}
+    \item Identity: $\forall x \in X, \quad e \cdot x = x$,
+    \item Compatibility: $\forall g, h \in G, \ \forall x \in X, \quad (g * h) \cdot x = g \cdot (h \cdot x)$.
+\end{enumerate}
+
+As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a set $X$. We indicate the action of elements of $S_n$ by exponentiation: for $x \in X$ and $g \in S_n$, $x^g$ denotes the image of $x$ under $g$. The same notation is used to indicate the induced action on complex structures derived from $X$. As additional notation, for $W \subseteq V$, we write $W^g = \{w^g : w \in W\}$.
+
+\end{definition}
+
+
+\vspace{1em}
+ 
+\begin{definition}
+An \emph{equivalence relation}, denoted by $\sim$, on a set $X$ is a binary relation that is reflexive, symmetric, and transitive.
+
+For any element $x \in X$, the \emph{equivalence class} of $x$ under $\sim$ is the subset
+\[
+[x] = \{ y \in X \mid y \sim x \}.
+\]
+
+The \emph{quotient set} of $X$ by $\sim$, denoted by
+\[
+X / {\sim} = \{ [x] \mid x \in X \},
+\]
+is the set of all equivalence classes of $X$ under $\sim$.
+\end{definition}
+
+
+
+
+
+\section{Graph Definitions}
+
+\begin{definition}\label{def:graph}
+A \emph{graph} is a pair $G = (V, E)$ of sets satisfying $E \subseteq \binom {V}{2}$; thus, the elements of $E$ are 2-element subsets of $V$. The elements of $V$ are the \emph{vertices} of the graph $G$, the elements of $E$ are its \emph{edges}.
+
+Let \emph{$V^*$} denote the set of finite sequences of vertices. For $\sigma \in V^*$, $|\sigma|$ denotes the number of components of $\sigma$.If  $\sigma = (v_1, v_2, \ldots,v_k)  \in V^*$ and $w  \in V$ then  $\sigma\mid\mid w$  denotes $(v_1, v_2, \ldots ,v_k, w)$. Furthermore, for $0 \leq s \leq k$, \\$[\sigma]_s  \coloneqq (v_1, v_2, \ldots ,v_s)$. The ordering $\leq$ on ﬁnite sequences is the lexicographic order: If $\sigma = (v_1, v_2, \ldots,v_k)$ and $\sigma' = (v'_1, v'_2, \ldots ,v'_l)$, then $\sigma \leq \sigma'$ if $\sigma$ is a preﬁx of $\sigma'$ or there is some $j \leq \min\{k, l\}$ such that $v_i = v_i'$ for $i < j$ and $v_j < v_j'$.
+
+
+
+An acyclic graph (one not containing any cycles) is called a \emph{forest}. A connected forest is called a \emph{tree}.
+
+
+Let $G=(V,E)$ be a graph. Let $\sim$ be an equivalence relation on $V$. The \emph{quotient graph} of $G$ with respect to $\sim$, denoted $G/\sim$,  is a graph $(V', E')$ such that : 
+\begin{enumerate}
+    \item $V' = V/{\sim} = \{[v] \mid v \in V\}$
+    \item $E' = \{[u][v] \mid uv \in E\}$
+\end{enumerate}
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def:class of graphs}
+We let \emph{$\mathcal G_n$} be the set of all graphs on $n$ vertices (without loss of generality, say $V = \{1, 2, \ldots, n\}$). \emph{$\mathcal{G}$} represents the set of all graphs.
+\end{definition}
+
+\subsection{Definitions specifics to isomorphisms}
+
+
+\begin{definition}\label{def: colouring}
+A \emph{colouring} of $V$ (or of $G \in \mathcal{G}$) is a surjective function $\pi$ from $V$ onto $\{1, 2,\ldots, k\}$ for some $k$. The number of colours, i.e. $k$, is denoted by $|\pi|$. A cell of $\pi$ is the set of vertices with some given colour; that is, $\pi^{-1}(j)$ for some $j$ with $1 \leq j \leq |\pi|$. We let $\Pi$ be the set of all colourings.
+
+If $\pi$, $\pi'$ are colourings, then $\pi'$ is \emph{ﬁner than or equal} to $\pi$, written $\pi' \preccurlyeq \pi$, if $\pi(v) < \pi(w) \Rightarrow \pi'(v) < \pi'(w)$ for all $v, w \in V$ (This implies that each cell of $\pi'$ is a subset of a cell of $\pi$).
+
+Here, the colouring is not related to a \textit{proper colouring}, $\pi$ is related to a \textit{partitioning}. 
+
+A \emph{discrete colouring} is a colouring in which each cell is a singleton, in which case $|\pi|= n$.
+
+A \emph{coloured graph} is a pair $(G, \pi)$ where $\pi$ is a colouring of $G$.
+
+A colouring of a graph is called \emph{equitable} if any two vertices of the same colour are adjacent to the same number of vertices of each colour. This is also called an \emph{equitable/stable partition}.
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def: action group/automorphism group}
+Let \emph{$S_n$} denote the \emph{symmetric group} acting on $V$.
+
+There are several notations to consider:
+    \begin{enumerate}
+        \item if $\pi$ is a colouring of $V$, then $\pi^g$ is the colouring with $\pi^g(v^g) =
+        \pi(v)$ for each $v \in V$.
+        \item if $(G,\pi)$ is a coloured graph, then $(G,\pi)^g = (G^g,\pi^g)$.
+    \end{enumerate}
+
+These properties show that two coloured graphs $(G, \pi)$ and $(G', \pi')$ are isomorphic iff there exists $g \in S_n$ such that $(G', \pi') = (G, \pi)^g$. In this case, we write $(G, \pi) \cong (G', \pi')$.
+
+
+$\Aut(G,\pi) = \left\{g \in  S_n : (G,\pi)^g = (G,\pi) \right\}$; $\Aut(G,\pi)$ is the \emph{Automorphism group} of coloured graph $(G,\pi)$.   
+
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def:canonical form}
+
+The \emph{canonical form} is a function
+\[
+C : \mathcal{G} \times \Pi \to \mathcal{G} \times \Pi
+\]
+
+
+such that for all  $G \in \mathcal{G},  \pi \in \Pi$ and  $g \in S_n$:
+
+\begin{enumerate}
+    \item $C(G,\pi) \cong (G,\pi)$. 
+    \item $C(G^g,\pi^g) = C(G,\pi)$.
+\end{enumerate}
+\end{definition}
+
+\section{Complexity Definitions}
+
+For more informations on the complexity definitions, you can refer to  Michael Sipser's book: Introduction to the Theory of Computation~\cite{sipser1996introduction}
+
+\vspace{1em}
+
+\begin{definition}[minimalist]\label{def:NP}
+The class \emph{\NP} (comes from nondeterministic polynomial) is the set of decision problems for which the problem instances have certificates verifiable in polynomial time by a deterministic Turing machine, or alternatively the set of problems that can be solved in polynomial time by a nondeterministic Turing machine.
+
+A decision problem  is a member of \coNP{} iff its complement is in the complexity class \NP.
+
+A decision problem $B$ is \emph{\NP-complete} if it satisfies the two following conditions:
+\begin{enumerate}
+    \item $B$ must belong to the class \NP{}.
+    \item Every problem in \NP{} can be reduced to $B$ in polynomial time.
+\end{enumerate}
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}
+A problem is \emph{\NP-intermediate} (\NPI) if it is not \NP{}-complete nor \P. 
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def: logspace}
+$\LOGSPACE$ (or \L) is the complexity class of decision problems that can be solved by a deterministic Turing machine using a logarithmic amount of writable memory.
+\end{definition}
+
+
+\vspace{1em}
+
+\begin{definition}
+An \emph{oracle} for a language $B$ is an external device that is capable of reporting whether any string $w$ is a member of $B$. An oracle Turing machine is a modified Turing machine that has the additional capability of querying an oracle. We write $M^B$ to describe an oracle Turing machine that has an oracle for language $B$.
+
+The \emph{Polynomial-Time Hierarchy} (\PH) is a hierarchy of complexity classes that generalizes the classes \NP{} and \coNP. Formally, the base level of the hierarchy is defined as:
+\[
+\Delta_0^{\P} \coloneqq \Sigma_0^{\P} \coloneqq \Pi_0^{\P} \coloneqq \P,
+\]
+
+where $\P$ denotes the class of decision problems solvable in polynomial time by a deterministic Turing machine. Then, for every $i \geq 0$, the hierarchy is defined recursively as follows:
+
+\begin{itemize}
+    \item $\Delta_{i+1}^{\P} \coloneqq \P^{\Sigma_i^{\P}}$
+    \item $\Sigma_{i+1}^{\P} \coloneqq \NP^{\Sigma_i^{\P}}$
+    \item $\Pi_{i+1}^{\P} \coloneqq \coNP^{\Sigma_i^{\P}}$
+\end{itemize}
+
+Here, $\P^A$ denotes the class of problems solvable in polynomial time by a deterministic Turing machine equipped with an oracle for some complete problem in class $A$. The classes $\NP^A$ and $\coNP^A$ are defined analogously, using nondeterministic and co-nondeterministic Turing machines, respectively.
+
+For example, $\Sigma_{i}^{\P} = \NP$, $\Pi_{i}^{\P} = \coNP$,  and $\Delta_{2}^{\P} \coloneqq \P^{\NP}$ is the class of problems solvable in polynomial time with access to an oracle for an \NP-complete problem.
+
+This definition implies that each level of the hierarchy is contained within the next. That is:
+
+\begin{itemize}
+    \item $\Sigma_i^{\P} \subseteq \Delta_{i+1}^{\P} \subseteq \Sigma_{i+1}^{\P}$
+    \item $\Pi_i^{\P} \subseteq \Delta_{i+1}^{\P} \subseteq \Pi_{i+1}^{\P}$
+\end{itemize}
+
+The union of all classes in this hierarchy forms the polynomial-time hierarchy, denoted by \PH{}.
+\end{definition}
+
+
+\vspace{1em}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{imgs/Complexity-classes-the-polynomial-hierarchy-Stockmeyer-1976.png}
+    \caption{Polynomial Time Hierarchy where the arrows denote the inclusion: image from~\cite{ph}}
+    \label{fig: ph}
+\end{figure}
+
+
+
+
+\chapter{State of the Art}
+
+\section{Isomorphisms Graph problem}
+
+The Graph Isomorphism (GI) problem is very well known among computer scientists and mathematicians. It has been such a “star” target for algorithm designers that it was even referred to as a disease by researchers.~\cite{read1977graph}. GI belongs to the complexity class $\NP$ (cf.~\cref{def:NP}). However, it is still unknown whether a polynomial-time algorithm exists to solve it — in other words, it is not known whether GI belongs to the complexity class $\P$. Moreover, it is not known to be \NP{}-complete. GI was referred to as an ``open problem'' in the 1970s; a problem of which it was not known whether they were \NP{}-complete or in $\P$ (or neither)~\cite{garey2002computers}. Actually, its \NP{}-completeness is considered highly unlikely, as proving it \NP{}-complete would imply a collapse of the polynomial-time hierarchy (\PH) to its second level~\cite{goldreich1991proofs, schoning1988graph}—a result that would shake the foundations of computational complexity theory. This is especially problematic because it is widely conjectured that all levels of \PH{} are distinct and if \GI{} were \NP{}-complete, it would imply that all levels above the second would be equal to the second level.
+
+For three decades, the fastest proven running time for the Graph Isomorphism problem was $e^{\mathcal{O}(\sqrt{n \log n})}$~\cite{babai1983computational}. But in 2016, it was shown that GI can be solved in quasi-polynomial time: $e^{\log(n)^{\mathcal{O}(1)}}$~\cite{babai2016graph}. Which makes one think even more that GI is only \NP{}-intermediate and not \NP{}-complete otherwise every problem in \NP{} could be solved in quasi-polynomial time.
+
+Nonetheless, We already known some polynomial-time algorithms for GI for specific graph families.  These are often graphs with certain structural constraints, such as having a bounded Hadwiger number, a forbidden minor (see \cite{ponomarenko1988isomorphism} in Russian, as cited in \cite{mckay2014practical}), or an excluded topological subgraph~\cite{doi:10.1137/1.9781611973099.16}. Concrete examples of such graph classes include: graphs of bounded degree~\cite{luks1982isomorphism}, bounded tree-width~\cite{bodlaender1990polynomial}, and bounded eigenvalue multiplicities~\cite{babai1982isomorphism}, among others. The case of graphs with bounded genus was also addressed in earlier work~\cite{filotti1980polynomial}; however, the validity of the proposed polynomial-time algorithm was questioned later challenged~\cite{myrvold2011errors}.
+
+For some of the graph classes mentioned, we can go even further. GI restricted to planar graphs and interval graphs can be solved in $\LOGSPACE$ (c.f \cref{def: logspace}), which represents a significant gain in terms of memory usage~\cite{darga2004exploiting, kobler2011interval}.
+
+Unfortunately, most of these polynomial-time algorithms are theoretical and hard to implement in practice, with the exception of some well-structured families like trees~\cite{aho1974design}, planar graphs~\cite{10.1145/800119.803896}, and interval graphs~\cite{colbourn1981linear}.
+
+Moreover, GI restricted to certains graphs do not change the difficulty of the problem; they are as hard as the general problem. Comme exemple de ces graphes, nous pouvons citer les graphes bipartis, chordal graphs, graphs of bounded degeneracy or even graphs of bounded expansion~\cite{grohe2012structural}.
+
+
+To solve the Graph Isomorphism (GI) problem, three main types of algorithms must be considered~\cite{grohe2012structural}:
+
+\begin{itemize}
+    \item \textit{Graph theoretic algorithms}:
+    Classical algorithms that exploit structural properties of specific graph classes.
+    
+    \item \textit{Group theoretic algorithms}:
+    Based on computing generators for the automorphism group of a graph. These methods leverage group theoretic properties and have dominated GI research since the early 1980s.
+    
+    \item \textit{Combinatorial algorithms}:
+    Simple and general purpose algorithms that do not rely on the specific structure of graph classes.
+\end{itemize}
+
+All combinatorial algorithms are based on the idea of \emph{colour refinement} (the 1-dimensional version of the Weisfeiler-Leman algorithm~\cite{kiefer2020power}), which aims to compute a \emph{stable colouring} of a graph.
+
+\begin{algorithm}
+\caption{Example of Colour Refinement Algorithm~\cite{grohe2012structural}}
+\begin{algorithmic}[1]
+\State \textbf{Initialisation:} Assign the same initial colour to all vertices.
+\Repeat
+    \State \textbf{Refinement Step:}
+    \ForAll{pairs of vertices $v, w \in V$}
+        \ForAll{colours $c$ in the current colouring}
+            \If{the number of neighbours of $v$ of colour $c$ differs from that of $w$}
+                \State Assign different colours to $v$ and $w$
+            \EndIf
+        \EndFor
+    \EndFor
+\Until{(the colouring is stable)}
+\end{algorithmic}
+\end{algorithm}
+
+
+To use colour refinement as an isomorphism test, we apply it to the disjoint union of the input graphs $G$ and $G'$. The algorithm \emph{distinguishes} $G$ and $G'$ if there exists a colour $c$ in the stable colouring such that $G$ and $G'$ contain different numbers of vertices of colour $c$. Colour refinement \emph{identifies} a graph $G$ if it distinguishes $G$ from all non-isomorphic graphs; that is, no non-isomorphic graph shares the same stable colouring as $G$. However, if two graphs share the same stable partition, this is not a sufficient condition to prove that they are isomorphic; it is only a necessary one. Therefore, colour refinement does not fully solve the Graph Isomorphism problem, but rather provides a useful indication.
+
+Colour refinement is not only used in the context of Graph Isomorphism; it also plays a role in reducing the cost of solving linear programs~\cite{grohe2014dimension}, as well as in computing graph kernels~\cite{shervashidze2011weisfeiler}.
+
+Regarding the time complexity, for a graph $G$ with $n$ vertices and $m$ edges, a stable colouring can be computed in time $\mathcal{O}((n + m)\log n)$~\cite{cardon1982partitioning}, and has a lower bound of $\Omega((n + m)\log n)$ for the natural class of iterative partition refinement algorithms~\cite{berkholz2017tight}. This gives a tight bound of $\Theta((n + m)\log n)$ for such algorithms.
+
+
+Now that the concept of colour refinement is well defined, we can turn to the types of combinatorial algorithms that build upon it:
+
+\begin{itemize}
+    \item \textit{Weisfeiler--Leman algorithm (or $k$-WL)}~\cite{kiefer2020power}: This is a generalization of the colour refinement algorithm. The principle remains largely the same, but instead of comparing individual nodes, the algorithm works on $k$-tuples of vertices. The central concept introduced is that of \textit{$i$-neighbours}. For $\vec{v}, \vec{w} \in V^k$ and for $i \in \{1, \dots, k\}$, the tuples $\vec{v}$ and $\vec{w}$ are said to be \textit{$i$-neighbours} if $v_j = w_j$ for all $j \neq i$.
+
+    For a graph $G$ with $n$ vertices, the stable colouring computed by $k$-WL can be obtained in time $\mathcal{O}(n^k \log n)$.
+
+
+
+\begin{algorithm}
+\caption{$k$-dimensional Weisfeiler-Leman (k-WL) algorithm}
+\begin{algorithmic}[1]
+\Require Graph $G = (V, E)$, integer $k \geq 1$
+\Ensure Stable colouring of $V^k$
+
+\State \textbf{Initialization:}
+\ForAll{tuples $\vec{v}, \vec{w} \in V^k$}
+    \If{$\vec{v} \not\cong \vec{w}$} \Comment{No isomorphism between induced subgraphs}
+        \State Assign different initial colours to $\vec{v}$ and $\vec{w}$
+    \EndIf
+\EndFor
+
+\Repeat
+    \State \textbf{Refinement step:}
+    \ForAll{tuples $\vec{v}, \vec{w} \in V^k$}
+        \For{$i = 1$ to $k$}
+            \State Compare multisets of colours of $i$-neighbours of $\vec{v}$ and $\vec{w}$
+            \If{they differ}
+                \State Assign different colours to $\vec{v}$ and $\vec{w}$
+            \EndIf
+        \EndFor
+    \EndFor
+\Until{the colouring is stable}
+
+\end{algorithmic}
+\end{algorithm}
+
+\item \textit{Individualisation-Refinement}: This approach consists of fixing vertices (individualisation) combined with the refinement of partitions of the vertex set. It was first introduced by Parris and Read~\cite{parris1969coding}, as cited in~\cite{mckay2014practical}). The first implementation of this technique appeared in \Naut. The key idea in \Naut is to construct a \textit{search tree}, where individualisation and refinement are applied recursively to guide the traversal. Once the search tree is fully constructed, a \textit{node invariant} function is applied in order to compute a \textit{canonical labelling} of the graph; a unique representation (or canonical form) of the graph. This canonical labelling is central to solving the graph isomorphism problem (GI): two graphs are isomorphic if and only if their canonical forms are identical.
+
+\end{itemize}
+
+
+Over time, several other GI solvers based on the individualisation-refinement Sparadigm have emerged:
+
+\begin{itemize}
+    \item \textit{Saucy}, introduced in 2004, has the same idea than \Naut but was designed to outperform it on sparse graphs~\cite{darga2004exploiting}. 
+    
+    \item A few years later, \textit{Bliss} was released. It also computes canonical forms but incorporates additional techniques that enhance performance on more complex graphs (\cite{junttila2011conflict}, as cited in~\cite{mckay2014practical}).
+    
+    \item \textit{Conauto}, introduced in 2009, has shown remarkable efficiency on random graphs and certain families of hard instances~\cite{lopez2011conauto}.
+    
+    \item Finally, \textit{Traces} was developed~\cite{piperno2008search}, a tool that can compete with \Naut in terms of performance on the Graph Isomorphism problem. Today, Traces and \Naut are tightly integrated and distributed together~\cite{mckay2014practical}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{imgs/pré-mémoire.png}
+    \caption{Example of GI with canonical labelling from~\cite{mckay2024nug}}
+    \label{fig: canonical labbeling}
+\end{figure}
+
+
+\medskip
+
+Finally, An alternative approach to solving GI involves using linear programming. Given the adjacency matrices of two graphs $G$ and $H$, they are isomorphic if and only if there exists a permutation matrix $X$ such that $X^\top A X = B$.
+
+This formulation can be relaxed using LP techniques, notably the Sherali--Adams hierarchy. In particular, level-$k$ Sherali--Adams relaxations offer a powerful framework that has been investigated for graph isomorphism testing~\cite{grohe2012structural}.
+
+
+
+\chapter{Algorithm for the canonical graph}
+
+Now that the state of the art has been established, we can turn our attention to the core of this work. This chapter focuses primarily on McKay’s contribution to the construction of a canonical form of a graph~\cite{mckay2014practical}.
+
+\section{Search Tree and Node Invariant}
+
+The foundation of the algorithm is a very specific kind of tree: a \textit{search tree} (c.f \cref{def:graph}). Each node in this tree corresponds to a sequence of vertices of a coloured graph (see \cref{def: colouring}) derived from the original graph. The root of the tree is the empty sequence, and as we move down the tree, the sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a "controlled" manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete.
+
+To formally define this newly constructed tree, we begin by introducing the \textit{refinement function}, which will be used to specify the colouring associated with a given sequence.
+
+\begin{definition}\label{def: refinement function}
+The \emph{Refinement function } is a function
+\[
+R : \mathcal{G} \times \Pi \times V^* \to \Pi
+\]
+
+
+such that, for all  $G \in \mathcal{G},  \pi \in \Pi$ \ and  $\sigma \in V^*$,
+
+\begin{enumerate}
+    \item $R(G, \pi, v) \preccurlyeq \pi$.
+    \item if  $v \in \sigma$, then \{v\} is a cell of $R(G, \pi, \sigma)$.
+    \item for any g $\in S_n$, we have $R(G^g, \pi^g, \sigma^g) = R(G, \pi, \sigma)^g$.
+\end{enumerate}
+\end{definition}
+
+Finally, to complete the formal definition of our newly constructed tree, we need to specify how the children of each node are generated. A child is created by selecting a non-singleton cell from the current colouring (called the target cell) and adding one of its elements to the sequence.
+
+We will define the function called the \textit{target cell selector}, which is responsible for choosing a non-singleton cell from the colouring (if such a cell exists).
+
+
+\begin{definition}\label{def: target cell function}
+The \emph{Target cell selector function} is a function  
+\[
+T : \mathcal{G} \times \Pi \times V^* \to 2^V
+\]
+
+such that, for all  $G \in \mathcal{G},  \pi \in \Pi$ \ and  $\sigma \in V^*$
+
+\begin{enumerate} 
+    \item if $R(G, \pi_0, \sigma)$ is discrete, then $T(G, \pi_0, \sigma)$ = \cancel{0}.
+    \item if $R(G, \pi_0, \sigma)$ is not discrete, then $T(G, \pi_0,\sigma)$ is a non-singleton cell of $R(G, \pi_0, \sigma)$.
+   \item for any g $\in S_n$, we have $T(G^g, \pi^g, \sigma^g) = T(G, \pi, \sigma)^g$.
+\end{enumerate}
+\end{definition}
+
+Now that all the formal definitions of the tree have been established, we can define the search tree $\mathcal{T}(G, \pi_0)$, which depends on an initial coloured graph $(G, \pi_0)$. All the nodes of the tree are elements of $V^*$. This search tree has some characteristics to keep in mind:
+
+\begin{itemize}
+    \item The root of $\mathcal{T}(G, \pi_0)$ is the empty sequence ().
+    \item if $\sigma$ is a node of $\mathcal{T}(G, \pi_0)$, let W = $T(G, \pi_0, \sigma)$. Then the children of $\pi$ are $\{\sigma\mid\mid w: w\in W\}$.
+    \item a node $\sigma$ of $\mathcal{T}(G, \pi_0)$ is a leaf iff $R(G, \pi_0, \sigma)$ is discrete.
+    \item for any node $\sigma$ of $\mathcal{T}(G, \pi_0)$, define $\mathcal{T}(G, \pi_0, \sigma)$ to be the subtree of $\mathcal{T}(G, \pi_0)$ consisting of $\sigma$ and all its descendants.
+    
+\end{itemize}
+
+\subsection{Lemmas and corollaries}
+
+To conclude the construction of the tree, there are a few lemmas and corollaries to introduce, which will be very helpful for the upcoming definitions.
+
+\begin{lemma}
+For any $G \in \mathcal{G}, \pi_0\in \Pi, g\in S_n$ we have $\mathcal{T}(G^g, \pi_0^g) = \mathcal{T}(G, \pi_0)^g $.
+\end{lemma}
+
+\begin{corollary}\label{cor: Corollary2}
+Let $\sigma$ be a node of $\mathcal{T}(G,\pi_0)$ and let $g \in Aut(G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T}(G,\pi_0)$ and $\mathcal{T}(G, \pi_0, \sigma^g) = \mathcal{T}(G, \pi_0, \sigma)^g$ .
+\end{corollary}
+
+\begin{lemma}
+    Let $\sigma$ be a node of $\mathcal{(G,\pi_0})$ and let $\pi = R(G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the point-wise stabilizer of $\sigma$ in $\Aut(G,\pi_0)$.
+\end{lemma}
+
+
+Now that we have our base search tree $\mathcal{T}(G, \pi_0)$, we can examine how it can be used to compute the canonical form of the original graph and $\Aut(G, \pi_0)$.(c.f \cref{def: action group/automorphism group}).
+
+\begin{definition}\label{def: node variant}
+    Let $\Omega$ be some totally ordered set. A \emph{Node invariant} is a function
+    \[\phi : \mathcal{G} \times \Pi \times V^* \to \Omega\]
+
+    Such that, for any $\pi_0 \in \Pi$, $G \in \mathcal{G}$ and distinct $\sigma, \sigma' \in \mathcal{T}(G, \pi_0)$.
+
+The function $\phi$ has a few properties to take into account:
+
+    \begin{enumerate}
+        \item if $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) < \phi(G,\pi_0, \sigma')$,\\
+        then for every leaf $\sigma_1 \in \mathcal{T}(G,\pi_0, \sigma)$ and leaf $\sigma_1' \in \mathcal{T}(G,\pi_0, \sigma')$ we have $\phi(G,\pi_0, \sigma_1) < \phi(G,\pi_0, \sigma_2)$.
+        \item if $\pi = R(G,\pi_0, \sigma)$ and $\pi' = R(G,\pi_0, \sigma')$ are discrete,\\
+        then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \Leftrightarrow G^\pi = G^{\pi'}$ (equality relation).
+        \item for any $g \in S_n$, we have $\phi(G^g,\pi_0^g, \sigma^g) = \phi(G,\pi_0, \sigma)$.
+        \item Leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. This is the case, if there is a unique $g \in Aut(G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R(G,\pi_0, \sigma')R(G,\pi_0, \sigma)^{-1}$. 
+    \end{enumerate}
+\end{definition}
+
+By \hyperref[cor: Corollary2]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}(G, \pi_0)$, then so is $\sigma^g$ for any $g \in \Aut(G,\pi_0)$. Moreover, due to the properties of $\phi$, all such leaves $\sigma^g$ share the same $\phi$-value, and no other leaf has this value. Consequently, for each leaf $\sigma$, we can say that:
+
+
+\begin{align*}
+\Aut(G,\pi_0) = \big\{R(G,\pi_0, \sigma')R(G,\pi_0, \sigma)^{-1} :\ &\sigma' \text{ is a leaf of } \mathcal{T}(G,\pi_0) \\
+&\text{ with } \phi(G,\pi_0, \sigma') = \phi(G,\pi_0, \sigma)\big\}.
+\end{align*}
+
+Finally, we can define the canonical form: 
+
+\[
+\phi^*(G,\pi_0)= \max\ \{\phi(G,\pi_0, \sigma): \sigma \text{ is a leaf of } \mathcal{T}(G,\pi_0)\} ,
+\]
+
+\section{Implementation}
+
+We now have all the theoretical foundations necessary to understand the construction of the search tree. We can proceed to put this knowledge into practice by describing the generic algorithm used to compute both the canonical form and the automorphism group of a graph.
+
+In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. To this end, we rely on a theorem: for every colouring $\pi$, there exists a unique (up to cell ordering) coarsest equitable colouring $\pi'$ such that $\pi' \preccurlyeq \pi$.
+
+Therefore, we need to define additional helper functions in order to obtain a practical implementation of the refinement function.
+
+
+\begin{definition}\label{def:refinement_algo}
+The function \emph{$F(G ,\pi , \alpha )$} is our refinement algorithm (implemented in a label-invariant manner).
+
+\vspace{0.5em}
+\noindent\fbox{%
+\parbox{\linewidth}{%
+\textit{pseudo-code of $F(G ,\pi , \alpha )$ }(from~\cite{mckay2014practical})\label{algo:refinement}
+
+\vspace{0.5em}
+
+\begin{algorithmic}[1]
+\State \textbf{Data:} $\pi$ is the input colouring and $\alpha$ is a sequence of some cells of $\pi$
+\State \textbf{Result:} the final value of $\pi$ is the output colouring
+
+\While{$\alpha$ is not empty \textbf{and} $\pi$ is not discrete}
+    \State Remove some element $W$ from $\alpha$
+    \For{each cell $X$ of $\pi$}
+        \State Let $X_1, \ldots, X_k$ be the fragments of $X$ distinguished according to the number of edges from each vertex to $W$
+        \State Replace $X$ by $X_1, \ldots, X_k$ in $\pi$
+        \If{$X \in \alpha$}
+            \State Replace $X$ by $X_1, \ldots, X_k$ in $\alpha$
+        \Else
+            \State Add all but one of the largest of $X_1, \ldots, X_k$ to $\alpha$
+        \EndIf
+    \EndFor
+\EndWhile
+\end{algorithmic}
+}%
+}
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def: individualized function}
+The \emph{individualized function} $I : \Pi \times V \to \Pi$
+
+such that, if $v$ is a vertex in a non-singleton cell of $\pi$ and $\pi'$ = $I(\pi, v)$, then for $w \in V$,
+
+\[
+\pi'(w) = 
+\begin{cases}
+\pi(w), & \text{if } \pi(w) < \pi(v) \text{ or } w = v; \\
+\pi(w) + 1, & \text{otherwise}.
+\end{cases}
+\]
+
+We say that the vertex $v$ is individualized in $\pi$. We see that $I(\pi, v)$ differs from $\pi$ in that a unique colour has been given to vertex v. Now we can define a refinement function. For a sequence of vertices $v_1 , v_2 ,\ldots,$ define
+\begin{itemize}
+    \item $R(G, \pi_0, ()) = F(G, \pi_0,\text{ a list of all the cells of } \pi_0)$  
+    \item $R(G, \pi_0, (v_1)) = F(G, I((R(G,\pi_0, ()), v_1), \{v_1\}))$ 
+    \item $R(G, \pi_0, (v_1, v_2)) = F(G, I((R(G,\pi_0, (v_1)), v_2), \{v_2\}))$ 
+    \item $R(G, \pi_0, (v_1, v_2, v_3)) = F(G, I((R(G,\pi_0, (v_1, v_2)), v_3), \{v_3\}))$ 
+    \item and so on.
+\end{itemize}
+\end{definition}
+
+
+The algorithm satisfies the required properties of a refinement function and performs well in practice. However, the refinement step is the most computationally expensive part of the algorithm, which is why special care must be taken in its implementation.
+
+For the implementation of the \hyperref[def: target cell function]{target cell selection function} in the construction of the search tree, several strategies can be adopted. Choosing the right target cell at each step is important because it influences the shape and depth of the tree, and therefore the overall performance of the search.
+
+In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an orbit of the group that stabilizes the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
+
+As a result, \Naut now supports two strategies for target cell selection that we can choose:
+
+\begin{enumerate}
+\item Always select the first smallest non-singleton cell.
+\item Select the first cell that is joined in a non-trivial way to the largest number of other cells, where a non-trivial join means the number of edges between two cells is strictly between 0 and the maximum possible.
+\end{enumerate}
+
+Now that the search tree is implemented, we need to define the \hyperref[def: node variant]{node invariant function}, which will allow us to determine the automorphism group and the canonical form. To compute this function, we can rely on two related sources:
+
+\begin{enumerate}
+\item For each node $\sigma$, there is a colouring $R(G,\pi_0, \sigma)$. We can use its properties to extract the number and size of the cells, as well as combinatorial properties of the coloured graph.
+\item We can use the intermediate states of the colouring computation from the parent node (in the refinement algorithm), such as the position and size of the cells produced during the refinement procedure, and various edge counts determined during the computation. If $f(\sigma)$ is a function of this information—computed during the calculation of $R(G,\pi_0, \sigma)$ and from the resulting coloured graph—then the vector $(f([\sigma]_0), f([\sigma]_1), \ldots, f(\sigma))$, with lexicographic ordering, satisfies the characteristics required for a node invariant.
+In \Naut, the second source is used: the value of $f(\sigma)$ is an integer, and the pruning rules are applied as each node is computed.
+\end{enumerate}
+
+Another potential method is based on the concept of the \textit{quotient graph} $Q(G,\pi)$ (see \cref{def:graph}), assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q(G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \in \pi$, possibly equal, the corresponding vertices in $Q(G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
+The node invariant already computed by \Naut{} is a deterministic function of the sequence of quotient graphs $Q(G, R(G, \pi_0, [v]_i))$ for $i = 0, \ldots, |v|$. Therefore, it would be possible to use the sequence of quotient graphs to obtain information about the cells, but this would be far too costly in both time and memory.
+
+\section{Pruning}
+
+To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define three types of pruning strategies to optimize our construction:
+
+\begin{enumerate}
+    \item  Suppose $\sigma, \sigma'$  are distinct nodes of $T(G, \pi_0)$  with  $|\sigma| = |\sigma'|$ and \\ $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma') $. Operation $P_A(\sigma, \sigma')$ is to remove  $T(G, \pi_0, \sigma')$).
+    \item  Suppose $\sigma, \sigma'$  are distinct nodes of $T(G, \pi_0)$  with  $|\sigma| = |\sigma'|$ and \\ $\phi(G,\pi_0, \sigma) \neq \phi(G,\pi_0, \sigma') $. Operation $P_B(\sigma, \sigma')$ is to remove  $T(G, \pi_0, \sigma')$.
+    \item Suppose $g \in \Aut(G,\pi_0)$ and suppose $\sigma < \sigma'$ are nodes of $T(G, \pi_0)$ such that $\sigma^g = \sigma'$. Operation $P_C(\sigma, g)$ is to remove $T(G, \pi_0, \sigma')$.
+    \end{enumerate}
+
+Despite these pruning strategies, we must ensure that our search tree, along with the node invariant function, remains functionally correct. To this end, we require a theorem that guarantees the validity of the overall construction.
+
+\begin{theorem}\label{Theo: prunning}
+    Consider any $G \in \mathcal{G}$ and $\pi_0 \in \Pi$
+    \begin{itemize}
+    \item Suppose any sequence of operations of the form $P_A(\sigma, \sigma')$ or $P_C(\sigma, g)$ are performed. \\ Then there remains at least one leaf $\sigma_1$ with $\phi(G,\pi_0, \sigma_1) = \phi^*(G,\pi_0)$.
+    \item Let $\sigma_0$ be some ﬁxed leaf of $T(G, \pi_0)$. Suppose any sequence of operations of the form $P_B(\sigma, \sigma')$ $P_C(\sigma'', g)$ are performed, \\ where $\phi(G,\pi_0, \sigma'') \neq \phi(G,\pi_0, [\sigma_0]_{|\sigma''|})$. Let $g_1, \ldots, g_k$ be the automorphisms
+used in the operations $P_C$ that were performed, and let $A = \{g \in \Aut(G,\pi_0)$: $v_0^g$ is a remaining leaf\}. Then $\Aut(G,\pi_0)$ is generated by $\{g_1, \ldots, g_k\} \,\cup \, A$.
+\end{itemize}
+\end{theorem}
+
+We can put in practice ours different pruning strategies. \Naut will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, [\sigma_1]_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq \phi(G,\pi_0, [\sigma^*]_{|\sigma|})$. Such operations have both type $P_A(\sigma^*, \sigma)$ and
+$P_V(\sigma_1*, \sigma)$. Automorphisms are found by discovering leaves equivalent to $\sigma_1$ or $\sigma^*$ , and also to a limited extent from the properties of equitable colourings. Pruning operation $P_C$ is performed wherever possible, as high in the tree as possible (i.e., at the children of the nearest common ancestor of the two leaves found to be equivalent). Until a recent version of \Naut, the only automorphisms used for pruning operation $P_C$ were
+those directly discovered, without any attempt to compose them. Now \Naut use the random Schreier
+method~\cite{seress2003permutation} to perform more complete pruning.  
+
+An apparent disadvantage of breadth-ﬁrst order is that pruning by automorphisms (operation $P_C$ )
+is only possible when automorphisms are known, which in general requires leaves of the tree. To
+remedy this problem, for every node a single path, called an ``experimental path'', is generated from
+that node down to a leaf of the tree. Automorphisms are found by comparing the labelled graphs that
+correspond to those leaves, with the value of $\phi(G , \pi_0 , \sigma )$ at the leaf being used to avoid most unnecessary comparisons. We have found experimentally that generating experimental paths randomly tends to ﬁnd automorphisms that generate larger subgroups, so that the group requires fewer generators altogether and more of the group is available early for pruning.The group generated by the automorphisms found so far is maintained using the random Schreier method.
+
+
+
+\printbibliography 
+\end{document}
