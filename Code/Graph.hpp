@@ -5,18 +5,20 @@
 #include <iostream>
 #include <string>
 
+using namespace std;
+
 class Graph {
 private:
     int n; // nombre de sommets
     bool isDirected;
-    std::vector<std::vector<int>> adjMatrix;
+    std::vector<vector<int>> adjMatrix;
 
-    void buildFromSparse6(const std::string& sparse6Str);
+    void buildFromSparse6(const string& sparse6Str);
 
 public:
     // --- Constructeurs ---
     Graph(int numVertices, bool directed = false);             // 1. Graphe vide
-    Graph(const std::string& sparse6Str, bool directed = false); // 2. Graphe depuis un sparse6
+    Graph(const string& sparse6Str, bool directed = false); // 2. Graphe depuis un sparse6
 
     void addEdge(int u, int v, int weight = 1);
     void removeEdge(int u, int v);
@@ -25,7 +27,7 @@ public:
     void printSparse6() const;
 
     int size() const;
-    const std::vector<std::vector<int>>& getMatrix() const;
+    const vector<vector<int>>& getMatrix() const;
 };
 
 #endif // GRAPH_HPP
