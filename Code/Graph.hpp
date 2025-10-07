@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <cstdint>
+#include <bitset>
 
 using namespace std;
 
@@ -13,18 +15,21 @@ private:
     bool isDirected;
     std::vector<vector<int>> adjMatrix;
 
-    void buildFromSparse6(const string& sparse6Str);
+    void buildFromGraph6(const string& graph6);
 
 public:
     // --- Constructeurs ---
-    Graph(int numVertices, bool directed = false);             // 1. Graphe vide
-    Graph(const string& sparse6Str, bool directed = false); // 2. Graphe depuis un sparse6
+    Graph(int numVertices, bool directed = false);   
+    Graph(const string& Graph6, bool directed = false); 
 
     void addEdge(int u, int v, int weight = 1);
     void removeEdge(int u, int v);
     bool hasEdge(int u, int v) const;
     void printMatrix() const;
-    void printSparse6() const;
+    void printGraph6() const;
+    std::vector<uint8_t> nGraph6() const;
+    void rGraph6(std::string x, std::vector<uint8_t> &result) const;
+    std::string upperTriangleMatrix() const;
 
     int size() const;
     const vector<vector<int>>& getMatrix() const;
