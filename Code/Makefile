@@ -1,8 +1,8 @@
 # --- Variables ---
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17
-TARGET = main
-OBJS = main.o Graph.o Partition.o
+CXXFLAGS = -Wall -Wextra -std=c++17 -MMD
+TARGET = bin/main
+OBJS = obj/main.o obj/Graph.o obj/Partition.o
 
 
 all: $(TARGET)
@@ -12,15 +12,10 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
 
 
-main.o: main.cpp Graph.hpp
-	$(CXX) $(CXXFLAGS) -c main.cpp
+obj/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-Graph.o: Graph.cpp Graph.hpp
-	$(CXX) $(CXXFLAGS) -c Graph.cpp
-
-Partition.o : Partition.cpp Partition.hpp
-	$(CXX) $(CXXFLAGS) -c Partition.cpp
-
+-include obj/*.d
 
 clean:
 	rm -f $(OBJS) $(TARGET)
