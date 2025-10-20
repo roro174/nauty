@@ -2,7 +2,7 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17
 TARGET = main
-OBJS = main.o Graph.o
+OBJS = main.o Graph.o Partition.o
 
 
 all: $(TARGET)
@@ -17,6 +17,9 @@ main.o: main.cpp Graph.hpp
 
 Graph.o: Graph.cpp Graph.hpp
 	$(CXX) $(CXXFLAGS) -c Graph.cpp
+
+Partition.o : Partition.cpp Partition.hpp
+	$(CXX) $(CXXFLAGS) -c Partition.cpp
 
 
 clean:
