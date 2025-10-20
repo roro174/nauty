@@ -13,8 +13,48 @@ Graph::Graph(const string& graph6, bool directed)
     buildFromGraph6(graph6);
 }
 
-// TODO
-void Graph::buildFromGraph6(const string& graph6) {
+void Graph::buildFromGraph6(const string& graph6) { 
+    size_t index = 0; 
+
+    unsigned char c = graph6[index++];
+    if (c !=126) {
+        n = c - 63;
+    } else if (c == 126 && graph6[index] != 126) {
+        std::string bits;
+        for (int i = 0; i < 3; i++) {
+            bits += std::bitset<6>(graph6[index++] - 63).to_string();
+        }
+        n = std::stoi(bits.substr(bits.size() - 18), nullptr, 2);
+    } else if (c == 126 && graph6[index] == 126) { 
+        index++;
+        std::string bits;
+        for (int i = 0; i < 6; i++) {
+            bits += std::bitset<6>(graph6[index++] - 63).to_string();
+        }
+        n = std::stoi(bits.substr(bits.size() - 36), nullptr, 2);
+    }
+
+    std::string bitString;
+    for (int index = 1 ; index < graph6.size(); index++) {
+        unsigned char c = graph6[index];
+        int val = c - 63;
+        bitString += std::bitset<6>(val).to_string();
+    }
+
+    bitString = bitString.substr(0, n * (n - 1) / 2);
+    adjMatrix.assign(n, std::vector<int>(n, 0));
+    int pos = 0;
+    for (int i = 1; i < n; i++) {
+        for (int j = 0; j < i; j++) {
+            if (bitString[pos++] == '1') {
+                adjMatrix[i][j] = 1;
+                adjMatrix[j][i] = 1;
+                
+            }
+        }
+    }
+
+
 }
 
 void Graph::addEdge(int u, int v, int weight) {
@@ -56,27 +96,11 @@ void Graph::printMatrix() const {
 void Graph::printGraph6() const{
     std::string bitString = upperTriangleMatrix();
     std::vector<uint8_t> nGraph = nGraph6();
-    for (auto b : nGraph)
-    std::cout << static_cast<int>(b) << " ";
-std::cout << std::endl;
 
     rGraph6(bitString, nGraph);
     for (auto b : nGraph)
-        std::cout << static_cast<int>(b) << " ";
-    std::cout << std::endl;
-    for (auto b : nGraph)
     std::cout << static_cast<char>(b);
 std::cout << std::endl;
-
-
-
-
-
-
-
-
-
-
 }
 
 std::string Graph::upperTriangleMatrix() const{
@@ -104,8 +128,6 @@ void Graph::rGraph6(std::string x, std::vector<uint8_t> &result) const {
         result.push_back(static_cast<uint8_t>(value + 63));
     }
 }
-
-
 
 std::vector<uint8_t> Graph::nGraph6() const{
     std::vector<uint8_t> result;
