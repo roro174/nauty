@@ -1,6 +1,6 @@
 #include "Graph.hpp"
 
-
+// and et or au lieu de && et size_t pour n 
 
 Graph::Graph(int numVertices, bool directed)
     : n(numVertices), isDirected(directed), adjMatrix(numVertices, vector<int>(numVertices, 0)) {
