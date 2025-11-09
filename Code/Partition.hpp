@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 #include <numeric>
 #include <stdexcept>
 #include <deque>
@@ -16,12 +17,17 @@ struct Partition {
         std::vector<int> verts;
     };
 
-    std::vector<Cell> cells;                   
+    std::vector<Cell> cells; 
+    unordered_map<int, size_t> idToIndex;               
     int CellId = 0;                    
 
     explicit Partition(int nVertices);
 
     bool isDiscrete() const;
+
+    size_t indexOf(int cellId) const;
+
+    void rebuildIndex();
 
     void print() const;
 

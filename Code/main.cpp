@@ -1,23 +1,19 @@
 #include "Graph.hpp"
-
-
-std::vector<int> refinement(Graph g, std::vector<int> v, std::string s) {
-    std::vector<int> result;
-    return result;
-}
+#include "Partition.hpp"
+#include <iostream>
 
 
 int main() {
-    Graph g(5, false); // TEST
+    Partition P(5);
 
-    g.addEdge(0, 2);
-    g.addEdge(0, 4);
-    g.addEdge(1, 3);
-    g.addEdge(3, 4);
+    std::cout << "Partition init" << std::endl;
+    P.print();
+    P.individualizeVertex(2);
+    std::cout << "\nafter indiv 2" << std::endl;
+    P.print();
+    P.individualizeVertex(4);
+    std::cout << "\nafter indiv 4" << std::endl;
+    P.print();
 
-    g.printGraph6();
-
-    Graph g2("DcQ", false);
-    g2.printMatrix();
     return 0;
 }
