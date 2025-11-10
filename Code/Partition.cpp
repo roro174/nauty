@@ -65,9 +65,7 @@ void Partition::individualizeVertex(int v) {
 std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const {
     const vector<int> &Xverts = cells[cellIndex].verts;
     std::map<int, std::vector<int>> groups;  
-
     std::unordered_set<int> S(splitterVerts.begin(), splitterVerts.end());
-
     for (int v : Xverts) {
         int cnt = 0;
         for (int neighbor : G.getNeighbors(v))
@@ -77,12 +75,33 @@ std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, 
     return groups;
 }
 
+void Partition::applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups) {
+    Cell &oldCell = cells[cellIndex];
+    std::vector<Cell> newCells;
+    for (const auto& [key, verts] : groups) {
+        Cell newCell;
+        newCell.id = CellId++;
+        newCell.verts = verts;
+        newCells.push_back(std::move(newCell));
+    }
+    cells.erase(cells.begin() + cellIndex);
+    cells.insert(cells.begin() + cellIndex, newCells.begin(), newCells.end());
+    rebuildIndex();
+}
+
 void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
     while (!alpha.empty() && !isDiscrete()) {
         Cell W = alpha.front();
         size_t WIndex = indexOf(W.id);
         alpha.erase(alpha.begin());
         for (auto cell : cells) {
+            size_t XIdx = indexOf(cell.id);
+            std::map<int, std::vector<int>> fragments = fragmentCellByCounts(G, XIdx, W.verts);
+            if (fragments.size() <= 1) continue;
+            applyFragmentation(XIdx, fragments);
+
+
+
         }
     }
 }

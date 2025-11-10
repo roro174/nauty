@@ -37,6 +37,8 @@ struct Partition {
 
     std::map<int, std::vector<int>> fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const;
 
+    void applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups);
+
     void refineGraph(Graph &G, vector<Cell> &alpha);
 
 };
