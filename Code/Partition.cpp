@@ -60,17 +60,29 @@ void Partition::individualizeVertex(int v) {
 
     cells.insert(cells.begin() + idx, std::move(newCell));
     rebuildIndex();
-    return;
     }
 
-void Partition::refineGraph(Graph &G, vector<int> &alpha) {
+std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const {
+    const vector<int> &Xverts = cells[cellIndex].verts;
+    std::map<int, std::vector<int>> groups;  
+
+    std::unordered_set<int> S(splitterVerts.begin(), splitterVerts.end());
+
+    for (int v : Xverts) {
+        int cnt = 0;
+        for (int neighbor : G.getNeighbors(v))
+            if (S.find(neighbor) != S.end()) ++cnt;
+        groups[cnt].push_back(v);
+    }
+    return groups;
+}
+
+void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
     while (!alpha.empty() && !isDiscrete()) {
-        int W_id = alpha.front(); 
+        Cell W = alpha.front();
+        size_t WIndex = indexOf(W.id);
         alpha.erase(alpha.begin());
-
         for (auto cell : cells) {
-
-            // todo
         }
     }
 }

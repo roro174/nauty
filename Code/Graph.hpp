@@ -25,6 +25,7 @@ public:
     void addEdge(int u, int v, int weight = 1);
     void removeEdge(int u, int v);
     bool hasEdge(int u, int v) const;
+    vector<int> getNeighbors(int v) const;
     void printMatrix() const;
     void printGraph6() const;
     std::vector<uint8_t> nGraph6() const;

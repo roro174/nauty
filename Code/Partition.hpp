@@ -5,10 +5,12 @@
 #include <unordered_map>
 #include <algorithm>
 #include <numeric>
+#include <map>
 #include <stdexcept>
 #include <deque>
 #include <iostream>
 #include <cstddef>
+#include <unordered_set>
 #include "Graph.hpp"
 
 struct Partition {
@@ -33,7 +35,9 @@ struct Partition {
 
     void individualizeVertex(int v);
 
-    void refineGraph(Graph &G, vector<int> &alpha);
+    std::map<int, std::vector<int>> fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const;
+
+    void refineGraph(Graph &G, vector<Cell> &alpha);
 
 };
 

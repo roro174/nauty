@@ -155,3 +155,15 @@ int Graph::size() const { return n; }
 const vector<vector<int>>& Graph::getMatrix() const {
     return adjMatrix;
 }
+
+vector<int> Graph::getNeighbors(int v) const {
+    vector<int> neighbors;
+    if (v < 0 || v >= n) return neighbors;
+
+    for (int j = 0; j < n; ++j) {
+        if (adjMatrix[v][j] != 0) {
+            neighbors.push_back(j);
+        }
+    }
+    return neighbors;
+}
