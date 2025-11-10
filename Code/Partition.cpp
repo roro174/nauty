@@ -1,4 +1,5 @@
 #include "Partition.hpp"
+#include <limits>
 
 Partition::Partition(int nVertices) {
     Cell c;
@@ -39,16 +40,17 @@ void Partition::print() const {
 }
 
 void Partition::individualizeVertex(int v) {
- size_t idx = 65535;
+    constexpr size_t maxSizet{std::numeric_limits<size_t>::max()};
+    size_t idx = maxSizet;
     for (size_t i = 0; i < cells.size(); ++i) {
         for (int x : cells[i].verts) {
             if (x == v) { idx = i; break; }
         }
-        if (idx != 65535) break;
+        if (idx != maxSizet) break;
     }
-    if (idx == 65535) throw std::runtime_error("Vertex not found in any cell");
+    if (idx == maxSizet) throw std::runtime_error("Vertex not found in any cell");
 
-    Cell& old = cells[idx]; 
+    Cell& old = cells[idx];
     if (old.verts.size() == 1) return; // déjà singleton
 
     // Nouvelle cellule
@@ -64,7 +66,7 @@ void Partition::individualizeVertex(int v) {
 
 std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const {
     const vector<int> &Xverts = cells[cellIndex].verts;
-    std::map<int, std::vector<int>> groups;  
+    std::map<int, std::vector<int>> groups;
     std::unordered_set<int> S(splitterVerts.begin(), splitterVerts.end());
     for (int v : Xverts) {
         int cnt = 0;
@@ -137,6 +139,6 @@ void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
                 alpha.insert(alpha.end(), newCells.begin(), newCells.end());
                 alpha.pop_back();
             }
-        }   
+        }
     }
 }
