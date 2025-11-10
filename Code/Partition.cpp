@@ -127,7 +127,14 @@ void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
                 applyFragmentationAlpha(index, fragments, alpha);
             }
             else{
-                alpha.insert(alpha.end(), fragments.begin(), fragments.end());
+                std::vector<Cell> newCells;
+                for (const auto& [key, verts] : fragments) {
+                    Cell newCell;
+                    newCell.id = CellId++;
+                    newCell.verts = verts;
+                    newCells.push_back(std::move(newCell));
+                }
+                alpha.insert(alpha.end(), newCells.begin(), newCells.end());
                 alpha.pop_back();
             }
         }   
