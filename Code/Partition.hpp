@@ -39,6 +39,8 @@ struct Partition {
 
     void applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups);
 
+    void applyFragmentationAlpha(size_t cellIndex, const std::map<int, std::vector<int>>& groups, vector<Cell> &alpha);
+
     void refineGraph(Graph &G, vector<Cell> &alpha);
 
 };

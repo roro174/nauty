@@ -89,6 +89,21 @@ void Partition::applyFragmentation(size_t cellIndex, const std::map<int, std::ve
     rebuildIndex();
 }
 
+
+// surement lier les deux fonctions applyFragmentation
+void Partition::applyFragmentationAlpha(size_t cellIndex, const std::map<int, std::vector<int>>& groups, vector<Cell> &alpha) {
+    Cell &oldCell = alpha[cellIndex];
+    std::vector<Cell> newCells;
+    for (const auto& [key, verts] : groups) {
+        Cell newCell;
+        newCell.id = CellId++;
+        newCell.verts = verts;
+        newCells.push_back(std::move(newCell));
+    }
+    alpha.erase(alpha.begin() + cellIndex);
+    alpha.insert(alpha.begin() + cellIndex, newCells.begin(), newCells.end());
+}
+
 void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
     while (!alpha.empty() && !isDiscrete()) {
         Cell W = alpha.front();
@@ -99,9 +114,22 @@ void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
             std::map<int, std::vector<int>> fragments = fragmentCellByCounts(G, XIdx, W.verts);
             if (fragments.size() <= 1) continue;
             applyFragmentation(XIdx, fragments);
-
-
-
-        }
+            bool inAlpha = false;
+            size_t index = -1;
+            for (const auto& c : alpha) {
+                index++;
+                if (c.id == XIdx) {
+                    inAlpha = true;
+                    break;
+                }
+            }
+            if(inAlpha){
+                applyFragmentationAlpha(index, fragments, alpha);
+            }
+            else{
+                alpha.insert(alpha.end(), fragments.begin(), fragments.end());
+                alpha.pop_back();
+            }
+        }   
     }
 }
