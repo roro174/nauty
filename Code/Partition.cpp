@@ -107,7 +107,7 @@ void Partition::applyFragmentationAlpha(size_t cellIndex, const std::map<int, st
 }
 
 void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
-    while (!alpha.empty() && !isDiscrete()) {
+    while (!alpha.empty() and !isDiscrete()) {
         Cell W = alpha.front();
         size_t WIndex = indexOf(W.id);
         alpha.erase(alpha.begin());
@@ -136,9 +136,30 @@ void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
                     newCell.verts = verts;
                     newCells.push_back(std::move(newCell));
                 }
+
+                auto it = std::max_element(newCells.begin(), newCells.end(),
+                    [](const Cell &a, const Cell &b) {
+                        return a.verts.size() < b.verts.size();
+                    }
+                );
+
+                newCells.erase(it);
                 alpha.insert(alpha.end(), newCells.begin(), newCells.end());
-                alpha.pop_back();
             }
         }
     }
+}
+
+const Partition::Cell& Partition::targetCellSelector() const {
+    constexpr size_t maxSizet{std::numeric_limits<size_t>::max()};
+    size_t minSize = maxSizet;
+    size_t targetIndex = 0;
+    for (size_t i = 0; i < cells.size(); ++i) {
+        size_t cellSize = cells[i].verts.size();
+        if (cellSize < minSize and cellSize != 1) {
+            minSize = cellSize;
+            targetIndex = i;
+        }
+    }
+    return cells[targetIndex];
 }

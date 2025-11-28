@@ -43,6 +43,10 @@ struct Partition {
 
     void refineGraph(Graph &G, vector<Cell> &alpha);
 
+    const Cell& targetCellSelector() const;
+
+
+
 };
 
 #endif
