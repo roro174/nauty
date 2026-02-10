@@ -17,6 +17,10 @@ struct Partition {
     struct Cell {
         int id;
         std::vector<int> verts;
+
+    bool operator<(const Cell& other) const {
+        return verts < other.verts;
+    }
     };
 
     std::vector<Cell> cells; 
