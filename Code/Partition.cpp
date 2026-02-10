@@ -106,7 +106,7 @@ void Partition::applyFragmentationAlpha(size_t cellIndex, const std::map<int, st
     alpha.insert(alpha.begin() + cellIndex, newCells.begin(), newCells.end());
 }
 
-void Partition::refineGraph(Graph &G, vector<Cell> &alpha) {
+void Partition::refineGraph(const Graph &G, vector<Cell> &alpha) {
     while (!alpha.empty() and !isDiscrete()) {
         Cell W = alpha.front();
         size_t WIndex = indexOf(W.id);
@@ -162,4 +162,13 @@ const Partition::Cell& Partition::targetCellSelector() const {
         }
     }
     return cells[targetIndex];
+}
+
+const Partition::Cell& Partition::getCellById(int vert) const {
+    for (const auto& cell : cells) {
+        if (std::find(cell.verts.begin(), cell.verts.end(), vert) != cell.verts.end()) {
+            return cell;
+        }
+    }
+    throw std::runtime_error("Vertex not found in any cell");
 }
