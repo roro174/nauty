@@ -51,8 +51,7 @@ struct Partition {
 
     const Cell& getCellById(int vert) const;
 
-
-
+    const vector<int> InvariantTriangleByCell(const Graph &G) const;
 };
 
 #endif

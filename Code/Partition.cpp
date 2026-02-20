@@ -172,3 +172,33 @@ const Partition::Cell& Partition::getCellById(int vert) const {
     }
     throw std::runtime_error("Vertex not found in any cell");
 }
+
+const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
+    vector<int> triangle(cells.size(), 0);
+
+    for (size_t i = 0; i < cells.size(); ++i) {
+        const auto &verts = cells[i].verts;
+        int n = verts.size();
+
+        // On parcourt tous les triplets (a,b,c) de sommets dans la cellule
+        for (int x = 0; x < n; ++x) {
+            int v1 = verts[x];
+            for (int y = x + 1; y < n; ++y) {
+                int v2 = verts[y];
+                if (!G.hasEdge(v1, v2)) continue; // arête absente, pas de triangle
+
+                for (int z = y + 1; z < n; ++z) {
+                    int v3 = verts[z];
+                    // Vérifie que les 3 arêtes existent
+                    if (G.hasEdge(v1, v3) && G.hasEdge(v2, v3)) {
+                        triangle[i]++;
+                    }
+                }
+            }
+        }
+    }
+
+    return triangle;
+}
+
+

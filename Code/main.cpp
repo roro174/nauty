@@ -4,29 +4,29 @@
 
 
 
-void refinementFunction(const Graph& G, Partition& currentPartition, std::vector<Partition::Cell>& alpha, std::vector<Partition>& searchTree, Partition& BetterPartition, int depth = 0) {
-    currentPartition.refineGraph(G,  alpha);
-    if (size(searchTree) == 1) {
-        alpha.clear();
-    }
+void refinementFunction(const Graph& G, Partition& currentPartition, Partition& BetterPartition, vector<vector<int>> bestInvariant, vector<vector<int>> currentInvariant) {
+    currentInvariant.push_back(currentPartition.InvariantTriangleByCell(G));
     if(currentPartition.isDiscrete()){ 
-        if (BetterPartition.isDiscrete() && currentPartition.cells < BetterPartition.cells) { // si égaux je dois faire un random entre les 2 non ?
-                BetterPartition = currentPartition;
-        } else if(!BetterPartition.isDiscrete()) {
+        if(!BetterPartition.isDiscrete()) {
             BetterPartition = currentPartition;
+            bestInvariant = currentInvariant;
         }
-
+        else if (bestInvariant < currentInvariant) {
+                BetterPartition = currentPartition;
+                bestInvariant = currentInvariant;} 
     }
     else{
-        Partition copyPartition = currentPartition;
-        searchTree.push_back(copyPartition);
+        std::vector<Partition::Cell> alpha;
         Partition::Cell targetCell = currentPartition.targetCellSelector();
         for(int v : targetCell.verts){
             currentPartition.individualizeVertex(v);
-            Partition::Cell newCell = currentPartition.getCellById(v);
-            alpha.push_back(newCell);
-            refinementFunction(G, searchTree[depth], alpha, searchTree, BetterPartition, depth + 1);
-            alpha.pop_back();}
+            alpha.push_back(currentPartition.getCellById(v));
+            Partition copyPartition = currentPartition;
+            copyPartition.refineGraph(G,  alpha);
+            refinementFunction(G, copyPartition, BetterPartition, bestInvariant, currentInvariant);
+            alpha.pop_back();
+            currentInvariant.pop_back();
+            }
     }
 }
 
