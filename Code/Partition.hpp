@@ -21,6 +21,11 @@ struct Partition {
     bool operator<(const Cell& other) const {
         return verts < other.verts;
     }
+    void print() const {
+        std::cout << "Cell id=" << id << " size=" << verts.size() << " : ";
+        for (int v : verts) std::cout << v << " ";
+        std::cout << "\n";
+    };
     };
 
     std::vector<Cell> cells; 
@@ -41,15 +46,13 @@ struct Partition {
 
     std::map<int, std::vector<int>> fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const;
 
-    void applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups);
-
-    void applyFragmentationAlpha(size_t cellIndex, const std::map<int, std::vector<int>>& groups, vector<Cell> &alpha);
+    std::vector<Cell> applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups);
 
     void refineGraph(const Graph &G, vector<Cell> &alpha);
 
     const Cell& targetCellSelector() const;
 
-    const Cell& getCellById(int vert) const;
+    const Cell& getCellByVertex(int vert) const;
 
     const vector<int> InvariantTriangleByCell(const Graph &G) const;
 };

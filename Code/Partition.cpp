@@ -11,12 +11,20 @@ Partition::Partition(int nVertices) {
 }
 
 size_t Partition::indexOf(int cellId) const {
+        /*
+    * Normalement ici la fonction est bonne
+    */
     auto it = idToIndex.find(cellId);
     if (it == idToIndex.end()) throw runtime_error("Unknown cellId");
     return it->second;
 }
 
+
+
 void Partition::rebuildIndex() {
+        /*
+    * Normalement ici la fonction est bonne
+    */
     idToIndex.clear();
     for (size_t i = 0; i < cells.size(); ++i) idToIndex[cells[i].id] = i;
 }
@@ -24,6 +32,9 @@ void Partition::rebuildIndex() {
 
 
 bool Partition::isDiscrete() const {
+    /*
+    * Normalement ici la fonction est bonne
+    */
     for (auto &c : cells)
         if (c.verts.size() > 1)
             return false;
@@ -65,6 +76,9 @@ void Partition::individualizeVertex(int v) {
     }
 
 std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const {
+    /*
+    * Normalement ici la fonction est bonne
+    */
     const vector<int> &Xverts = cells[cellIndex].verts;
     std::map<int, std::vector<int>> groups;
     std::unordered_set<int> S(splitterVerts.begin(), splitterVerts.end());
@@ -77,10 +91,12 @@ std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, 
     return groups;
 }
 
-void Partition::applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups) {
-    Cell &oldCell = cells[cellIndex];
+std::vector<Partition::Cell> Partition::applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups) {
+    /*
+    * Normalement ici la fonction est bonne
+    */
     std::vector<Cell> newCells;
-    for (const auto& [key, verts] : groups) {
+    for (const auto& [_, verts] : groups) {
         Cell newCell;
         newCell.id = CellId++;
         newCell.verts = verts;
@@ -89,54 +105,32 @@ void Partition::applyFragmentation(size_t cellIndex, const std::map<int, std::ve
     cells.erase(cells.begin() + cellIndex);
     cells.insert(cells.begin() + cellIndex, newCells.begin(), newCells.end());
     rebuildIndex();
-}
-
-
-// surement lier les deux fonctions applyFragmentation
-void Partition::applyFragmentationAlpha(size_t cellIndex, const std::map<int, std::vector<int>>& groups, vector<Cell> &alpha) {
-    Cell &oldCell = alpha[cellIndex];
-    std::vector<Cell> newCells;
-    for (const auto& [key, verts] : groups) {
-        Cell newCell;
-        newCell.id = CellId++;
-        newCell.verts = verts;
-        newCells.push_back(std::move(newCell));
-    }
-    alpha.erase(alpha.begin() + cellIndex);
-    alpha.insert(alpha.begin() + cellIndex, newCells.begin(), newCells.end());
+    return newCells;
 }
 
 void Partition::refineGraph(const Graph &G, vector<Cell> &alpha) {
     while (!alpha.empty() and !isDiscrete()) {
         Cell W = alpha.front();
-        size_t WIndex = indexOf(W.id);
         alpha.erase(alpha.begin());
         for (auto cell : cells) {
             size_t XIdx = indexOf(cell.id);
             std::map<int, std::vector<int>> fragments = fragmentCellByCounts(G, XIdx, W.verts);
             if (fragments.size() <= 1) continue;
-            applyFragmentation(XIdx, fragments);
+            std::vector<Cell> newCells = applyFragmentation(XIdx, fragments);
             bool inAlpha = false;
             size_t index = -1;
             for (const auto& c : alpha) {
                 index++;
-                if (c.id == XIdx) {
+                if (c.id == cell.id) {
                     inAlpha = true;
                     break;
                 }
             }
             if(inAlpha){
-                applyFragmentationAlpha(index, fragments, alpha);
+                    alpha.erase(alpha.begin() + index);
+                    alpha.insert(alpha.begin() + index, newCells.begin(), newCells.end());
             }
             else{
-                std::vector<Cell> newCells;
-                for (const auto& [key, verts] : fragments) {
-                    Cell newCell;
-                    newCell.id = CellId++;
-                    newCell.verts = verts;
-                    newCells.push_back(std::move(newCell));
-                }
-
                 auto it = std::max_element(newCells.begin(), newCells.end(),
                     [](const Cell &a, const Cell &b) {
                         return a.verts.size() < b.verts.size();
@@ -164,7 +158,7 @@ const Partition::Cell& Partition::targetCellSelector() const {
     return cells[targetIndex];
 }
 
-const Partition::Cell& Partition::getCellById(int vert) const {
+const Partition::Cell& Partition::getCellByVertex(int vert) const {
     for (const auto& cell : cells) {
         if (std::find(cell.verts.begin(), cell.verts.end(), vert) != cell.verts.end()) {
             return cell;
