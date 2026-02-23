@@ -152,7 +152,7 @@ std::vector<uint8_t> Graph::nGraph6() const{
 
 int Graph::size() const { return n; }
 
-const vector<vector<int>>& Graph::getMatrix() const {
+vector<vector<int>>& Graph::getMatrix() {
     return adjMatrix;
 }
 
@@ -166,4 +166,30 @@ vector<int> Graph::getNeighbors(int v) const {
         }
     }
     return neighbors;
+}
+
+bool Graph::operator==(const Graph& other) const {
+    if (n != other.n) return false;
+    if (isDirected != other.isDirected) return false;
+    return adjMatrix == other.adjMatrix;
+}
+
+bool Graph::operator!=(const Graph& other) const {
+    return !(*this == other);
+}
+
+Graph Graph::applyPermutation(const std::vector<int>& perm) const {
+    if (perm.size() != n) {
+        throw std::invalid_argument("Permutation size does not match number of vertices");
+    }
+
+    Graph result(n, isDirected);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            result.getMatrix()[i][j] = adjMatrix[perm[i]][perm[j]];
+        }
+    }
+
+    return result;
 }

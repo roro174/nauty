@@ -23,6 +23,7 @@ public:
     Graph(const string& Graph6, bool directed = false); 
 
     void addEdge(int u, int v, int weight = 1);
+    vector<vector<int>>& getMatrix();
     void removeEdge(int u, int v);
     bool hasEdge(int u, int v) const;
     vector<int> getNeighbors(int v) const;
@@ -31,9 +32,11 @@ public:
     std::vector<uint8_t> nGraph6() const;
     void rGraph6(std::string x, std::vector<uint8_t> &result) const;
     std::string upperTriangleMatrix() const;
-
+    bool operator==(const Graph& other) const;
+    bool operator!=(const Graph& other) const;
     int size() const;
     const vector<vector<int>>& getMatrix() const;
+    Graph applyPermutation(const std::vector<int>& perm) const;
 };
 
 #endif // GRAPH_HPP
