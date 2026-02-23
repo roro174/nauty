@@ -7,6 +7,10 @@
 void refinementFunction(const Graph& G, Partition& currentPartition, Partition& BetterPartition, vector<vector<int>> &bestInvariant, vector<vector<int>> &currentInvariant, int depth = 0) {
     cout << string(depth, ' ') << "Depth: " << depth << " - Current Partition:\n";
     currentInvariant.push_back(currentPartition.InvariantTriangleByCell(G));
+    for(auto& inv : currentInvariant) {
+        for(int val : inv) cout << val << " ";
+        cout << "\n";
+    }
     if(currentPartition.isDiscrete()){
         cout << string(depth, ' ') << "Discrete partition reached.\n";
         if(!BetterPartition.isDiscrete()) {
@@ -24,19 +28,12 @@ void refinementFunction(const Graph& G, Partition& currentPartition, Partition& 
             Partition copyPartition = currentPartition;
             copyPartition.individualizeVertex(v);
             cout << string(depth, ' ') << "Individualizing vertex: " << v << "\n";
-            for(const auto& cell: copyPartition.cells) {
-                cout << string(depth, ' ') << "Cell id=" << cell.id << " size=" << cell.verts.size() << " : ";
-                for(int vert : cell.verts) cout << vert << " ";
-                cout << "\n";
-            }
             alpha.push_back(currentPartition.getCellByVertex(v));
             copyPartition.refineGraph(G,  alpha);
             refinementFunction(G, copyPartition, BetterPartition, bestInvariant, currentInvariant, depth+1);
             cout  << "return in depth: " << depth << "\n";
             alpha.pop_back();
-            cout << "here" << endl;
             currentInvariant.pop_back();
-            cout << "heure" << endl;
             }
     }
 }

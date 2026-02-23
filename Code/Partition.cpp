@@ -108,7 +108,7 @@ std::vector<Partition::Cell> Partition::applyFragmentation(size_t cellIndex, con
     return newCells;
 }
 
-void Partition::refineGraph(const Graph &G, vector<Cell> &alpha) {
+void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
     while (!alpha.empty() and !isDiscrete()) {
         Cell W = alpha.front();
         alpha.erase(alpha.begin());
@@ -171,7 +171,7 @@ const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
     vector<int> triangle(cells.size(), 0);
 
     for (size_t i = 0; i < cells.size(); ++i) {
-        const auto &verts = cells[i].verts;
+        const auto verts = cells[i].verts;
         int n = verts.size();
 
         // On parcourt tous les triplets (a,b,c) de sommets dans la cellule
