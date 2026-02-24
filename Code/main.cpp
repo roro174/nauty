@@ -4,15 +4,9 @@
 
 
 
-void refinementFunction(const Graph& G, Partition& currentPartition, Partition& BetterPartition, vector<vector<int>> &bestInvariant, vector<vector<int>> &currentInvariant, int depth = 0) {
-    cout << string(depth, ' ') << "Depth: " << depth << " - Current Partition:\n";
+void refinementFunction(const Graph& G, Partition& currentPartition, Partition& BetterPartition, vector<vector<int>> &bestInvariant, vector<vector<int>> &currentInvariant) {
     currentInvariant.push_back(currentPartition.InvariantTriangleByCell(G));
-    for(auto& inv : currentInvariant) {
-        for(int val : inv) cout << val << " ";
-        cout << "\n";
-    }
     if(currentPartition.isDiscrete()){
-        cout << string(depth, ' ') << "Discrete partition reached.\n";
         if(!BetterPartition.isDiscrete()) {
             BetterPartition = currentPartition;
             bestInvariant = currentInvariant;
@@ -27,35 +21,62 @@ void refinementFunction(const Graph& G, Partition& currentPartition, Partition& 
         for(int v : targetCell.verts){
             Partition copyPartition = currentPartition;
             copyPartition.individualizeVertex(v);
-            cout << string(depth, ' ') << "Individualizing vertex: " << v << "\n";
             alpha.push_back(currentPartition.getCellByVertex(v));
             copyPartition.refineGraph(G,  alpha);
-            refinementFunction(G, copyPartition, BetterPartition, bestInvariant, currentInvariant, depth+1);
-            cout  << "return in depth: " << depth << "\n";
+            refinementFunction(G, copyPartition, BetterPartition, bestInvariant, currentInvariant);
             alpha.pop_back();
             currentInvariant.pop_back();
             }
     }
 }
 
+#include <iostream>
+#include <vector>
+#include <string>
+
 int main(int argc, char* argv[]) {
-    if (argc > 1) {
-        std::string arg = argv[1];
-        Graph mainGraph(arg);
+    if (argc < 2) {
+        std::cout << "Usage:\n";
+        std::cout << "  iso graph6 graph6\n";
+        std::cout << "  canonical graph6\n";
+        return 1;
+    }
+
+    std::string mode = argv[1];
+    if (mode == "iso") {
+        if (argc < 4) {
+            std::cout << "Usage: iso graph6 graph6\n";
+            return 1;
+        }
+
+        std::string g1_str = argv[2];
+        std::string g2_str = argv[3];
+
+        Graph G1(g1_str);
+        Graph G2(g2_str);
+    }
+    else if (mode == "canonical") {
+        if (argc < 3) {
+            std::cout << "Usage: canonical graph6\n";
+            return 1;
+        }
+
+        std::string g_str = argv[2];
+        Graph mainGraph(g_str);
         Partition mainPartition(mainGraph.size());
         vector<Partition::Cell> alpha = mainPartition.cells;
         mainPartition.refineGraph(mainGraph, alpha);
         Partition BetterPartition = mainPartition;
         vector<vector<int>> bestInvariant;
         vector<vector<int>> currentInvariant;
-        
         refinementFunction(mainGraph, mainPartition, BetterPartition, bestInvariant, currentInvariant);
-        cout << "end" << endl;
         for(auto& cell : BetterPartition.cells) cell.print();
 
+        std::cout << "Forme canonique (graph6) : ";
+    }
 
-    } else {
-        std::cout << "Aucun argument !" << std::endl;
+    else {
+        std::cout << "Mode inconnu ! Utilise 'iso' ou 'canonical'" << std::endl;
     }
 
     return 0;
