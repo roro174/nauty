@@ -11,9 +11,6 @@ Partition::Partition(int nVertices) {
 }
 
 size_t Partition::indexOf(int cellId) const {
-        /*
-    * Normalement ici la fonction est bonne
-    */
     auto it = idToIndex.find(cellId);
     if (it == idToIndex.end()) throw runtime_error("Unknown cellId");
     return it->second;
@@ -75,7 +72,7 @@ void Partition::individualizeVertex(int v) {
     rebuildIndex();
     }
 
-std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const {
+std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int> splitterVerts) const {
     /*
     * Normalement ici la fonction est bonne
     */
@@ -112,19 +109,20 @@ void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
     while (!alpha.empty() and !isDiscrete()) {
         Cell W = alpha.front();
         alpha.erase(alpha.begin());
-        for (auto cell : cells) {
+        auto cellsCopy = cells;
+        for (auto cell : cellsCopy){
             size_t XIdx = indexOf(cell.id);
             std::map<int, std::vector<int>> fragments = fragmentCellByCounts(G, XIdx, W.verts);
             if (fragments.size() <= 1) continue;
             std::vector<Cell> newCells = applyFragmentation(XIdx, fragments);
             bool inAlpha = false;
-            size_t index = -1;
+            size_t index = 0;
             for (const auto& c : alpha) {
-                index++;
                 if (c.id == cell.id) {
                     inAlpha = true;
                     break;
                 }
+                index++;
             }
             if(inAlpha){
                     alpha.erase(alpha.begin() + index);
@@ -137,9 +135,12 @@ void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
                     }
                 );
 
-                newCells.erase(it);
-                alpha.insert(alpha.end(), newCells.begin(), newCells.end());
+                std::copy_if(newCells.begin(), newCells.end(),
+                            std::back_inserter(alpha),
+                            [&](const auto& cell){ return &cell != &(*it); });
+
             }
+
         }
     }
 }
@@ -195,4 +196,10 @@ const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
     return triangle;
 }
 
-
+const vector<int> Partition::transformCellsToInt() const {
+    vector<int> result;
+    for (const auto& cell : cells) {
+        result.push_back(cell.verts.at(0));
+    }
+    return result;
+}

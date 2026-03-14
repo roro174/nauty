@@ -178,7 +178,7 @@ bool Graph::operator!=(const Graph& other) const {
     return !(*this == other);
 }
 
-Graph Graph::applyPermutation(const std::vector<int>& perm) const {
+Graph Graph::applyPermutation(const std::vector<int> perm) const {
     if (perm.size() != n) {
         throw std::invalid_argument("Permutation size does not match number of vertices");
     }

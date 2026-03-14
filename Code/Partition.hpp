@@ -44,7 +44,7 @@ struct Partition {
 
     void individualizeVertex(int v);
 
-    std::map<int, std::vector<int>> fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int>& splitterVerts) const;
+    std::map<int, std::vector<int>> fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int> splitterVerts) const;
 
     std::vector<Cell> applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups);
 
@@ -55,6 +55,8 @@ struct Partition {
     const Cell& getCellByVertex(int vert) const;
 
     const vector<int> InvariantTriangleByCell(const Graph &G) const;
+
+    const vector<int> transformCellsToInt() const;
 };
 
 #endif

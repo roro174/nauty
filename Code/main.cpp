@@ -70,9 +70,9 @@ int main(int argc, char* argv[]) {
         vector<vector<int>> bestInvariant;
         vector<vector<int>> currentInvariant;
         refinementFunction(mainGraph, mainPartition, BetterPartition, bestInvariant, currentInvariant);
-        for(auto& cell : BetterPartition.cells) cell.print();
-
-        std::cout << "Forme canonique (graph6) : ";
+        vector<int> intBetterPartition = BetterPartition.transformCellsToInt();
+        Graph canonicalGraph = mainGraph.applyPermutation(intBetterPartition);
+        canonicalGraph.printGraph6();
     }
 
     else {

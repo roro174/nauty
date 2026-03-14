@@ -36,7 +36,7 @@ public:
     bool operator!=(const Graph& other) const;
     int size() const;
     const vector<vector<int>>& getMatrix() const;
-    Graph applyPermutation(const std::vector<int>& perm) const;
+    Graph applyPermutation(const std::vector<int> perm) const;
 };
 
 #endif // GRAPH_HPP
