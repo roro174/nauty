@@ -11,22 +11,24 @@ using namespace std;
 
 class Graph {
 private:
-    int n; // nombre de sommets
+    size_t n; // nombre de sommets
     bool isDirected;
-    std::vector<vector<int>> adjMatrix;
+    std::vector<int> adjMatrix;
 
     void buildFromGraph6(const string& graph6);
+
+    int& at(size_t i, size_t j) { return adjMatrix[i*n + j]; }
+    int at(size_t i, size_t j) const { return adjMatrix[i*n + j]; }
 
 public:
     // --- Constructeurs ---
     Graph(int numVertices, bool directed = false);   
     Graph(const string& Graph6, bool directed = false); 
 
-    void addEdge(int u, int v, int weight = 1);
-    vector<vector<int>>& getMatrix();
-    void removeEdge(int u, int v);
-    bool hasEdge(int u, int v) const;
-    vector<int> getNeighbors(int v) const;
+    void addEdge(size_t u, size_t v, int weight = 1);
+    void removeEdge(size_t u, size_t v);
+    bool hasEdge(size_t u, size_t v) const;
+    vector<int> getNeighbors(size_t v) const;
     void printMatrix() const;
     void printGraph6() const;
     std::vector<uint8_t> nGraph6() const;
@@ -35,7 +37,6 @@ public:
     bool operator==(const Graph& other) const;
     bool operator!=(const Graph& other) const;
     int size() const;
-    const vector<vector<int>>& getMatrix() const;
     Graph applyPermutation(const std::vector<int> perm) const;
 };
 
