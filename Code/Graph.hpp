@@ -14,6 +14,7 @@ private:
     size_t n; // nombre de sommets
     bool isDirected;
     std::vector<int> adjMatrix;
+    std::vector<std::vector<int>> neighbors;
 
     void buildFromGraph6(const string& graph6);
 

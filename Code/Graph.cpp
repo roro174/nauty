@@ -1,15 +1,17 @@
 #include "Graph.hpp"
-
+#include <algorithm>
 
 Graph::Graph(int numVertices, bool directed)
-    : n(numVertices), isDirected(directed), adjMatrix(numVertices*numVertices, 0) {}
+    : n(numVertices),
+      isDirected(directed),
+      adjMatrix(numVertices*numVertices, 0),
+      neighbors(numVertices) {}
 
 Graph::Graph(const string& graph6, bool directed)
     : n(0), isDirected(directed) 
 {
     buildFromGraph6(graph6);
 }
-
 
 void Graph::buildFromGraph6(const string& graph6) { 
     size_t index = 0; 
@@ -35,7 +37,9 @@ void Graph::buildFromGraph6(const string& graph6) {
         bitString += std::bitset<6>(graph6[index] - 63).to_string();
 
     bitString = bitString.substr(0, n * (n - 1) / 2);
+
     adjMatrix.assign(n*n, 0);
+    neighbors.assign(n, {});
 
     int pos = 0;
     for (size_t i = 1; i < n; ++i) {
@@ -43,22 +47,46 @@ void Graph::buildFromGraph6(const string& graph6) {
             if (bitString[pos++] == '1') {
                 at(i,j) = 1;
                 at(j,i) = 1;
+
+                neighbors[i].push_back(j);
+                neighbors[j].push_back(i);
             }
         }
     }
 }
 
-
 void Graph::addEdge(size_t u, size_t v, int weight) {
-    if (u >= n || v >= n) { cerr << "Erreur: sommet invalide\n"; return; }
+    if (u >= n || v >= n) { 
+        cerr << "Erreur: sommet invalide\n"; 
+        return; 
+    }
+
     at(u,v) = weight;
-    if (!isDirected) at(v,u) = weight;
+    neighbors[u].push_back(v);
+
+    if (!isDirected) {
+        at(v,u) = weight;
+        neighbors[v].push_back(u);
+    }
 }
 
 void Graph::removeEdge(size_t u, size_t v) {
-    if (u >= n || v >= n) { cerr << "Erreur: sommet invalide\n"; return; }
+    if (u >= n || v >= n) { 
+        cerr << "Erreur: sommet invalide\n"; 
+        return; 
+    }
+
     at(u,v) = 0;
-    if (!isDirected) at(v,u) = 0;
+
+    auto& nu = neighbors[u];
+    nu.erase(remove(nu.begin(), nu.end(), v), nu.end());
+
+    if (!isDirected) {
+        at(v,u) = 0;
+
+        auto& nv = neighbors[v];
+        nv.erase(remove(nv.begin(), nv.end(), u), nv.end());
+    }
 }
 
 bool Graph::hasEdge(size_t u, size_t v) const {
@@ -66,15 +94,9 @@ bool Graph::hasEdge(size_t u, size_t v) const {
     return at(u,v) != 0;
 }
 
-
 vector<int> Graph::getNeighbors(size_t v) const {
-    vector<int> neighbors;
-    if (v >= n) return neighbors;
-    for (size_t j = 0; j < n; ++j)
-        if (at(v,j) != 0) neighbors.push_back(j);
-    return neighbors;
+    return neighbors[v];
 }
-
 
 void Graph::printMatrix() const {
     cout << "Matrice d'adjacence (" << n << " sommets):\n";
@@ -102,7 +124,6 @@ std::string Graph::upperTriangleMatrix() const {
     return result;
 }
 
-
 void Graph::rGraph6(std::string x, std::vector<uint8_t> &result) const {
     int rest = x.size() % 6;
     if (rest != 0) x.append(6 - rest, '0'); 
@@ -128,7 +149,6 @@ std::vector<uint8_t> Graph::nGraph6() const {
     return result;
 }
 
-
 bool Graph::operator==(const Graph& other) const {
     return n == other.n && isDirected == other.isDirected && adjMatrix == other.adjMatrix;
 }
@@ -139,16 +159,17 @@ bool Graph::operator!=(const Graph& other) const {
 
 int Graph::size() const { return n; }
 
-
 Graph Graph::applyPermutation(const std::vector<int> perm) const {
     if (perm.size() != n) throw std::invalid_argument("Permutation size mismatch");
 
     Graph result(n, isDirected);
+
     for (size_t i = 0; i < n; ++i)
         for (size_t j = i; j < n; ++j) {
             int val = at(perm[i], perm[j]);
             result.at(i,j) = val;
             result.at(j,i) = val;
         }
+
     return result;
 }
