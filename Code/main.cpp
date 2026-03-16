@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         std::string g_str = argv[2];
         Graph mainGraph(g_str);
         Partition mainPartition(mainGraph.size());
-        vector<Partition::Cell> alpha = mainPartition.cells;
+        vector<Partition::Cell> alpha = mainPartition.getCells();
         mainPartition.refineGraph(mainGraph, alpha);
         Partition BetterPartition = mainPartition;
         vector<vector<int>> bestInvariant;

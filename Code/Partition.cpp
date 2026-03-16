@@ -7,6 +7,7 @@ Partition::Partition(int nVertices) {
     c.verts.resize(nVertices);
     iota(c.verts.begin(), c.verts.end(), 0);
     idToIndex[c.id] = 0;
+    for(int v : c.verts) vertexToCellId[v] = c.id;
     cells.push_back(move(c));
 }
 
@@ -19,13 +20,13 @@ size_t Partition::indexOf(int cellId) const {
 
 
 void Partition::rebuildIndex() {
-        /*
-    * Normalement ici la fonction est bonne
-    */
     idToIndex.clear();
-    for (size_t i = 0; i < cells.size(); ++i) idToIndex[cells[i].id] = i;
+    vertexToCellId.clear();
+    for (size_t i = 0; i < cells.size(); ++i) {
+        idToIndex[cells[i].id] = i;
+        for (int v : cells[i].verts) vertexToCellId[v] = cells[i].id;
+    }
 }
-
 
 
 bool Partition::isDiscrete() const {
@@ -48,16 +49,9 @@ void Partition::print() const {
 }
 
 void Partition::individualizeVertex(int v) {
-    constexpr size_t maxSizet{std::numeric_limits<size_t>::max()};
-    size_t idx = maxSizet;
-    for (size_t i = 0; i < cells.size(); ++i) {
-        for (int x : cells[i].verts) {
-            if (x == v) { idx = i; break; }
-        }
-        if (idx != maxSizet) break;
-    }
-    if (idx == maxSizet) throw std::runtime_error("Vertex not found in any cell");
-
+    auto it = vertexToCellId.find(v);
+    if (it == vertexToCellId.end()) throw runtime_error("Unknown vertex");
+    size_t idx = indexOf(it->second);
     Cell& old = cells[idx];
     if (old.verts.size() == 1) return; // déjà singleton
 
@@ -106,66 +100,59 @@ std::vector<Partition::Cell> Partition::applyFragmentation(size_t cellIndex, con
 }
 
 void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
-    while (!alpha.empty() and !isDiscrete()) {
+    while (!alpha.empty() && !isDiscrete()) {
         Cell W = alpha.front();
         alpha.erase(alpha.begin());
-        auto cellsCopy = cells;
-        for (auto cell : cellsCopy){
-            size_t XIdx = indexOf(cell.id);
+        vector<int> cellIds;
+        for (const auto& c : cells) cellIds.push_back(c.id);
+        for (int cellId : cellIds) { // parcours les id au lieu des cellules
+            size_t XIdx = indexOf(cellId);
             std::map<int, std::vector<int>> fragments = fragmentCellByCounts(G, XIdx, W.verts);
+
             if (fragments.size() <= 1) continue;
+
             std::vector<Cell> newCells = applyFragmentation(XIdx, fragments);
+
+            // Vérifie si la cellule était dans alpha
             bool inAlpha = false;
             size_t index = 0;
             for (const auto& c : alpha) {
-                if (c.id == cell.id) {
+                if (c.id == cellId) {
                     inAlpha = true;
                     break;
                 }
                 index++;
             }
-            if(inAlpha){
-                    alpha.erase(alpha.begin() + index);
-                    alpha.insert(alpha.begin() + index, newCells.begin(), newCells.end());
-            }
-            else{
+
+            if (inAlpha) {
+                alpha.erase(alpha.begin() + index);
+                alpha.insert(alpha.begin() + index, newCells.begin(), newCells.end());
+            } else {
+                // Ajouter toutes sauf la plus grande à alpha
                 auto it = std::max_element(newCells.begin(), newCells.end(),
-                    [](const Cell &a, const Cell &b) {
-                        return a.verts.size() < b.verts.size();
-                    }
-                );
-
+                                           [](const Cell &a, const Cell &b) {
+                                               return a.verts.size() < b.verts.size();
+                                           });
                 std::copy_if(newCells.begin(), newCells.end(),
-                            std::back_inserter(alpha),
-                            [&](const auto& cell){ return &cell != &(*it); });
-
+                             std::back_inserter(alpha),
+                             [&](const auto& cell){ return &cell != &(*it); });
             }
-
         }
     }
 }
 
 const Partition::Cell& Partition::targetCellSelector() const {
-    constexpr size_t maxSizet{std::numeric_limits<size_t>::max()};
-    size_t minSize = maxSizet;
-    size_t targetIndex = 0;
-    for (size_t i = 0; i < cells.size(); ++i) {
-        size_t cellSize = cells[i].verts.size();
-        if (cellSize < minSize and cellSize != 1) {
-            minSize = cellSize;
-            targetIndex = i;
-        }
-    }
-    return cells[targetIndex];
+    auto it = std::max_element(cells.begin(), cells.end(),
+        [](const Cell &a, const Cell &b) {
+            return a.verts.size() < b.verts.size(); // premier plus grand élément
+        });
+    return *it;
 }
 
 const Partition::Cell& Partition::getCellByVertex(int vert) const {
-    for (const auto& cell : cells) {
-        if (std::find(cell.verts.begin(), cell.verts.end(), vert) != cell.verts.end()) {
-            return cell;
-        }
-    }
-    throw std::runtime_error("Vertex not found in any cell");
+    auto it = vertexToCellId.find(vert);
+    if (it == vertexToCellId.end()) throw runtime_error("Unknown vertex");
+    return cells[indexOf(it->second)];
 }
 
 const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
