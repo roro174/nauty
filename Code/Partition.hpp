@@ -32,7 +32,7 @@ struct Partition {
     private:
         std::vector<Cell> cells; 
         unordered_map<int, size_t> idToIndex;
-        unordered_map<int, int> vertexToCellId;         
+        vector<int> vertexToCellId;        
         int CellId = 0;                    
 
     public:

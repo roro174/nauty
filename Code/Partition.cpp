@@ -2,12 +2,14 @@
 #include <limits>
 
 Partition::Partition(int nVertices) {
+    vertexToCellId.resize(nVertices);
     Cell c;
     c.id = CellId++;
     c.verts.resize(nVertices);
     iota(c.verts.begin(), c.verts.end(), 0);
     idToIndex[c.id] = 0;
-    for(int v : c.verts) vertexToCellId[v] = c.id;
+    for(int v : c.verts)
+        vertexToCellId[v] = c.id;
     cells.push_back(move(c));
 }
 
@@ -21,10 +23,11 @@ size_t Partition::indexOf(int cellId) const {
 
 void Partition::rebuildIndex() {
     idToIndex.clear();
-    vertexToCellId.clear();
+    vertexToCellId.assign(vertexToCellId.size(), -1);
     for (size_t i = 0; i < cells.size(); ++i) {
         idToIndex[cells[i].id] = i;
-        for (int v : cells[i].verts) vertexToCellId[v] = cells[i].id;
+        for (int v : cells[i].verts)
+            vertexToCellId[v] = cells[i].id;
     }
 }
 
@@ -49,9 +52,8 @@ void Partition::print() const {
 }
 
 void Partition::individualizeVertex(int v) {
-    auto it = vertexToCellId.find(v);
-    if (it == vertexToCellId.end()) throw runtime_error("Unknown vertex");
-    size_t idx = indexOf(it->second);
+    int cellId = vertexToCellId[v];
+    size_t idx = indexOf(cellId);
     Cell& old = cells[idx];
     if (old.verts.size() == 1) return; // déjà singleton
 
@@ -150,9 +152,9 @@ const Partition::Cell& Partition::targetCellSelector() const {
 }
 
 const Partition::Cell& Partition::getCellByVertex(int vert) const {
-    auto it = vertexToCellId.find(vert);
-    if (it == vertexToCellId.end()) throw runtime_error("Unknown vertex");
-    return cells[indexOf(it->second)];
+    int cellId = vertexToCellId[vert];
+    size_t idx = indexOf(cellId);
+    return cells[idx];    
 }
 
 const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
@@ -165,12 +167,16 @@ const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
         // On parcourt tous les triplets (a,b,c) de sommets dans la cellule
         for (int x = 0; x < n; ++x) {
             int v1 = verts[x];
+
             for (int y = x + 1; y < n; ++y) {
                 int v2 = verts[y];
-                if (!G.hasEdge(v1, v2)) continue; // arête absente, pas de triangle
+
+                if (!G.hasEdge(v1, v2)) 
+                    continue; // arête absente, pas de triangle
 
                 for (int z = y + 1; z < n; ++z) {
                     int v3 = verts[z];
+
                     // Vérifie que les 3 arêtes existent
                     if (G.hasEdge(v1, v3) && G.hasEdge(v2, v3)) {
                         triangle[i]++;
