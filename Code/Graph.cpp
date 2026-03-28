@@ -4,7 +4,7 @@
 Graph::Graph(int numVertices, bool directed)
     : n(numVertices),
       isDirected(directed),
-      adjMatrix(numVertices*numVertices, 0),
+      adjList(numVertices*numVertices, 0),
       neighbors(numVertices) {}
 
 Graph::Graph(const string& graph6, bool directed)
@@ -38,7 +38,7 @@ void Graph::buildFromGraph6(const string& graph6) {
 
     bitString = bitString.substr(0, n * (n - 1) / 2);
 
-    adjMatrix.assign(n*n, 0);
+    adjList.assign(n*n, 0);
     neighbors.assign(n, {});
 
     int pos = 0;
@@ -115,6 +115,21 @@ void Graph::printGraph6() const {
     std::cout << std::endl;
 }
 
+std::string Graph::toGraph6() const {
+    std::string bitString = upperTriangleMatrix();
+    std::vector<uint8_t> nGraph = nGraph6();
+    rGraph6(bitString, nGraph);
+
+    std::string result;
+    result.reserve(nGraph.size());
+
+    for (auto b : nGraph) {
+        result += static_cast<char>(b);
+    }
+
+    return result;
+}
+
 // --- Upper triangle ---
 std::string Graph::upperTriangleMatrix() const {
     std::string result;
@@ -150,7 +165,7 @@ std::vector<uint8_t> Graph::nGraph6() const {
 }
 
 bool Graph::operator==(const Graph& other) const {
-    return n == other.n && isDirected == other.isDirected && adjMatrix == other.adjMatrix;
+    return n == other.n && isDirected == other.isDirected && adjList == other.adjList;
 }
 
 bool Graph::operator!=(const Graph& other) const {
@@ -160,16 +175,18 @@ bool Graph::operator!=(const Graph& other) const {
 int Graph::size() const { return n; }
 
 Graph Graph::applyPermutation(const std::vector<int> perm) const {
-    if (perm.size() != n) throw std::invalid_argument("Permutation size mismatch");
+    if (perm.size() != n)
+        throw std::invalid_argument("Permutation size mismatch");
 
     Graph result(n, isDirected);
 
-    for (size_t i = 0; i < n; ++i)
-        for (size_t j = i; j < n; ++j) {
-            int val = at(perm[i], perm[j]);
-            result.at(i,j) = val;
-            result.at(j,i) = val;
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = i + 1; j < n; ++j) {
+            if (at(perm[i], perm[j]) != 0) {
+                result.addEdge(i, j);
+            }
         }
+    }
 
     return result;
 }

@@ -13,13 +13,13 @@ class Graph {
 private:
     size_t n; // nombre de sommets
     bool isDirected;
-    std::vector<int> adjMatrix;
+    std::vector<int> adjList;
     std::vector<std::vector<int>> neighbors;
 
     void buildFromGraph6(const string& graph6);
 
-    int& at(size_t i, size_t j) { return adjMatrix[i*n + j]; }
-    int at(size_t i, size_t j) const { return adjMatrix[i*n + j]; }
+    int& at(size_t i, size_t j) { return adjList[i*n + j]; }
+    int at(size_t i, size_t j) const { return adjList[i*n + j]; }
 
 public:
     // --- Constructeurs ---
@@ -39,6 +39,7 @@ public:
     bool operator!=(const Graph& other) const;
     int size() const;
     Graph applyPermutation(const std::vector<int> perm) const;
+    std::string toGraph6() const;
 };
 
 #endif // GRAPH_HPP
