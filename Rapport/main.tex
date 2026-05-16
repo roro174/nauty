@@ -96,9 +96,138 @@ Departement of Computer Science
 \chapter{Introduction}
 
 
+
 \chapter{Preliminaries}
 
 This chapter introduces all the definitions necessary to understand this document. For further details on the following concepts, refer to Reinhard Diestel’s book on graph theory~\cite{diestel2025}.
+\section{Algebra Definitions}
+
+\begin{definition}[informal]
+An \emph{isomorphism} is a one-to-one correspondence (mapping) between two sets that preserves binary relationships between elements of the sets.
+
+An \emph{automorphism} is an isomorphism from a set to itself.
+\end{definition}
+\vspace{1em}
+\begin{definition}
+
+A \emph{group} is a set with a binary operation that satisfies the following constraints: the operation is associative, it has an identity element, and every element of the set has an inverse. For example, $(\mathbb{R}, +)$ is a group: it consists of the set of real numbers with addition as the binary operation. It has as identify element : 0, every element has an inverse element (each number with its opposite) and it's associative : for all numbers $a, b, c$ in $\mathbb{R}$: $a + (b + c) = (a+b) + c$.
+
+A \emph{homomorphism} is a transformation of one set into another that preserves in the second set the relations between elements of the first. For example, given two groups, $(G, \cdot)$ and $(H, \circ)$, a \emph{group homomorphism} from $(G, \cdot)$ to $(H, \circ)$ is a function  $\phi : G \to H$  such that $\phi(g_1 \cdot g_2) = \phi(g_1)\circ\phi(g_2)$ for every $g_1, g_2 \in G_1$.
+
+Let $(G, *)$ be a group with identity element $e$, and let $X$ be a non-empty set. A \emph{group action} of $G$ on $X$ exists if there is a map
+\[
+\cdot : G \times X \to X, \quad (g, x) \mapsto g \cdot x
+\]
+such that the following two properties hold:
+\begin{enumerate}
+    \item Identity: $\forall x \in X, \quad e \cdot x = x$,
+    \item Compatibility: $\forall g, h \in G, \ \forall x \in X, \quad (g * h) \cdot x = g \cdot (h \cdot x)$.
+\end{enumerate}
+
+As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a set $X$. We indicate the action of elements of $S_n$ by exponentiation: for $x \in X$ and $g \in S_n$, $x^g$ denotes the image of $x$ under $g$. The same notation is used to indicate the induced action on complex structures derived from $X$. As additional notation, for $W \subseteq V$, we write $W^g = \{w^g : w \in W\}$.
+
+\end{definition}
+
+
+\vspace{1em}
+ 
+\begin{definition}
+An \emph{equivalence relation}, denoted by $\sim$, on a set $X$ is a binary relation that is reflexive, symmetric, and transitive.
+
+For any element $x \in X$, the \emph{equivalence class} of $x$ under $\sim$ is the subset
+\[
+[x] = \{ y \in X \mid y \sim x \}.
+\]
+
+The \emph{quotient set} of $X$ by $\sim$, denoted by
+\[
+X / {\sim} = \{ [x] \mid x \in X \},
+\]
+is the set of all equivalence classes of $X$ under $\sim$.
+\end{definition}
+
+
+
+
+
+\section{Graph Definitions}
+
+\begin{definition}\label{def:graph}
+A \emph{graph} is a pair $G = (V, E)$ of sets satisfying $E \subseteq \binom {V}{2}$; thus, the elements of $E$ are 2-element subsets of $V$. The elements of $V$ are the \emph{vertices} of the graph $G$, the elements of $E$ are its \emph{edges}.
+
+Let \emph{$V^*$} denote the set of finite sequences of vertices. For $\sigma \in V^*$, $|\sigma|$ denotes the number of components of $\sigma$.If  $\sigma = (v_1, v_2, \ldots,v_k)  \in V^*$ and $w  \in V$ then  $\sigma\mid\mid w$  denotes $(v_1, v_2, \ldots ,v_k, w)$. Furthermore, for $0 \leq s \leq k$, \\$[\sigma]_s  \coloneqq (v_1, v_2, \ldots ,v_s)$. The ordering $\leq$ on ﬁnite sequences is the lexicographic order: If $\sigma = (v_1, v_2, \ldots,v_k)$ and $\sigma' = (v'_1, v'_2, \ldots ,v'_l)$, then $\sigma \leq \sigma'$ if $\sigma$ is a preﬁx of $\sigma'$ or there is some $j \leq \min\{k, l\}$ such that $v_i = v_i'$ for $i < j$ and $v_j < v_j'$.
+
+
+
+An acyclic graph (one not containing any cycles) is called a \emph{forest}. A connected forest is called a \emph{tree}.
+
+
+Let $G=(V,E)$ be a graph. Let $\sim$ be an equivalence relation on $V$. The \emph{quotient graph} of $G$ with respect to $\sim$, denoted $G/\sim$,  is a graph $(V', E')$ such that : 
+\begin{enumerate}
+    \item $V' = V/{\sim} = \{[v] \mid v \in V\}$
+    \item $E' = \{[u][v] \mid uv \in E\}$
+\end{enumerate}
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def:class of graphs}
+We let \emph{$\mathcal G_n$} be the set of all graphs on $n$ vertices (without loss of generality, say $V = \{1, 2, \ldots, n\}$). \emph{$\mathcal{G}$} represents the set of all graphs.
+\end{definition}
+
+\subsection{Definitions specifics to isomorphisms}
+
+
+\begin{definition}\label{def: colouring}
+A \emph{colouring} of $V$ (or of $G \in \mathcal{G}$) is a surjective function $\pi$ from $V$ onto $\{1, 2,\ldots, k\}$ for some $k$. The number of colours, i.e. $k$, is denoted by $|\pi|$. A cell of $\pi$ is the set of vertices with some given colour; that is, $\pi^{-1}(j)$ for some $j$ with $1 \leq j \leq |\pi|$. We let $\Pi$ be the set of all colourings.
+
+If $\pi$, $\pi'$ are colourings, then $\pi'$ is \emph{ﬁner than or equal} to $\pi$, written $\pi' \preccurlyeq \pi$, if $\pi(v) < \pi(w) \Rightarrow \pi'(v) < \pi'(w)$ for all $v, w \in V$ (This implies that each cell of $\pi'$ is a subset of a cell of $\pi$).
+
+Here, the colouring is not related to a \textit{proper colouring}, $\pi$ is related to a \textit{partitioning}. 
+
+A \emph{discrete colouring} is a colouring in which each cell is a singleton, in which case $|\pi|= n$.
+
+A \emph{coloured graph} is a pair $(G, \pi)$ where $\pi$ is a colouring of $G$.
+
+A colouring of a graph is called \emph{equitable} if any two vertices of the same colour are adjacent to the same number of vertices of each colour. This is also called an \emph{equitable/stable partition}.
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def: action group/automorphism group}
+Let \emph{$S_n$} denote the \emph{symmetric group} acting on $V$.
+
+There are several notations to consider:
+    \begin{enumerate}
+        \item if $\pi$ is a colouring of $V$, then $\pi^g$ is the colouring with $\pi^g(v^g) =
+        \pi(v)$ for each $v \in V$.
+        \item if $(G,\pi)$ is a coloured graph, then $(G,\pi)^g = (G^g,\pi^g)$.
+    \end{enumerate}
+
+These properties show that two coloured graphs $(G, \pi)$ and $(G', \pi')$ are isomorphic iff there exists $g \in S_n$ such that $(G', \pi') = (G, \pi)^g$. In this case, we write $(G, \pi) \cong (G', \pi')$.
+
+
+$\Aut(G,\pi) = \left\{g \in  S_n : (G,\pi)^g = (G,\pi) \right\}$; $\Aut(G,\pi)$ is the \emph{Automorphism group} of coloured graph $(G,\pi)$.   
+
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def:canonical form}
+
+The \emph{canonical form} is a function
+\[
+C : \mathcal{G} \times \Pi \to \mathcal{G} \times \Pi
+\]
+
+
+such that for all  $G \in \mathcal{G},  \pi \in \Pi$ and  $g \in S_n$:
+
+\begin{enumerate}
+    \item $C(G,\pi) \cong (G,\pi)$. 
+    \item $C(G^g,\pi^g) = C(G,\pi)$.
+\end{enumerate}
+\end{definition}
 
 
 \chapter{Algorithme Nauty}
@@ -128,7 +257,7 @@ Pour construire correctement cet arbre et trouver notre forme canonique, nous au
 
   \item \it{Une fonction de raffinement}: À partir d'une séquence de vertex(partition), cette fonction va nous permettre de construire une nouvelle séquence de vertex(partition) plus fine que la précédente.
   \item \it{Une fonction de sélection de cellule(target cell Selector)}: À partir d'une séquence de vertex(partition), cette fonction va nous permettre de choisir une cellule de cette partition pour créer "l'enfant" de la partition précédente
-  \item \it{Une fonction de node invariant}:
+  \item \it{Une fonction de node invariant}: Une fonction qui va permettre de comparer de manière efficace les différentes feuilles ou Nodes de notre search tree pour trouver la forme canonique du graphe.
 \end{itemize}
 
 
@@ -339,7 +468,7 @@ Now we can define a refinement function. For a sequence of vertices $v_1 , v_2 ,
     \item and so on.
 \end{itemize}
 
-The algorithm satisfies the required properties of a refinement function and performs well in practice. However, the refinement step is the most computationally expensive part of the algorithm, which is why special care must be taken in its implementation.
+The algorithm satisfies the required properties of a refinement function and performs well in practice. However, the refinement step is the most computationally expensive part of the algorithm, which is why special care must be taken in its implementation. C'est pourquoi, pour réduire les temps de calculs, nous allons utiliser des méthodes de prunning dont nous parlerons un peu plus tard.
 
 
 \subsubsection{Implementation Target Cell Selector}
@@ -362,6 +491,48 @@ Dans notre implémentation, nous n'utiliserons que la première stratégie.
 
 \rodolphe{S'il reste du temps, intéressant de faire une comparaison entre les 2 stratégies ?}
 
+
+\subsubsection{Implementation Node Invariant}
+
+Now that the search tree is implemented, we need to define the \hyperref[def: node variant]{node invariant function}, which will allow us to determine the canonical form. To compute this function, we can rely on two related sources:
+
+\begin{enumerate}
+  \item For each node $\sigma$, there is a colouring $R(G,\pi_0, \sigma)$. We can use its properties to extract the number and size of the cells, as well as combinatorial properties of the coloured graph.
+  \item We can use the intermediate states of the colouring computation from the parent node (in the refinement algorithm), such as the position and size of the cells produced during the refinement procedure, and various edge counts determined during the computation. If $f(\sigma)$ is a function of this information—computed during the calculation of $R(G,\pi_0, \sigma)$ and from the resulting coloured graph—then the vector $(f([\sigma]_0), f([\sigma]_1), \ldots, f(\sigma))$, with lexicographic ordering, satisfies the characteristics required for a node invariant.
+  In \Naut, the second source is used: the value of $f(\sigma)$ is an integer, and the pruning rules are applied as each node is computed.
+  \end{enumerate}
+
+  Another potential method is based on the concept of the \textit{quotient graph} $Q(G,\pi)$ (see \cref{def:graph}), assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q(G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \in \pi$, possibly equal, the corresponding vertices in $Q(G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
+The node invariant already computed by \Naut{} is a deterministic function of the sequence of quotient graphs $Q(G, R(G, \pi_0, [v]_i))$ for $i = 0, \ldots, |v|$. Therefore, it would be possible to use the sequence of quotient graphs to obtain information about the cells, but this would be far too costly in both time and memory.
+  
+
+Dans notre implémentation, nous allons utiliser la première source décrite au-dessus Nous utiliserons le nombre et la taille des cellules et appliquerons des propriétés combinatoires du graphe coloré pour calculer notre invariant de noeud. Plusieurs méthodes d'invariants ont été mises en place afin de tester leur efficacité et leur rapidité de calcul. Nous allons présenter les différentes méthodes que nous avons implémentées et les résultats que nous avons obtenus pour chacune d'entre elles dans la section des résultats.
+
+\rodolphe{Bon je savais pas trop quoi dire sur la fin, dans le sens où je sais pas si je présente déjà ici mes méthodes d'invariants, (j'ai ici que le nombre de triangle dans les cellules mais je rajouterai les prochaines que vais implémenter.), ou alors comme j'ai dit, je mets dans plus dans les résultats mais en faisant ce commentaire j'ai l'impression que c'est quand même mieux ici}
+
+\subsubsection{Implementation prunning}
+
+To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define three types of pruning strategies to optimize our construction:
+
+\begin{enumerate}
+    \item  Suppose $\sigma, \sigma'$  are distinct nodes of $T(G, \pi_0)$  with  $|\sigma| = |\sigma'|$ and \\ $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma') $. Operation $P_A(\sigma, \sigma')$ is to remove  $T(G, \pi_0, \sigma')$).
+    \item  Suppose $\sigma, \sigma'$  are distinct nodes of $T(G, \pi_0)$  with  $|\sigma| = |\sigma'|$ and \\ $\phi(G,\pi_0, \sigma) \neq \phi(G,\pi_0, \sigma') $. Operation $P_B(\sigma, \sigma')$ is to remove  $T(G, \pi_0, \sigma')$.
+    \end{enumerate}
+
+  \rodolphe{J'ai retiré PC vu que ce n'est pas encore implémenté, mais je le rajouterais quand on parlera de aut(2ème partie donc)}
+
+Despite these pruning strategies, we must ensure that our search tree, along with the node invariant function, remains functionally correct. To this end, we require a theorem that guarantees the validity of the overall construction.
+
+\begin{theorem}\label{Theo: prunning}
+    Consider any $G \in \mathcal{G}$ and $\pi_0 \in \Pi$
+    \begin{itemize}
+    \item Suppose any sequence of operations of the form $P_A(\sigma, \sigma')$ or $P_C(\sigma, g)$ are performed. \\ Then there remains at least one leaf $\sigma_1$ with $\phi(G,\pi_0, \sigma_1) = \phi^*(G,\pi_0)$.
+    \item Let $\sigma_0$ be some ﬁxed leaf of $T(G, \pi_0)$. Suppose any sequence of operations of the form $P_B(\sigma, \sigma')$ $P_C(\sigma'', g)$ are performed, \\ where $\phi(G,\pi_0, \sigma'') \neq \phi(G,\pi_0, [\sigma_0]_{|\sigma''|})$. Let $g_1, \ldots, g_k$ be the automorphisms
+used in the operations $P_C$ that were performed, and let $A = \{g \in \Aut(G,\pi_0)$: $v_0^g$ is a remaining leaf\}. Then $\Aut(G,\pi_0)$ is generated by $\{g_1, \ldots, g_k\} \,\cup \, A$.
+\end{itemize}
+\end{theorem}
+
+\rodolphe{Faudrait que je refasse la preuve ici par moi-même mais ça parle de Pc, est-ce que je retirais la preuve, je ferai une mini preuve pour expliquer que même avec Pa et PB c'est good, et puis je ferai une mini preuve pour Pc quand on parlera du groupe d'automorphisme ?}
 
 
 
