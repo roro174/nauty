@@ -1,0 +1,37 @@
+\begin{tikzpicture}
+\node[refbox] (refine0)
+  {\textit{Refinement function}\\[2pt]
+   {\footnotesize\normalfont refine the initial partition}};
+
+\node[selbox, below=1.0cm of refine0] (select)
+  {\textit{Target Cell selector function}\\[2pt]
+   {\footnotesize\normalfont Select a cell to ``burst''}};
+
+\node[refbox, below=1.0cm of select] (refine1)
+  {\textit{Refinement function}\\[2pt]
+   {\footnotesize\normalfont refine the new partition with respect to the selected cell}};
+
+\node[invbox, below=1.0cm of refine1] (invar)
+  {\textit{Node invariant function}\\[2pt]
+   {\footnotesize\normalfont compute an invariant for the new partition}};
+
+% arrows between pipeline boxes
+\draw[mainarrow]
+  (refine0) -- node[right, font=\scriptsize]{$\pi_0$} (select);
+\draw[mainarrow]
+  (select)  -- node[right, font=\scriptsize]{Node $W$} (refine1);
+\draw[mainarrow]
+  (refine1) -- node[right, font=\scriptsize]{$\pi'$} (invar);
+
+
+  \coordinate (loopright) at ($(current bounding box.east)+(1,0)$);
+  \draw[looparrow]
+    (invar.east) -|
+    (loopright |- invar.east) --
+    (loopright |- select.east) --
+    (select.east);
+  \node[font=\scriptsize, rotate=90, anchor=south, xshift=0.3cm]
+    at ($(loopright |- invar.east)!0.5!(loopright |- select.east)$)
+    {repeat for each node};
+
+\end{tikzpicture}

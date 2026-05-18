@@ -19,6 +19,26 @@
 \usepackage{cancel}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric,
+                fit, backgrounds, calc}
+ 
+\tikzset{
+  stepbox/.style={
+    rectangle, rounded corners=5pt,
+    minimum width=3.8cm, minimum height=1.0cm,
+    align=center, font=\small\bfseries,
+    inner sep=6pt, draw, very thick,
+  },
+  refbox/.style={stepbox, draw=black, fill=white, text=black},
+  selbox/.style={stepbox, draw=black, fill=white, text=black},
+  invbox/.style={stepbox, draw=black, fill=white, text=black},
+  mainarrow/.style={-{Stealth[length=7pt]}, line width=1.4pt},
+  looparrow/.style={-{Stealth[length=6pt]}, line width=1.1pt, dashed, color=black},
+  every picture/.append style={node distance=1.2cm and 1.6cm},
+}
+
+
 
 
 %%%%% amsthm
@@ -44,6 +64,7 @@
 
 \newcommand{\robin}[1]{{\color{blue!60!black}[{\bf Robin:} #1]}}
 \newcommand{\rodolphe}[1]{{\color{green!60!black}[{\bf Rodolphe:} #1]}}
+
 
 \addbibresource{references.bib}
 
@@ -78,7 +99,7 @@ Departement of Computer Science
 \rule{\textwidth}{1mm} 
 \vspace*{10mm}
 
-\LARGE \textbf{Auteur~:} Rodolphe Prévot\\[0.4cm]
+\LARGE \textbf{Auteur:} Rodolphe Prévot\\[0.4cm]
 \LARGE \textbf{Promoteur~:} Robin Petit\\[0.4cm]
 \LARGE \textbf{Directeur~:} Gwenaël Joret\\
 
@@ -110,9 +131,9 @@ An \emph{automorphism} is an isomorphism from a set to itself.
 \vspace{1em}
 \begin{definition}
 
-A \emph{group} is a set with a binary operation that satisfies the following constraints: the operation is associative, it has an identity element, and every element of the set has an inverse. For example, $(\mathbb{R}, +)$ is a group: it consists of the set of real numbers with addition as the binary operation. It has as identify element : 0, every element has an inverse element (each number with its opposite) and it's associative : for all numbers $a, b, c$ in $\mathbb{R}$: $a + (b + c) = (a+b) + c$.
+A \emph{group} is a set with a binary operation that satisfies the following constraints: the operation is associative, it has an identity element, and every element of the set has an inverse. For example, $(\mathbb{R}, +)$ is a group: it consists of the set of real numbers with addition as the binary operation. It has as identify element: 0, every element has an inverse element (each number with its opposite) and it's assoc iative: for all numbers $a, b, c$ in $\mathbb{R}$: $a + (b + c) = (a+b) + c$.
 
-A \emph{homomorphism} is a transformation of one set into another that preserves in the second set the relations between elements of the first. For example, given two groups, $(G, \cdot)$ and $(H, \circ)$, a \emph{group homomorphism} from $(G, \cdot)$ to $(H, \circ)$ is a function  $\phi : G \to H$  such that $\phi(g_1 \cdot g_2) = \phi(g_1)\circ\phi(g_2)$ for every $g_1, g_2 \in G_1$.
+A \emph{homomorphism} is a transformation of one set into another that preserves in the second set the relations between elements of the first. For example, given two groups, $(G, \cdot)$ and $(H, \circ)$, a \emph{group homomorphism} from $(G, \cdot)$ to $(H, \circ)$ is a function  $\phi : G \to H$  such that $\phi(g_1 \cdot g_2) = \phi(g_1)\circ\phi(g_2)$ for every $g_1, g_2 \mathrel{\in}G_1$.
 
 Let $(G, *)$ be a group with identity element $e$, and let $X$ be a non-empty set. A \emph{group action} of $G$ on $X$ exists if there is a map
 \[
@@ -120,11 +141,11 @@ Let $(G, *)$ be a group with identity element $e$, and let $X$ be a non-empty se
 \]
 such that the following two properties hold:
 \begin{enumerate}
-    \item Identity: $\forall x \in X, \quad e \cdot x = x$,
-    \item Compatibility: $\forall g, h \in G, \ \forall x \in X, \quad (g * h) \cdot x = g \cdot (h \cdot x)$.
+    \item Identity: $\forall x \mathrel{\in}X, \quad e \cdot x = x$,
+    \item Compatibility: $\forall g, h \mathrel{\in}G, \ \forall x \mathrel{\in}X, \quad (g * h) \cdot x = g \cdot (h \cdot x)$.
 \end{enumerate}
 
-As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a set $X$. We indicate the action of elements of $S_n$ by exponentiation: for $x \in X$ and $g \in S_n$, $x^g$ denotes the image of $x$ under $g$. The same notation is used to indicate the induced action on complex structures derived from $X$. As additional notation, for $W \subseteq V$, we write $W^g = \{w^g : w \in W\}$.
+As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a set $X$. We indicate the action of elements of $S_n$ by exponentiation: for $x \mathrel{\in}X$ and $g \mathrel{\in}S_n$, $x^g$ denotes the image of $x$ under $g$. The same notation is used to indicate the induced action on complex structures derived from $X$. As additional notation, for $W \subseteq V$, we write $W^g = \{w^g : w \mathrel{\in}W\}$.
 
 \end{definition}
 
@@ -134,14 +155,14 @@ As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a se
 \begin{definition}
 An \emph{equivalence relation}, denoted by $\sim$, on a set $X$ is a binary relation that is reflexive, symmetric, and transitive.
 
-For any element $x \in X$, the \emph{equivalence class} of $x$ under $\sim$ is the subset
+For any element $x \mathrel{\in}X$, the \emph{equivalence class} of $x$ under $\sim$ is the subset
 \[
-[x] = \{ y \in X \mid y \sim x \}.
+[x] = \{ y \mathrel{\in}X \mid y \sim x \}.
 \]
 
 The \emph{quotient set} of $X$ by $\sim$, denoted by
 \[
-X / {\sim} = \{ [x] \mid x \in X \},
+X / {\sim} = \{ [x] \mid x \mathrel{\in}X \},
 \]
 is the set of all equivalence classes of $X$ under $\sim$.
 \end{definition}
@@ -155,39 +176,39 @@ is the set of all equivalence classes of $X$ under $\sim$.
 \begin{definition}\label{def:graph}
 A \emph{graph} is a pair $G = (V, E)$ of sets satisfying $E \subseteq \binom {V}{2}$; thus, the elements of $E$ are 2-element subsets of $V$. The elements of $V$ are the \emph{vertices} of the graph $G$, the elements of $E$ are its \emph{edges}.
 
-Let \emph{$V^*$} denote the set of finite sequences of vertices. For $\sigma \in V^*$, $|\sigma|$ denotes the number of components of $\sigma$.If  $\sigma = (v_1, v_2, \ldots,v_k)  \in V^*$ and $w  \in V$ then  $\sigma\mid\mid w$  denotes $(v_1, v_2, \ldots ,v_k, w)$. Furthermore, for $0 \leq s \leq k$, \\$[\sigma]_s  \coloneqq (v_1, v_2, \ldots ,v_s)$. The ordering $\leq$ on ﬁnite sequences is the lexicographic order: If $\sigma = (v_1, v_2, \ldots,v_k)$ and $\sigma' = (v'_1, v'_2, \ldots ,v'_l)$, then $\sigma \leq \sigma'$ if $\sigma$ is a preﬁx of $\sigma'$ or there is some $j \leq \min\{k, l\}$ such that $v_i = v_i'$ for $i < j$ and $v_j < v_j'$.
-
+Let \emph{$V^*$} denote the set of finite sequences of vertices. For $\sigma \mathrel{\in}V^*$, $|\sigma|$ denotes the number of components of $\sigma$.If  $\sigma= (v_1, v_2, \ldots,v_k)  \mathrel{\in}V^*$ and $w  \mathrel{\in}V$ then  $\sigma\mid\mid w$  denotes $(v_1, v_2, \ldots ,v_k, w)$. Furthermore, for $0 \leq s \leq k$, \\
+${[\sigma]}_s  \coloneqq(v_1, v_2, \ldots,v_s)$. 
 
 
 An acyclic graph (one not containing any cycles) is called a \emph{forest}. A connected forest is called a \emph{tree}.
 
 
-Let $G=(V,E)$ be a graph. Let $\sim$ be an equivalence relation on $V$. The \emph{quotient graph} of $G$ with respect to $\sim$, denoted $G/\sim$,  is a graph $(V', E')$ such that : 
+Let $G= (V,E)$ be a graph. Let $\sim$ be an equivalence relation on $V$. The \emph{quotient graph} of $G$ with respect to $\sim$, denoted $G/\sim$,  is a graph $ (V', E')$ such that: 
 \begin{enumerate}
-    \item $V' = V/{\sim} = \{[v] \mid v \in V\}$
-    \item $E' = \{[u][v] \mid uv \in E\}$
+    \item $V' = V/{\sim} = \{[v] \mathrel{|} v \mathrel{\in} V\}$
+    \item $E' = \{[u][v] \mathrel{|} uv \mathrel{\in} E\}$
 \end{enumerate}
 \end{definition}
 
 \vspace{1em}
 
 \begin{definition}\label{def:class of graphs}
-We let \emph{$\mathcal G_n$} be the set of all graphs on $n$ vertices (without loss of generality, say $V = \{1, 2, \ldots, n\}$). \emph{$\mathcal{G}$} represents the set of all graphs.
+We let \emph{$\mathcal{G}_n$} be the set of all graphs on $n$ vertices (without loss of generality, say $V = \{1, 2, \ldots, n\}$).\emph{$\mathcal{G}$} represents the set of all graphs.
 \end{definition}
 
 \subsection{Definitions specifics to isomorphisms}
 
 
 \begin{definition}\label{def: colouring}
-A \emph{colouring} of $V$ (or of $G \in \mathcal{G}$) is a surjective function $\pi$ from $V$ onto $\{1, 2,\ldots, k\}$ for some $k$. The number of colours, i.e. $k$, is denoted by $|\pi|$. A cell of $\pi$ is the set of vertices with some given colour; that is, $\pi^{-1}(j)$ for some $j$ with $1 \leq j \leq |\pi|$. We let $\Pi$ be the set of all colourings.
+A \emph{colouring} of $V$ (or of $G \mathrel{\in}\mathcal{G}$) is a surjective function $\pi$ from $V$ onto $\{1, 2,\ldots, k\}$ for some $k$. The number of colours, i.e. $k$, is denoted by $|\pi|$. A cell of $\pi$ is the set of vertices with some given colour; that is, $\pi^{-1} (j)$ for some $j$ with $1 \mathrel{\leq} j \mathrel{\leq} |\pi|$. We let $\Pi$ be the set of all colourings.
 
-If $\pi$, $\pi'$ are colourings, then $\pi'$ is \emph{ﬁner than or equal} to $\pi$, written $\pi' \preccurlyeq \pi$, if $\pi(v) < \pi(w) \Rightarrow \pi'(v) < \pi'(w)$ for all $v, w \in V$ (This implies that each cell of $\pi'$ is a subset of a cell of $\pi$).
+If $\pi$, $\pi'$ are colourings, then $\pi'$ is \emph{ﬁner than or equal} to $\pi$, written $\pi' \preccurlyeq\pi$, if $\pi(v) < \pi(w) \Rightarrow\pi' (v) < \pi' (w)$ for all $v, w \mathrel{\in}V$ (This implies that each cell of $\pi'$ is a subset of a cell of $\pi$).
 
 Here, the colouring is not related to a \textit{proper colouring}, $\pi$ is related to a \textit{partitioning}. 
 
 A \emph{discrete colouring} is a colouring in which each cell is a singleton, in which case $|\pi|= n$.
 
-A \emph{coloured graph} is a pair $(G, \pi)$ where $\pi$ is a colouring of $G$.
+A \emph{coloured graph} is a pair $ (G, \pi)$ where $\pi$ is a colouring of $G$.
 
 A colouring of a graph is called \emph{equitable} if any two vertices of the same colour are adjacent to the same number of vertices of each colour. This is also called an \emph{equitable/stable partition}.
 \end{definition}
@@ -199,15 +220,15 @@ Let \emph{$S_n$} denote the \emph{symmetric group} acting on $V$.
 
 There are several notations to consider:
     \begin{enumerate}
-        \item if $\pi$ is a colouring of $V$, then $\pi^g$ is the colouring with $\pi^g(v^g) =
-        \pi(v)$ for each $v \in V$.
-        \item if $(G,\pi)$ is a coloured graph, then $(G,\pi)^g = (G^g,\pi^g)$.
+        \item if $\pi$ is a colouring of $V$, then $\pi^g$ is the colouring with $\pi^g (v^g) =
+        \pi(v)$ for each $v \mathrel{\in}V$.
+        \item if $ (G,\pi)$ is a coloured graph, then $ {(G,\pi)}^g = (G^g,\pi^g)$.
     \end{enumerate}
 
-These properties show that two coloured graphs $(G, \pi)$ and $(G', \pi')$ are isomorphic iff there exists $g \in S_n$ such that $(G', \pi') = (G, \pi)^g$. In this case, we write $(G, \pi) \cong (G', \pi')$.
+These properties show that two coloured graphs $ (G, \pi)$ and $ (G', \pi')$ are isomorphic iff there exists $g \mathrel{\in}S_n$ such that $ (G', \pi') = {(G, \pi)}^g$. In this case, we write $ (G, \pi) \cong(G', \pi')$.
 
 
-$\Aut(G,\pi) = \left\{g \in  S_n : (G,\pi)^g = (G,\pi) \right\}$; $\Aut(G,\pi)$ is the \emph{Automorphism group} of coloured graph $(G,\pi)$.   
+$\Aut(G,\pi) = \left\{g \mathrel{\in} S_n: {(G,\pi)}^g = (G,\pi) \right\}$; $\Aut(G,\pi)$ is the \emph{Automorphism group} of coloured graph $ (G,\pi)$.   
 
 \end{definition}
 
@@ -221,52 +242,53 @@ C : \mathcal{G} \times \Pi \to \mathcal{G} \times \Pi
 \]
 
 
-such that for all  $G \in \mathcal{G},  \pi \in \Pi$ and  $g \in S_n$:
+such that for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ and  $g \mathrel{\in}S_n$:
 
 \begin{enumerate}
-    \item $C(G,\pi) \cong (G,\pi)$. 
-    \item $C(G^g,\pi^g) = C(G,\pi)$.
+    \item $C (G,\pi) \cong(G,\pi)$. 
+    \item $C (G^g,\pi^g) = C (G,\pi)$.
 \end{enumerate}
 \end{definition}
 
 
 \chapter{Algorithme Nauty}
 
-\rodolphe{je devrais peut-être mettre une vraie explication pour graph6 quelque part non?}
-\rodolphe{note pour moi-même: Je dois caser à un endroit le fait que si on prend n'importe quel feuille du graphe originel et que j'éxecute l'algorithme dessus ça va me donner exactement la même chose: preuve}
+\rodolphe{Je devrais parler de graph6 quelque part non?}
 
+In this section, we will focus extensively on McKay's general algorithm: Nauty.
 
-Dans cette partie,  nous allons nous intéresser fortement à l'algorithme général de Mckay: Nauty. 
+First, we will examine the creation of \hyperref[def:canonical form]{the canonical form} of a graph in this algorithm from a theoretical perspective. Then, we will explain the algorithm itself by presenting the different implementation strategies.
 
-Dans un premier temps, nous allons nous attarder sur la création de la forme canonique d'un graphede cette algorithme de manière théorique. Ensuite, nous allons expliciter l'algorithme en lui même, et enfin nous allons présenter une implémentation de celui-ci.
+\section{The Canonical Form}
 
-\section{Forme canonique d'un graphe}
+First of all, the algorithm itself is built upon a very specific type of tree: a search tree \rodolphe{déf de search tree au dessus}.  
+However, its particularity is that the leaves of this tree correspond to sequences of vertices \hyperref[def: colouring]{of a coloured graph}. As we move down the tree, these sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a ``controlled'' manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete.
 
-Tout d'abord, l'algorithme en lui-même est crée sur base d'un arbre très spécifique: un search Tree \rodolphe{déf de search tree au dessus + image}. 
-Cependant, sa particularité est que les feuilles de cet arbre va correspondre à une séquence de vertex d'un coloured graph rodolphe{déf de coloured graph au dessus}. And as we move down
-the tree, the sequences grow longer. These sequences define a colouring of
-the graph obtained by first assigning unique colours to the vertices in the
-sequence and then deducing, in a ”controlled” manner, the colouring of the
-remaining vertices. The leaves of this tree correspond to sequences whose
-derived colouring is discrete.\rodolphe{def de discrète au dessus}
-La racine de cet arbre sera donc la séquence "vide" ; une séquence où il n'y aura aucun vertex avec une unique couleur(crée par notre algorithme). \rodolphe{Je dois retravailler cette phrase parce qu'elle n'est pas très clair}
+The root of this tree is therefore the ``empty'' sequence; a sequence in which no vertex has a unique colour assigned by our algorithm.\rodolphe{Je dois retrwailler cette phrase parce qu'elle n'est pas très clair}
 
-Pour construire correctement cet arbre et trouver notre forme canonique, nous aurons besoin de quelque fonctions :
+To correctly construct this tree and find our canonical form, we will need several functions:
 
 \begin{itemize}
 
-  \item \it{Une fonction de raffinement}: À partir d'une séquence de vertex(partition), cette fonction va nous permettre de construire une nouvelle séquence de vertex(partition) plus fine que la précédente.
-  \item \it{Une fonction de sélection de cellule(target cell Selector)}: À partir d'une séquence de vertex(partition), cette fonction va nous permettre de choisir une cellule de cette partition pour créer "l'enfant" de la partition précédente
-  \item \it{Une fonction de node invariant}: Une fonction qui va permettre de comparer de manière efficace les différentes feuilles ou Nodes de notre search tree pour trouver la forme canonique du graphe.
+  \item \textit{A refinement function}: Starting from a  partition, this function allows us to construct a new partition that is finer than the previous one.
+  
+  \item \textit{A target cell selection function}: Starting from a partition, this function allows us to choose a cell from this partition in order to create the ``child'' of the previous partition. 
+  
+  \item \textit{A node invariant function}: A function that allows us to efficiently compare the different nodes/leaves of our search tree in order to determine the canonical form of the graph.
+  
 \end{itemize}
 
+These three functions are the fundamental components required to construct our search tree and find our canonical form. However, there exist additional functions that are more specific to the implementation of the algorithm and that will be explained in the implementation section of this document. 
 
-Ces 3 fonctions seront les fonctions de base pour construire notre search tree. Cependant, il en existe d'autres qui sont plus spécifiques à l'implémentation de l'algorithme et qui seront expliquées dans la partie implémentation de ce document.
-Avant donc de parler de l'implémentation de l'algorithme, nous allons expliquer plus en détail ces fonctions de base et comment elles sont utilisées pour construire notre search tree.
+\begin{figure}[ht]
+  \centering
+  \input{fig_search_tree.tex}
+  \caption{Construction du \textit{search tree} dans \Naut.}\label{fig:search-tree}
+\end{figure}
 
-\rodolphe{Je mettrais bien une sorte d'image pour expliquer comment on construit le search tree à partir de ces fonctions de base, en mode "on part de la racine, on applique la fonction de sélection de cellule pour choisir une cellule, ensuite on applique la fonction de raffinement pour raffiner la partition, ensuite on applique la fonction de node invariant pour calculer l'invariant du noeud, et ensuite on répète ce processus pour les enfants du noeud"}  
+Before discussing the implementation of the algorithm, we will therefore explain these fundamental functions in more detail and describe how they are used to construct our search tree.
 
-\rodolphe{Pour toutes les définitions, j'ai fait : Définition formel du papier puis définition informel/ ce que ça signifie vraiment
+\rodolphe{Pour toutes les définitions, j'ai fait: Définition formel du papier puis définition informel/ ce que ça signifie vraiment
 dis moi t'en penses quoi, sinon je laisse juste formel alors}
 \subsection{Fonction de raffinement}
 
@@ -277,20 +299,23 @@ dis moi t'en penses quoi, sinon je laisse juste formel alors}
   \]
   
   
-  such that, for all  $G \in \mathcal{G},  \pi \in \Pi$ \ and  $\sigma \in V^*$,
+  such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$,
   
   \begin{enumerate}
-      \item $R(G, \pi, \sigma) \preccurlyeq \pi$.
-      \item if  $v \in \sigma$, then \{v\} is a cell of $R(G, \pi, \sigma)$.
-      \item for any g $\in S_n$, we have $R(G^g, \pi^g, \sigma^g) = R(G, \pi, \sigma)^g$.
+      \item $R (G, \pi, \sigma) \preccurlyeq\pi$.
+      \item if  $v \mathrel{\in}\sigma$, then \{v\} is a cell of $R (G, \pi, \sigma)$.
+      \item for any g $\mathrel{\in}S_n$, we have $R (G^g, \pi^g, \sigma^g) = R {(G, \pi, \sigma)}^g$.
   \end{enumerate}
   \end{definition}
 
-  Ce qui signifie:
+  This means that:
+
   \begin{enumerate}
-    \item la fonction de raffinement renvoit un coloring plus fin que $\pi$.
-    \item si un vertex($v$) est dans la séquence de vertex($\sigma$), alors il doit être dans une cellule de taille 1 dans le coloring raffiné.
-    \item Si nous prenons une permutation de notre graphe, notre colouring, et notre séquence de vertex et que nous appliquons la fonction de raffinement à ces éléments, alors nous allons obtenir le même résultat que si nous appliquions la fonction de raffinement à notre graphe, notre coloring, et notre séquence de vertex, et que nous prenions ensuite la même permutation du résultat.
+      \item the refinement function returns a colouring that is finer than $\pi$.
+      
+      \item if a vertex ($v$) belongs to the vertex sequence ($\sigma$), then it must belong to a cell of size 1 in the refined colouring.
+      
+      \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the refinement function to these elements, we obtain the same result as if we first applied the refinement function to our graph, our colouring, and our vertex sequence, and then applied the same permutation to the resulting colouring.
   \end{enumerate}
 
 
@@ -305,59 +330,61 @@ dis moi t'en penses quoi, sinon je laisse juste formel alors}
   T : \mathcal{G} \times \Pi \times V^* \to 2^V
   \]
   
-  such that, for all  $G \in \mathcal{G},  \pi \in \Pi$ \ and  $\sigma \in V^*$
+  such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$
   
   \begin{enumerate} 
-      \item if $R(G, \pi_0, \sigma)$ is discrete, then $T(G, \pi_0, \sigma)$ = \cancel{0}.
-      \item if $R(G, \pi_0, \sigma)$ is not discrete, then $T(G, \pi_0,\sigma)$ is a non-singleton cell of $R(G, \pi_0, \sigma)$.
-     \item for any g $\in S_n$, we have $T(G^g, \pi^g, \sigma^g) = T(G, \pi, \sigma)^g$.
+      \item if $R (G, \pi_0, \sigma)$ is discrete, then $T  (G, \pi_0, \sigma)$ = \cancel{0}.
+      \item if $R (G, \pi_0, \sigma)$ is not discrete, then $T (G, \pi_0,\sigma)$ is a non-singleton cell of $R (G, \pi_0, \sigma)$.
+     \item for any g $\mathrel{\in}S_n$, we have $T (G^g, \pi^g, \sigma^g) = T {(G, \pi, \sigma)}^g$.
   \end{enumerate}
   \end{definition}
 
-  Ce qui signifie:
+  This means that:
+
   \begin{enumerate}
-    \item Si la fonction de raffinement renvoie une partition discrète(une feuille de notre search tree), alors \emph{Target cell selector function} ne doit pas renvoyer de cellule. $\rightarrow$ vide.
-    \item Si la fonction de raffinement renvoie une partition non-discrète(un node de notre search tree), alors \emph{Target cell selector function} renvoye une cellul de cette partition qui n'a pas qu'un seul élément.
-    \item Si nous prenons une permutation de notre graphe, notre colouring, et notre séquence de vertex et que nous appliquons \emph{Target cell selector function} à ces éléments, alors nous allons obtenir le même résultat que si nous appliquions \emph{Target cell selector function} à notre graphe, notre coloring, et notre séquence de vertex, et que nous prenions ensuite la même permutation du résultat.
+      \item if the refinement function returns a discrete partition (a leaf of our search tree), then the \emph{target cell selection function} must not return any cell, i.e., it returns $\emptyset$.
+      
+      \item if the refinement function returns a non-discrete partition (a node of our search tree), then the \emph{target cell selection function} returns a cell of this partition that contains more than one element.
+      
+      \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the \emph{target cell selection function} to these elements, we obtain the same result as if we first applied the \emph{target cell selection function} to our graph, our colouring, and our vertex sequence, and then applied the same permutation to the resulting cell.
   \end{enumerate}
 
   \rodolphe{Je vais surement parler un peu plus en profondeur ici, et peut-être déjà expliqué les stratégies d'implémentation dans cette partie}
 
 
 \subsection{Search Tree construction}
-
-Now that all the formal definitions of the tree have been established, we can define the search tree $\mathcal{T}(G, \pi_0)$, which depends on an initial coloured graph $(G, \pi_0)$. All the nodes of the tree are elements of $V^*$. This search tree has some characteristics to keep in mind:
+Now that all the formal definitions of the tree have been established, we can define the search tree $\mathcal{T} (G, \pi_0)$, which depends on an initial coloured graph $ (G, \pi_0)$. All the nodes of the tree are elements of $V^*$. This search tree has some characteristics to keep in mind:
 
 \begin{itemize}
-    \item The root of $\mathcal{T}(G, \pi_0)$ is the empty sequence ().
-    \item if $\sigma$ is a node of $\mathcal{T}(G, \pi_0)$, let W = $T(G, \pi_0, \sigma)$. Then the children of $\pi$ are $\{\sigma\mid\mid w: w\in W\}$.
-    \item a node $\sigma$ of $\mathcal{T}(G, \pi_0)$ is a leaf iff $R(G, \pi_0, \sigma)$ is discrete.
-    \item for any node $\sigma$ of $\mathcal{T}(G, \pi_0)$, define $\mathcal{T}(G, \pi_0, \sigma)$ to be the subtree of $\mathcal{T}(G, \pi_0)$ consisting of $\sigma$ and all its descendants.
+    \item The root of $\mathcal{T} (G, \pi_0)$ is the empty sequence ().
+    \item if $\sigma$ is a node of $\mathcal{T} (G, \pi_0)$, let W = $T (G, \pi_0, \sigma)$. Then the children of $\pi$ are $\{\sigma\mathrel{\mid}\mathrel{\mid} w: w\mathrel{\in}W\}$.
+    \item a node $\sigma$ of $\mathcal{T} (G, \pi_0)$ is a leaf iff $R (G, \pi_0, \sigma)$ is discrete.
+    \item for any node $\sigma$ of $\mathcal{T} (G, \pi_0)$, define $\mathcal{T} (G, \pi_0, \sigma)$ to be the subtree of $\mathcal{T} (G, \pi_0)$ consisting of $\sigma$ and all its descendants.
     
 \end{itemize}
 
-Pour montrer le bon fonctionnement de l'algorithme, du prunning que nous allons mettre en place et pour prouver que nous allons trouver la forme canonique du graphe, nous allons devoir prouver quelques propriétés de ce search tree.
+To demonstrate the correctness of the algorithm, the pruning procedure that we will introduce, and to prove that we indeed obtain the canonical form of the graph, we need to establish several properties of this search tree.
 
 \begin{lemma}
-  For any $G \in \mathcal{G}, \pi_0\in \Pi, g\in S_n$ we have $\mathcal{T}(G^g, \pi_0^g) = \mathcal{T}(G, \pi_0)^g $.
+  For any $G \mathrel{\in}\mathcal{G}, \pi_0\mathrel{\in}\Pi, g\mathrel{\in}S_n$ we have $\mathcal{T} (G^g, \pi_0^g) = \mathcal{T} {(G, \pi_0)}^g $.
   \end{lemma}
 
   \rodolphe{Faire la preuve}
   
   \begin{corollary}\label{cor: Corollary}
-  Let $\sigma$ be a node of $\mathcal{T}(G,\pi_0)$ and let $g \in Aut(G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T}(G,\pi_0)$ and $\mathcal{T}(G, \pi_0, \sigma^g) = \mathcal{T}(G, \pi_0, \sigma)^g$ .
+  Let $\sigma$ be a node of $\mathcal{T} (G,\pi_0)$ and let $g \mathrel{\in}Aut (G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T} (G,\pi_0)$ and $\mathcal{T} (G, \pi_0, \sigma^g) = \mathcal{T} {(G, \pi_0, \sigma)}^g$.
   \end{corollary}
 
   \rodolphe{Faire la preuve}
   
   \begin{lemma}
-      Let $\sigma$ be a node of $\mathcal{(G,\pi_0})$ and let $\pi = R(G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the point-wise stabilizer of $\sigma$ in $\Aut(G,\pi_0)$.
+      Let $\sigma$ be a node of $ (G,\pi_0)$ and let $\pi= R (G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the point-wise stabilizer of $\sigma$ in $\Aut(G,\pi_0)$.
   \end{lemma}
 
   \rodolphe{Faire la preuve}
 
 
-  Maintenant que nous avons bien défini notre search tree, nous allons pouvoir parler de la fonction de node invariant et de comment elle va nous permettre de trouver la forme canonique du graphe.
+  Now that we have properly defined our search tree, we can discuss the node invariant function and how it allows us to compute the canonical form of the graph.
 
 
 \subsection{Node Invariant}
@@ -366,25 +393,29 @@ Pour montrer le bon fonctionnement de l'algorithme, du prunning que nous allons 
   Let $\Omega$ be some totally ordered set. A \emph{Node invariant} is a function
   \[\phi : \mathcal{G} \times \Pi \times V^* \to \Omega\]
 
-  Such that, for any $\pi_0 \in \Pi$, $G \in \mathcal{G}$ and distinct $\sigma, \sigma' \in \mathcal{T}(G, \pi_0)$.
+  Such that, for any $\pi_0 \mathrel{\in}\Pi$, $G \mathrel{\in}\mathcal{G}$ and distinct $\sigma, \sigma' \mathrel{\in}\mathcal{T} (G, \pi_0)$.
 
 The function $\phi$ has a few properties to take into account:
 
   \begin{enumerate}
       \item if $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) < \phi(G,\pi_0, \sigma')$,\\
-      then for every leaf $\sigma_1 \in \mathcal{T}(G,\pi_0, \sigma)$ and leaf $\sigma_1' \in \mathcal{T}(G,\pi_0, \sigma')$ we have $\phi(G,\pi_0, \sigma_1) < \phi(G,\pi_0, \sigma_2)$.
-      \item if $\pi = R(G,\pi_0, \sigma)$ and $\pi' = R(G,\pi_0, \sigma')$ are discrete,\\
-      then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \Leftrightarrow G^\pi = G^{\pi'}$ (equality relation).
-      \item for any $g \in S_n$, we have $\phi(G^g,\pi_0^g, \sigma^g) = \phi(G,\pi_0, \sigma)$.
-      \item Leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. This is the case, if there is a unique $g \in Aut(G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R(G,\pi_0, \sigma')R(G,\pi_0, \sigma)^{-1}$. \rodolphe{Je pense que je vais retirer ça parce que je préfère parler de tout ce qui est groupe d'automorphisme dans la section prévue pour, t'en penses quoi ?}
+      then for every leaf $\sigma_1 \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma)$ and leaf $\sigma_1' \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma')$ we have $\phi(G,\pi_0, \sigma_1) < \phi(G,\pi_0, \sigma_2)$.
+      \item if $\pi= R (G,\pi_0, \sigma)$ and $\pi' = R (G,\pi_0, \sigma')$ are discrete,\\
+      then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \mathrel{\Leftrightarrow} G^\pi= G^{\pi'}$ (equality relation).
+      \item for any $g \mathrel{\in}S_n$, we have $\phi(G^g,\pi_0^g, \sigma^g) = \phi(G,\pi_0, \sigma)$.
+      \item Leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. This is the case, if there is a unique $g \mathrel{\in}Aut (G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R (G,\pi_0, \sigma') R {(G,\pi_0, \sigma)}^{-1}$.\rodolphe{Je pense que je vais retirer ça parce que je préfère parler de tout ce qui est groupe d'automorphisme dans la section prévue pour, t'en penses quoi?}
   \end{enumerate}
 \end{definition}
 
-Ce qui signifie:
+This means that:
+
 \begin{enumerate}
-  \item Si deux séquences de vertex sont égaux ( $|\sigma| = |\sigma'|$) et que $\phi(G,\pi_0, \sigma) < \phi(G,\pi_0, \sigma')$, Alors cette inégalité se propage à toutes les feuilles descendantes. Aucune feuille descendante de $\sigma$ ne peut être plus grande que n'importe quelle feuille descendante de $\sigma'$.
-  \item Si nous avons 2 colourings égaux alors, leur invariant sont égaux si et seulement si ils produisent exactement le même canonical labelling ; Leur appliquer la permutation associé à leur colouring produira exactement le même graphe.
-  \item Si nous prenons une permutation de notre graphe, notre colouring, et notre séquence de vertex et que nous appliquons \emph{Node invariant} à ces éléments, c'est équivalent à appliquer \emph{Node invariant} à notre graphe, notre coloring, et notre séquence de vertex, de base.
+  {\sloppy
+  \item if two vertex sequences are equal and $\phi$ is strictly smaller with $\sigma$ than $\sigma'$, then this inequality propagates to all descendant leaves: no leaf descending from $\sigma$ can exceed any leaf descending from $\sigma'$.}
+  
+  \item if we have two equal colourings, then their invariants are equal if and only if they produce exactly the same canonical labelling; applying the permutation associated with their colouring yields exactly the same graph.
+  
+  \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the \emph{node invariant} to these elements, it is equivalent to applying the \emph{node invariant} directly to our original graph, colouring, and vertex sequence.
 \end{enumerate}
 
 We can define the canonical form: 
@@ -397,55 +428,51 @@ We can define the canonical form:
 \subsection{Implementation strategies}
 \rodolphe{Par forcément sur de le mettre là though, donc soit là et ça fait vraiment histoire dans le sens Théorie into pratique ou bien melting pot et fusionne les 2 parties}
 
-Maintenant que nous avons toute la théorie en main, nous pouvons commencer à parler de l'implémentation de l'algorithme. Notre implémentation à nous se base sur la les définitions de l'algorithme mais sans être une pâle copie de son code source. 
+Now that we have all the theoretical tools in hand, we can begin discussing the implementation of the algorithm. Our implementation is based on the definitions of the algorithm, but it is not a direct or simplistic reproduction of its source code.
 
 \subsubsection{Implementation Refinement function}
 
-\rodolphe{Globablement ici, les 2 fonctions c'est vraiment du copier coller de mckay, je peux laisser comme ça tu crois ?}
+\rodolphe{Globablement ici, les 2 fonctions c'est vraiment du copier coller de mckay, je peux laisser comme ça tu crois?}
 
-In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. To this end, we rely on a theorem: for every colouring $\pi$, there exists a unique (up to cell ordering) coarsest equitable colouring $\pi'$ such that $\pi' \preccurlyeq \pi$.
+In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. To this end, we rely on a theorem: for every colouring $\pi$, there exists a unique (up to cell ordering) coarsest equitable colouring $\pi'$ such that $\pi' \preccurlyeq\pi$.
 
-Pour créer notre fonction de rafinement, nous aurons besoin de 2 fonctions : Une fonction qui va rafiner un colouring pour que ça devienne un colouring équitable, et une fonction d'individualisation. 
+To construct our refinement function, we need two auxiliary functions: a function that refines a colouring so that it becomes an equitable colouring, and an individualisation function.
 
 \begin{definition}\label{def:refinement_algo}
-  The function \emph{$F(G ,\pi , \alpha )$} is our refinement algorithm (implemented in a label-invariant manner).
+  The function \emph{$F (G,\pi, \alpha)$} is our refinement algorithm (implemented in a label-invariant manner).
   
   \vspace{0.5em}
   \noindent\fbox{%
-  \parbox{\linewidth}{%
-  \textit{pseudo-code of $F(G ,\pi , \alpha )$ }(from~\cite{mckay2014practical})\label{algo:refinement}
+  \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+  \textit{pseudo-code of $F (G,\pi, \alpha)$} (from~\cite{mckay2014practical})\label{algo:refinement}
   
   \vspace{0.5em}
   
   \begin{algorithmic}[1]
-  \State \textbf{Data:} $\pi$ is the input colouring and $\alpha$ is a sequence of some cells of $\pi$
-  \State \textbf{Result:} the final value of $\pi$ is the output colouring(equitable)
+  \State\textbf{Data:} $\pi$ is the input colouring and $\alpha$ is a sequence of some cells of $\pi$
+  \State\textbf{Result:} the final value of $\pi$ is the output colouring (equitable)
   
   \While{$\alpha$ is not empty \textbf{and} $\pi$ is not discrete}
-      \State Remove some element $W$ from $\alpha$
+      \State{Remove some element $W$ from $\alpha$}
       \For{each cell $X$ of $\pi$}
-          \State Let $X_1, \ldots, X_k$ be the fragments of $X$ distinguished according to the number of edges from each vertex to $W$
-          \State Replace $X$ by $X_1, \ldots, X_k$ in $\pi$
-          \If{$X \in \alpha$}
-              \State Replace $X$ by $X_1, \ldots, X_k$ in $\alpha$
-          \Else
-              \State Add all but one of the largest of $X_1, \ldots, X_k$ to $\alpha$
-          \EndIf
-      \EndFor
-  \EndWhile
-  \end{algorithmic}
+      \State\parbox[t]{0.9\linewidth}{Let $X_1, \ldots, X_k$ be the fragments of $X$ distinguished according to the number of edges from each vertex to $W$}
+          \State{Replace $X$ by $X_1, \ldots, X_k$ in $\pi$}
+          \If{$X \mathrel{\in}\alpha$}
+              \State{Replace $X$ by $X_1, \ldots, X_k$ in $\alpha$}
+          \Else\State{Add all but one of the largest of $X_1, \ldots, X_k$ to $\alpha$}
+          \EndIf\EndFor\EndWhile\end{algorithmic}
   }%
   }
   \end{definition}
 
-  \rodolphe{Faire une explication plus détaillée de l'algorithme ?}
+  \rodolphe{Faire une explication plus détaillée de l'algorithme?}
   
   \vspace{1em}
   
   \begin{definition}\label{def: individualized function}
-  The \emph{individualized function} $I : \Pi \times V \to \Pi$
+  The \emph{individualized function} $I:\Pi\mathrel{\times} V \to\Pi$
   
-  such that, if $v$ is a vertex in a non-singleton cell of $\pi$ and $\pi'$ = $I(\pi, v)$, then for $w \in V$,
+  such that, if $v$ is a vertex in a non-singleton cell of $\pi$ and $\pi'$ = $I (\pi, v)$, then for $w \mathrel{\in}V$,
   
   \[
   \pi'(w) = 
@@ -454,17 +481,17 @@ Pour créer notre fonction de rafinement, nous aurons besoin de 2 fonctions : Un
   \pi(w) + 1, & \text{otherwise}.
   \end{cases}
   \]
-  We say that the vertex $v$ is individualized in $\pi$. We see that $I(\pi, v)$ differs from $\pi$ in that a unique colour has been given to vertex v.
+  We say that the vertex $v$ is individualized in $\pi$. We see that $I (\pi, v)$ differs from $\pi$ in that a unique colour has been given to vertex v.
 \end{definition}
 
-\rodolphe{Même chose ici ? Faire une explication plus détaillée de la fonction ?}
+\rodolphe{Même chose ici? Faire une explication plus détaillée de la fonction?}
   
-Now we can define a refinement function. For a sequence of vertices $v_1 , v_2 ,\ldots,$ define
+Now we can define a refinement function. For a sequence of vertices $v_1$,$v_2$,$\ldots$, define
 \begin{itemize}
-    \item $R(G, \pi_0, ()) = F(G, \pi_0,\text{ a list of all the cells of } \pi_0)$  
-    \item $R(G, \pi_0, (v_1)) = F(G, I((R(G,\pi_0, ()), v_1), \{v_1\}))$ 
-    \item $R(G, \pi_0, (v_1, v_2)) = F(G, I((R(G,\pi_0, (v_1)), v_2), \{v_2\}))$ 
-    \item $R(G, \pi_0, (v_1, v_2, v_3)) = F(G, I((R(G,\pi_0, (v_1, v_2)), v_3), \{v_3\}))$ 
+    \item $R (G, \pi_0, ()) = F (G, \pi_0,\text{ a list of all the cells of } \pi_0)$  
+    \item $R (G, \pi_0, (v_1)) = F (G, I ((R (G,\pi_0, ()), v_1), \{v_1\}))$ 
+    \item $R (G, \pi_0, (v_1, v_2)) = F (G, I ((R (G,\pi_0, (v_1)), v_2), \{v_2\}))$ 
+    \item $R (G, \pi_0, (v_1, v_2, v_3)) = F (G, I ((R (G,\pi_0, (v_1, v_2)), v_3), \{v_3\}))$ 
     \item and so on.
 \end{itemize}
 
@@ -473,13 +500,15 @@ The algorithm satisfies the required properties of a refinement function and per
 
 \subsubsection{Implementation Target Cell Selector}
 
-\rodolphe{Même chose ici, c'est un peu du copier coller du papier de mckay, je laisse ça comme ça, ou alors je rajoute un peu de sel avec ?}
+\rodolphe{Même chose ici, c'est un peu du copier coller du papier de mckay, je laisse ça comme ça, ou alors je rajoute un peu de sel avec?}
+
+\rodolphe{Mettre pseudo-code}
 
 For the implementation of the \hyperref[def: target cell function]{target cell selection function} in the construction of the search tree, several strategies can be adopted. Choosing the right target cell at each step is important because it influences the shape and depth of the tree, and therefore the overall performance of the search.
 
 In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an orbit of the group that stabilizes the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
 
-As a result, \Naut now supports two strategies for target cell selection that we can choose:
+As a result, \Naut{} now supports two strategies for target cell selection that we can choose:
 
 \begin{enumerate}
 \item Always select the first smallest non-singleton cell.
@@ -487,9 +516,9 @@ As a result, \Naut now supports two strategies for target cell selection that we
 \end{enumerate}
 
 
-Dans notre implémentation, nous n'utiliserons que la première stratégie. 
+In our implementation we will only use the first strategy. 
 
-\rodolphe{S'il reste du temps, intéressant de faire une comparaison entre les 2 stratégies ?}
+\rodolphe{S'il reste du temps, intéressant de faire une comparaison entre les 2 stratégies?}
 
 
 \subsubsection{Implementation Node Invariant}
@@ -497,45 +526,69 @@ Dans notre implémentation, nous n'utiliserons que la première stratégie.
 Now that the search tree is implemented, we need to define the \hyperref[def: node variant]{node invariant function}, which will allow us to determine the canonical form. To compute this function, we can rely on two related sources:
 
 \begin{enumerate}
-  \item For each node $\sigma$, there is a colouring $R(G,\pi_0, \sigma)$. We can use its properties to extract the number and size of the cells, as well as combinatorial properties of the coloured graph.
-  \item We can use the intermediate states of the colouring computation from the parent node (in the refinement algorithm), such as the position and size of the cells produced during the refinement procedure, and various edge counts determined during the computation. If $f(\sigma)$ is a function of this information—computed during the calculation of $R(G,\pi_0, \sigma)$ and from the resulting coloured graph—then the vector $(f([\sigma]_0), f([\sigma]_1), \ldots, f(\sigma))$, with lexicographic ordering, satisfies the characteristics required for a node invariant.
-  In \Naut, the second source is used: the value of $f(\sigma)$ is an integer, and the pruning rules are applied as each node is computed.
+  \item For each node $\sigma$, there is a colouring $R (G,\pi_0, \sigma)$. We can use its properties to extract the number and size of the cells, as well as combinatorial properties of the coloured graph.
+  \item We can use the intermediate states of the colouring computation from the parent node (in the refinement algorithm), such as the position and size of the cells produced during the refinement procedure, and various edge counts determined during the computation. If $f (\sigma)$ is a function of this information—computed during the calculation of $R (G,\pi_0, \sigma)$ and from the resulting coloured graph—then the vector $ (f ({[\sigma]}_0), f ({[\sigma]}_1), \ldots, f (\sigma))$, with lexicographic ordering, satisfies the characteristics required for a node invariant.
+  In \Naut, the second source is used: the value of $f (\sigma)$ is an integer, and the pruning rules are applied as each node is computed.
   \end{enumerate}
 
-  Another potential method is based on the concept of the \textit{quotient graph} $Q(G,\pi)$ (see \cref{def:graph}), assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q(G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \in \pi$, possibly equal, the corresponding vertices in $Q(G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
-The node invariant already computed by \Naut{} is a deterministic function of the sequence of quotient graphs $Q(G, R(G, \pi_0, [v]_i))$ for $i = 0, \ldots, |v|$. Therefore, it would be possible to use the sequence of quotient graphs to obtain information about the cells, but this would be far too costly in both time and memory.
+  Another potential method is based on the concept of the \textit{quotient graph} $Q (G,\pi)$ (see \cref{def:graph}), assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q (G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \mathrel{\in}\pi$, possibly equal, the corresponding vertices in $Q (G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
+The node invariant already computed by \Naut{} is a deterministic function of the sequence of quotient graphs $Q (G, R (G, \pi_0, {[v]}_i))$ for $i = 0, \ldots, |v|$. Therefore, it would be possible to use the sequence of quotient graphs to obtain information about the cells, but this would be far too costly in both time and memory.
   
 
-Dans notre implémentation, nous allons utiliser la première source décrite au-dessus Nous utiliserons le nombre et la taille des cellules et appliquerons des propriétés combinatoires du graphe coloré pour calculer notre invariant de noeud. Plusieurs méthodes d'invariants ont été mises en place afin de tester leur efficacité et leur rapidité de calcul. Nous allons présenter les différentes méthodes que nous avons implémentées et les résultats que nous avons obtenus pour chacune d'entre elles dans la section des résultats.
+In our implementation, we will use the first source described above. We rely on the number and size of the cells, and we apply combinatorial properties of the coloured graph to compute our node invariant. Several invariant methods have been implemented in order to test their efficiency and computational speed. We will present the different methods we implemented, as well as the results obtained for each of them, in the results section.
 
 \rodolphe{Bon je savais pas trop quoi dire sur la fin, dans le sens où je sais pas si je présente déjà ici mes méthodes d'invariants, (j'ai ici que le nombre de triangle dans les cellules mais je rajouterai les prochaines que vais implémenter.), ou alors comme j'ai dit, je mets dans plus dans les résultats mais en faisant ce commentaire j'ai l'impression que c'est quand même mieux ici}
 
-\subsubsection{Implementation prunning}
+We will also briefly discuss the computational complexity of these different invariant methods, and how they compare to one another. Since this function is called at each node creation, it is important that its computation remains fast in order to avoid slowing down the algorithm.
 
-To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define three types of pruning strategies to optimize our construction:
+Here is the exhaustive list of invariant methods that we have implemented so far:
 
 \begin{enumerate}
-    \item  Suppose $\sigma, \sigma'$  are distinct nodes of $T(G, \pi_0)$  with  $|\sigma| = |\sigma'|$ and \\ $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma') $. Operation $P_A(\sigma, \sigma')$ is to remove  $T(G, \pi_0, \sigma')$).
-    \item  Suppose $\sigma, \sigma'$  are distinct nodes of $T(G, \pi_0)$  with  $|\sigma| = |\sigma'|$ and \\ $\phi(G,\pi_0, \sigma) \neq \phi(G,\pi_0, \sigma') $. Operation $P_B(\sigma, \sigma')$ is to remove  $T(G, \pi_0, \sigma')$.
-    \end{enumerate}
+  \item \textit{Number of triangles per cell}: for each cell of the partition, we compute the number of triangles contained in that cell. We then obtain a vector where each entry corresponds to the number of triangles in the corresponding cell. Finally, we apply a lexicographic ordering to this vector to compute our node invariant.
 
-  \rodolphe{J'ai retiré PC vu que ce n'est pas encore implémenté, mais je le rajouterais quand on parlera de aut(2ème partie donc)}
+  For counting the number of triangles in a cell, several methods are possible; the most classical one runs in $O (n^3)$, but there also exist faster approaches in \rodolphe{Pas encore codé mais ça arrive pour avoir ma complexité}.
+
+
+  \vspace{0.5em}
+  \noindent\fbox{%
+  \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+  \textit{pseudo-code of}
+  
+  \vspace{0.5em}
+  
+  \begin{algorithmic}[1]
+  \State\textbf{Data:} 
+  \State\textbf{Result:} 
+  \end{algorithmic}
+  }%
+}
+\end{enumerate}
+
+\subsubsection{Implementation prunning}
+
+To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define two types of pruning strategies to optimize our construction:
+
+$P_A (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
+
+$P_B (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) \neq\phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
+
+\rodolphe{J'ai retiré PC vu que ce n'est pas encore implémenté, mais je le rajouterais quand on parlera de aut (2ème partie donc)}
 
 Despite these pruning strategies, we must ensure that our search tree, along with the node invariant function, remains functionally correct. To this end, we require a theorem that guarantees the validity of the overall construction.
 
 \begin{theorem}\label{Theo: prunning}
-    Consider any $G \in \mathcal{G}$ and $\pi_0 \in \Pi$
+    Consider any $G \mathrel{\in}\mathcal{G}$ and $\pi_0 \mathrel{\in}\Pi$
     \begin{itemize}
-    \item Suppose any sequence of operations of the form $P_A(\sigma, \sigma')$ or $P_C(\sigma, g)$ are performed. \\ Then there remains at least one leaf $\sigma_1$ with $\phi(G,\pi_0, \sigma_1) = \phi^*(G,\pi_0)$.
-    \item Let $\sigma_0$ be some ﬁxed leaf of $T(G, \pi_0)$. Suppose any sequence of operations of the form $P_B(\sigma, \sigma')$ $P_C(\sigma'', g)$ are performed, \\ where $\phi(G,\pi_0, \sigma'') \neq \phi(G,\pi_0, [\sigma_0]_{|\sigma''|})$. Let $g_1, \ldots, g_k$ be the automorphisms
-used in the operations $P_C$ that were performed, and let $A = \{g \in \Aut(G,\pi_0)$: $v_0^g$ is a remaining leaf\}. Then $\Aut(G,\pi_0)$ is generated by $\{g_1, \ldots, g_k\} \,\cup \, A$.
+    \item Suppose any sequence of operations of the form $P_A (\sigma, \sigma')$ or $P_C (\sigma, g)$ are performed. \\ Then there remains at least one leaf $\sigma_1$ with $\phi(G,\pi_0, \sigma_1) = \phi^* (G,\pi_0)$.
+    \item Let $\sigma_0$ be some ﬁxed leaf of $T (G, \pi_0)$. Suppose any sequence of operations of the form $P_B (\sigma, \sigma')$ $P_C (\sigma'', g)$ are performed, \\ where $\phi(G,\pi_0, \sigma'') \neq\phi(G,\pi_0, {[\sigma_0]}_{|\sigma''|})$. Let $g_1, \ldots, g_k$ be the automorphisms
+used in the operations $P_C$ that were performed, and let $A = \{g \mathrel{\in}\Aut(G,\pi_0)$: $v_0^g$ is a remaining leaf\}. Then $\Aut(G,\pi_0)$ is generated by $\{g_1, \ldots, g_k\} \,\cup\, A$.
 \end{itemize}
 \end{theorem}
 
-\rodolphe{Faudrait que je refasse la preuve ici par moi-même mais ça parle de Pc, est-ce que je retirais la preuve, je ferai une mini preuve pour expliquer que même avec Pa et PB c'est good, et puis je ferai une mini preuve pour Pc quand on parlera du groupe d'automorphisme ?}
+\rodolphe{Faudrait que je refasse la preuve ici par moi-même mais ça parle de Pc, est-ce que je retirais la preuve, je ferai une mini preuve pour expliquer que même avec Pa et PB c'est good, et puis je ferai une mini preuve pour Pc quand on parlera du groupe d'automorphisme?}
 
+\subsubsection{Implementation of the search tree}
 
-
-
-\printbibliography
-\end{document}
+We can put in practice ours different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations have both type $P_A (\sigma^*, \sigma)$ and
+$P_V (\sigma_1*, \sigma)$.\rodolphe{Ça parle aussi de P\_C ici, est-ce que j'enlève?}
+\printbibliography\end{document}
