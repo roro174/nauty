@@ -17,11 +17,11 @@
 
 % arrows between pipeline boxes
 \draw[mainarrow]
-  (refine0) -- node[right, font=\scriptsize]{$\pi_0$} (select);
+  (refine0) -- node[right, font=\scriptsize]{Initial partition/Root} (select);
 \draw[mainarrow]
-  (select)  -- node[right, font=\scriptsize]{Node $W$} (refine1);
+  (select)  -- node[right, font=\scriptsize]{New branch} (refine1);
 \draw[mainarrow]
-  (refine1) -- node[right, font=\scriptsize]{$\pi'$} (invar);
+  (refine1) -- node[right, font=\scriptsize]{New node} (invar);
 
 
   \coordinate (loopright) at ($(current bounding box.east)+(1,0)$);

@@ -180,7 +180,7 @@ Let \emph{$V^*$} denote the set of finite sequences of vertices. For $\sigma \ma
 ${[\sigma]}_s  \coloneqq(v_1, v_2, \ldots,v_s)$. 
 
 
-An acyclic graph (one not containing any cycles) is called a \emph{forest}. A connected forest is called a \emph{tree}.
+An acyclic graph (one not containing any cycles) is called a \emph{forest}. A connected forest is called a \emph{tree}. Each vertex of a tree is called a \emph{node}, and a node of degree 1 (only connected to one node) is called a \emph{leaf}. When a particular node is designated as the starting point, that node is called the \emph{root}.
 
 
 Let $G= (V,E)$ be a graph. Let $\sim$ be an equivalence relation on $V$. The \emph{quotient graph} of $G$ with respect to $\sim$, denoted $G/\sim$,  is a graph $ (V', E')$ such that: 
@@ -253,18 +253,25 @@ such that for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ and  $g \m
 
 \chapter{Algorithme Nauty}
 
-\rodolphe{Je devrais parler de graph6 quelque part non?}
 
 In this section, we will focus extensively on McKay's general algorithm: Nauty.
 
-First, we will examine the creation of \hyperref[def:canonical form]{the canonical form} of a graph in this algorithm from a theoretical perspective. Then, we will explain the algorithm itself by presenting the different implementation strategies.
 
-\section{The Canonical Form}
+\section{Introduction de l'algorithme}
+L'algorithme de Nauty va se baser sur \hyperref[def:canonical form]{la forme canonique} pour arriver à son but final: trouver une labellisation canonique d'un graphe, et ainsi trouver son groupe d'automorphisme. Mais concrètement, pourquoi est-ce que la forme canonique est si importante? En quoi est-ce que c'est un outil puissant pour trouver une labellisation canonique d'un graphe?
 
-First of all, the algorithm itself is built upon a very specific type of tree: a search tree \rodolphe{déf de search tree au dessus}.  
-However, its particularity is that the leaves of this tree correspond to sequences of vertices \hyperref[def: colouring]{of a coloured graph}. As we move down the tree, these sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a ``controlled'' manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete.
+La forme canonique va permettre de coutourner la difficulté du problème d'isomorphisme: plutôt que de comparer deux graphes entre eux, on associe à chaque graphe un représentant unique et standard, appelé graphe canonique (ou canonical form). Deux graphes sont alors isomorphes si et seulement si leurs formes canoniques sont identiques. Cela transforme donc un problème d'équivalence en un problème d'égalité, ce qui est, beaucoup plus facile à résoudre. Cependant, Comment Nauty arrive à la construire? Comment est-ce que l'algorithme arrive à trouver cette forme canonique? C'est ce que nous allons expliquer dans les sections suivantes.
 
-The root of this tree is therefore the ``empty'' sequence; a sequence in which no vertex has a unique colour assigned by our algorithm.\rodolphe{Je dois retrwailler cette phrase parce qu'elle n'est pas très clair}
+Nous allons donc commencer par introduire l'algorithme même et expliquer les différentes fonctions qui le composent, ainsi que la manière de trouver la forme canonique du graphe. Ensuite, nous parlerons de la construction du groupe d'automorphisme à partir de la forme canonique. 
+
+
+\section{Search Tree construction}
+
+First of all, the algorithm itself is built upon a very specific type of \hyperref[def:graph]{tree}: a search tree.
+
+De manière informel, un search tree est un arbre de recherche dans lequel, chaque noeud est un état, et chaque branche va correspondre à une action faite qui sera donc différente pour chaque branche. Ça va nous permettre d'explorer tous les états possibles à partir d'un état initial, et de trouver l'état final que nous cherchons. Nous faisons donc bien de la recherche sur un arbre, d'où le nom de search tree.
+
+However, its particularity is that the leaves of this tree correspond to sequences of vertices \hyperref[def: colouring]{of a coloured graph}. As we move down the tree, these sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a ``controlled'' manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete.The root of this tree is therefore the ``empty'' sequence. 
 
 To correctly construct this tree and find our canonical form, we will need several functions:
 
@@ -278,7 +285,15 @@ To correctly construct this tree and find our canonical form, we will need sever
   
 \end{itemize}
 
-These three functions are the fundamental components required to construct our search tree and find our canonical form. However, there exist additional functions that are more specific to the implementation of the algorithm and that will be explained in the implementation section of this document. 
+These three functions are the fundamental components required to construct our search tree and find our canonical form. Before defining them formally, we will informally explain how they work and how they interact with each other to build our search tree.
+
+Starting from a graph, we first apply the refinement function to obtain a so-called equitable partition (we will come back to this later when discussing the implementation of this function). This partition constitutes the root of our search tree.
+
+Then, as long as we do not have a discrete partition, we apply the target cell selector to choose a cell from the current partition. Each branch represents a choice of element from the parent node's selected cell. This cell is then split into two cells using an individualisation method (which will also be detailed later). For each branch, we apply the refinement function again to obtain a new partition, thereby creating a new node. Finally, on each node, we apply the node invariant function, which will be useful for determining the canonical form of our graph. We repeat this process until we obtain discrete partitions, which correspond to the leaves of our search tree. In summary, each node represents a partition, and each branch represents a cell chosen from the parent node to be individualised.
+
+However, there exist additional functions that are more specific to the implementation of the algorithm and that will be explained in the implementation section of this document.
+
+
 
 \begin{figure}[ht]
   \centering
@@ -286,11 +301,10 @@ These three functions are the fundamental components required to construct our s
   \caption{Construction du \textit{search tree} dans \Naut.}\label{fig:search-tree}
 \end{figure}
 
-Before discussing the implementation of the algorithm, we will therefore explain these fundamental functions in more detail and describe how they are used to construct our search tree.
 
-\rodolphe{Pour toutes les définitions, j'ai fait: Définition formel du papier puis définition informel/ ce que ça signifie vraiment
-dis moi t'en penses quoi, sinon je laisse juste formel alors}
-\subsection{Fonction de raffinement}
+Maintenant, que nous avons bien mis en place les différentes fonctions qui composent notre algorithme, nous allons pouvoir les définir formellement et établir les propriétés de notre search tree.
+
+\subsection{Formal definitions of the search tree functions}
 
 \begin{definition}\label{def: refinement function}
   The \emph{Refinement function } is a function
@@ -319,11 +333,6 @@ dis moi t'en penses quoi, sinon je laisse juste formel alors}
   \end{enumerate}
 
 
-\rodolphe{Je vais surement parler un peu plus en profondeur ici, et peut-être déjà expliqué les stratégies d'implémentation dans cette partie}
-
-
-\subsection{Target Cell Selection}
-
 \begin{definition}\label{def: target cell function}
   The \emph{Target cell selector function} is a function  
   \[
@@ -349,10 +358,7 @@ dis moi t'en penses quoi, sinon je laisse juste formel alors}
       \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the \emph{target cell selection function} to these elements, we obtain the same result as if we first applied the \emph{target cell selection function} to our graph, our colouring, and our vertex sequence, and then applied the same permutation to the resulting cell.
   \end{enumerate}
 
-  \rodolphe{Je vais surement parler un peu plus en profondeur ici, et peut-être déjà expliqué les stratégies d'implémentation dans cette partie}
 
-
-\subsection{Search Tree construction}
 Now that all the formal definitions of the tree have been established, we can define the search tree $\mathcal{T} (G, \pi_0)$, which depends on an initial coloured graph $ (G, \pi_0)$. All the nodes of the tree are elements of $V^*$. This search tree has some characteristics to keep in mind:
 
 \begin{itemize}
@@ -363,19 +369,68 @@ Now that all the formal definitions of the tree have been established, we can de
     
 \end{itemize}
 
+\rodolphe{Rédiger une explication non-formelle sur les propriétés}
+
 To demonstrate the correctness of the algorithm, the pruning procedure that we will introduce, and to prove that we indeed obtain the canonical form of the graph, we need to establish several properties of this search tree.
 
 \begin{lemma}
   For any $G \mathrel{\in}\mathcal{G}, \pi_0\mathrel{\in}\Pi, g\mathrel{\in}S_n$ we have $\mathcal{T} (G^g, \pi_0^g) = \mathcal{T} {(G, \pi_0)}^g $.
   \end{lemma}
-
-  \rodolphe{Faire la preuve}
+  \begin{proof}
+    Let $\sigma = (\sigma_1, \ldots, \sigma_k)$ be a node of $\mathcal{T}(G, \pi_0)$. We first show that
+    $\mathcal{T}{(G, \pi_0)}^g \subseteq\mathcal{T}(G^g, \pi_0^g)$. Such that $\sigma^g = (\sigma_1^g, \ldots, \sigma_k^g)$
+    is a node of $\mathcal{T}(G^g, \pi_0^g)$.
+    
+    We proceed by induction on $s$, for $0 \leq s \leq k$, showing that ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of $\mathcal{T}(G^g, \pi_0^g)$.
+    
+    \textbf{Base case} ($s = 0$): The empty sequence $()$ is the root of any search tree.
+    So ${[\sigma^g]}_0$ is trivially a node of $\mathcal{T}(G^g, \pi_0^g)$.
+    
+    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (v_1^g, \ldots, v_s^g)$ is a node of
+    $\mathcal{T}(G^g, \pi_0^g)$. Since $(\sigma_1, \ldots, \sigma_s, \sigma_{s+1})$ is a node of
+    $\mathcal{T}(G, \pi_0)$, the element $\sigma_{s+1}$ was individualised to go from level $s$
+    to level $s+1$. Since we apply $g$ to the entire structure, $\sigma_{s+1}$ is also mapped
+    to $\sigma_{s+1}^g$, which is equivalent to directly individualising $\sigma_{s+1}^g$ in $G^g$
+    with $\pi_0^g$. Hence ${[\sigma^g]}_{s+1} = (\sigma_1^g, \ldots, \sigma_s^g, \sigma_{s+1}^g)$ is a node of
+    $\mathcal{T}(G^g, \pi_0^g)$.
+    
+    By induction, $\sigma^g$ is a node of $\mathcal{T}(G^g, \pi_0^g)$, hence
+    $\mathcal{T}{(G, \pi_0)}^g \subseteq \mathcal{T}(G^g, \pi_0^g)$.
+    
+    The reverse inclusion follows by applying the same argument with $g^{-1}$
+    in place of $g$, which gives
+    $\mathcal{T}{(G^g, \pi_0^g)}^{g^{-1}} \subseteq \mathcal{T}(G, \pi_0)$,
+    and therefore $\mathcal{T}(G^g, \pi_0^g) \subseteq \mathcal{T}{(G, \pi_0)}^g$.
+    \end{proof}
   
   \begin{corollary}\label{cor: Corollary}
   Let $\sigma$ be a node of $\mathcal{T} (G,\pi_0)$ and let $g \mathrel{\in}Aut (G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T} (G,\pi_0)$ and $\mathcal{T} (G, \pi_0, \sigma^g) = \mathcal{T} {(G, \pi_0, \sigma)}^g$.
   \end{corollary}
 
-  \rodolphe{Faire la preuve}
+  \begin{proof}
+    \leavevmode\\
+    \textbf{Part 1:} $\sigma^g$ is a node of $\mathcal{T}(G, \pi_0)$.\\
+    By Lemma 1, we have:
+    \[
+    \mathcal{T}(G^{g}, \pi_0^{g}) = \mathcal{T}{(G, \pi_0)}^{g}
+    \]
+    Since $g \in \text{Aut}(G, \pi_0)$, we have $G^g = G$ and $\pi_0^g = \pi_0$, and therefore:
+    \[
+    \mathcal{T}(G, \pi_0) = \mathcal{T}{(G, \pi_0)}^{g}
+    \]
+    Since $\sigma$ is a node of $\mathcal{T}(G, \pi_0)$, $\sigma^g$ is a node of
+    $\mathcal{T}{(G, \pi_0)}^g = \mathcal{T}(G, \pi_0)$.
+    
+    \textbf{Part 2:} $\mathcal{T}(G, \pi_0, \sigma^g) = \mathcal{T}{(G, \pi_0, \sigma)}^g$\\
+    We apply Lemma 1 to the subtree rooted at $\sigma$. Since $g$ maps each node
+    of the subtree rooted at $\sigma$ to a node of the subtree rooted at $\sigma^g$,
+    and since $g \in \text{Aut}(G, \pi_0)$ implies $G^g = G$ and $\pi_0^g = \pi_0$,
+    the same argument as in Lemma 1 gives both inclusions:
+    \[\mathcal{T}{(G, \pi_0, \sigma)}^g \subseteq \mathcal{T}(G, \pi_0, \sigma^g)
+    \quad \text{and} \quad
+    \mathcal{T}(G, \pi_0, \sigma^g) \subseteq \mathcal{T}{(G, \pi_0, \sigma)}^g\]
+    and therefore $\mathcal{T}(G, \pi_0, \sigma^g) = \mathcal{T}{(G, \pi_0, \sigma)}^g$.
+    \end{proof}
   
   \begin{lemma}
       Let $\sigma$ be a node of $ (G,\pi_0)$ and let $\pi= R (G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the point-wise stabilizer of $\sigma$ in $\Aut(G,\pi_0)$.
@@ -386,8 +441,6 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
 
   Now that we have properly defined our search tree, we can discuss the node invariant function and how it allows us to compute the canonical form of the graph.
 
-
-\subsection{Node Invariant}
 
 \begin{definition}\label{def: node variant}
   Let $\Omega$ be some totally ordered set. A \emph{Node invariant} is a function
@@ -426,13 +479,11 @@ We can define the canonical form:
 
 
 \subsection{Implementation strategies}
-\rodolphe{Par forcément sur de le mettre là though, donc soit là et ça fait vraiment histoire dans le sens Théorie into pratique ou bien melting pot et fusionne les 2 parties}
 
 Now that we have all the theoretical tools in hand, we can begin discussing the implementation of the algorithm. Our implementation is based on the definitions of the algorithm, but it is not a direct or simplistic reproduction of its source code.
 
 \subsubsection{Implementation Refinement function}
 
-\rodolphe{Globablement ici, les 2 fonctions c'est vraiment du copier coller de mckay, je peux laisser comme ça tu crois?}
 
 In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. To this end, we rely on a theorem: for every colouring $\pi$, there exists a unique (up to cell ordering) coarsest equitable colouring $\pi'$ such that $\pi' \preccurlyeq\pi$.
 
