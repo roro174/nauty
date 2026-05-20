@@ -4,6 +4,7 @@
 \usepackage{mathtools}
 \usepackage[style=trad-abbrv]{biblatex}
 
+\usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{float}
@@ -37,8 +38,6 @@
   looparrow/.style={-{Stealth[length=6pt]}, line width=1.1pt, dashed, color=black},
   every picture/.append style={node distance=1.2cm and 1.6cm},
 }
-
-
 
 
 %%%%% amsthm
@@ -148,6 +147,17 @@ such that the following two properties hold:
 As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a set $X$. We indicate the action of elements of $S_n$ by exponentiation: for $x \mathrel{\in}X$ and $g \mathrel{\in}S_n$, $x^g$ denotes the image of $x$ under $g$. The same notation is used to indicate the induced action on complex structures derived from $X$. As additional notation, for $W \subseteq V$, we write $W^g = \{w^g : w \mathrel{\in}W\}$.
 
 \end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def:pointwise stabilizer}
+  Let a group $G$ act on a set $X$, and let $S \subseteq X$.  
+  The \emph{pointwise stabilizer} of $S$ in $G$ is the subgroup defined by:
+  \[
+  G_{(S)} = \{ g \in G \mid \forall x \in S,\; g \cdot x = x \}.
+  \]
+\end{definition}
+
 
 
 \vspace{1em}
@@ -315,12 +325,18 @@ Maintenant, que nous avons bien mis en place les différentes fonctions qui comp
   
   such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$,
   
-  \begin{enumerate}
-      \item $R (G, \pi, \sigma) \preccurlyeq\pi$.
-      \item if  $v \mathrel{\in}\sigma$, then \{v\} is a cell of $R (G, \pi, \sigma)$.
-      \item for any g $\mathrel{\in}S_n$, we have $R (G^g, \pi^g, \sigma^g) = R {(G, \pi, \sigma)}^g$.
-  \end{enumerate}
-  \end{definition}
+  \begin{enumerate}[label=\textit{R\arabic*.}]
+    \item $R (G, \pi, \sigma) \preccurlyeq\pi$.
+    
+    \item\label{RefinementRule:singleton}
+     if $\sigma_i \mathrel{\in}\sigma$, then \{$\sigma_i$\} is a cell of
+    $R (G, \pi, \sigma)$.
+    
+    \item\label{RefinementRule:equivariance}
+    for any $g \mathrel{\in} S_n$, we have
+    $R (G^g, \pi^g, \sigma^g) = R {(G, \pi, \sigma)}^g$.
+\end{enumerate}
+\end{definition}
 
   This means that:
 
@@ -332,7 +348,7 @@ Maintenant, que nous avons bien mis en place les différentes fonctions qui comp
       \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the refinement function to these elements, we obtain the same result as if we first applied the refinement function to our graph, our colouring, and our vertex sequence, and then applied the same permutation to the resulting colouring.
   \end{enumerate}
 
-
+\vspace{0.5em}
 \begin{definition}\label{def: target cell function}
   The \emph{Target cell selector function} is a function  
   \[
@@ -341,7 +357,7 @@ Maintenant, que nous avons bien mis en place les différentes fonctions qui comp
   
   such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$
   
-  \begin{enumerate} 
+  \begin{enumerate}[label=\textit{T\arabic*.}]
       \item if $R (G, \pi_0, \sigma)$ is discrete, then $T  (G, \pi_0, \sigma)$ = \cancel{0}.
       \item if $R (G, \pi_0, \sigma)$ is not discrete, then $T (G, \pi_0,\sigma)$ is a non-singleton cell of $R (G, \pi_0, \sigma)$.
      \item for any g $\mathrel{\in}S_n$, we have $T (G^g, \pi^g, \sigma^g) = T {(G, \pi, \sigma)}^g$.
@@ -373,9 +389,13 @@ Now that all the formal definitions of the tree have been established, we can de
 
 To demonstrate the correctness of the algorithm, the pruning procedure that we will introduce, and to prove that we indeed obtain the canonical form of the graph, we need to establish several properties of this search tree.
 
+\vspace{0.5em}
+
 \begin{lemma}
   For any $G \mathrel{\in}\mathcal{G}, \pi_0\mathrel{\in}\Pi, g\mathrel{\in}S_n$ we have $\mathcal{T} (G^g, \pi_0^g) = \mathcal{T} {(G, \pi_0)}^g $.
   \end{lemma}
+
+\vspace{-0.7em}
   \begin{proof}
     Let $\sigma = (\sigma_1, \ldots, \sigma_k)$ be a node of $\mathcal{T}(G, \pi_0)$. We first show that
     $\mathcal{T}{(G, \pi_0)}^g \subseteq\mathcal{T}(G^g, \pi_0^g)$. Such that $\sigma^g = (\sigma_1^g, \ldots, \sigma_k^g)$
@@ -386,7 +406,7 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
     \textbf{Base case} ($s = 0$): The empty sequence $()$ is the root of any search tree.
     So ${[\sigma^g]}_0$ is trivially a node of $\mathcal{T}(G^g, \pi_0^g)$.
     
-    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (v_1^g, \ldots, v_s^g)$ is a node of
+    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of
     $\mathcal{T}(G^g, \pi_0^g)$. Since $(\sigma_1, \ldots, \sigma_s, \sigma_{s+1})$ is a node of
     $\mathcal{T}(G, \pi_0)$, the element $\sigma_{s+1}$ was individualised to go from level $s$
     to level $s+1$. Since we apply $g$ to the entire structure, $\sigma_{s+1}$ is also mapped
@@ -407,6 +427,7 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
   Let $\sigma$ be a node of $\mathcal{T} (G,\pi_0)$ and let $g \mathrel{\in}Aut (G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T} (G,\pi_0)$ and $\mathcal{T} (G, \pi_0, \sigma^g) = \mathcal{T} {(G, \pi_0, \sigma)}^g$.
   \end{corollary}
 
+\vspace{-0.7em}
   \begin{proof}
     \leavevmode\\
     \textbf{Part 1:} $\sigma^g$ is a node of $\mathcal{T}(G, \pi_0)$.\\
@@ -433,15 +454,37 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
     \end{proof}
   
   \begin{lemma}
-      Let $\sigma$ be a node of $ (G,\pi_0)$ and let $\pi= R (G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the point-wise stabilizer of $\sigma$ in $\Aut(G,\pi_0)$.
+      Let $\sigma$ be a node of $ (G,\pi_0)$ and let $\pi= R (G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the   \hyperref[def:pointwise stabilizer]{point-wise stabilizer} of $\sigma$ in $\Aut(G,\pi_0)$.
   \end{lemma}
 
-  \rodolphe{Faire la preuve}
+
+
+\vspace{-0.7em}
+  \begin{proof}
+    We show both inclusions to establish the equality.
+
+    \textbf{Part 1:} $\text{Aut}(G, \pi) \subseteq$ point-wise stabilizer of $\sigma$\\
+    Let $g \in \text{Aut}(G, \pi)$. By \hyperref[RefinementRule:singleton]{R2}, for each $\sigma_i \in \sigma$, $\{\sigma_i\}$ is a singleton
+    cell of $\pi = R(G, \pi_0, \sigma)$. Since $g$ is an automorphism of $(G, \pi)$, it must
+    map each cell of $\pi$ to a cell of $\pi$. A singleton $\{\sigma_i\}$ can only be mapped to
+    itself, hence $\sigma_i^g = \sigma_i$ for every $\sigma_i \in \sigma$, so $g$ stabilizes $\sigma$ point-wise.
+    
+    \textbf{Part 2:} point-wise stabilizer of $\sigma$ $\subseteq \text{Aut}(G, \pi)$\\
+    Let $g \in \text{Aut}(G, \pi_0)$ be such that $g$ stabilizes $\sigma$ point-wise, that is
+    $\sigma^g = \sigma$. We want to show that $g \in \text{Aut}(G, \pi)$. So, $\pi^g = \pi$.
+    By \hyperref[RefinementRule:equivariance]{R3} applied to $G$, $\pi_0$ and $\sigma$:
+    \[R(G^g, \pi_0^g, \sigma^g) = R{(G, \pi_0, \sigma)}^g\]
+    Since $g \in \text{Aut}(G, \pi_0)$, we have $G^g = G$ and $\pi_0^g = \pi_0$, and since
+    $g$ stabilizes $\sigma$ point-wise, $\sigma^g = \sigma$. Therefore:
+    \[  R(G, \pi_0, \sigma) = R{(G, \pi_0, \sigma)}^g\]
+    which gives exactly $\pi = \pi^g$, and hence $g \in \text{Aut}(G, \pi)$.
+    \end{proof}
 
 
   Now that we have properly defined our search tree, we can discuss the node invariant function and how it allows us to compute the canonical form of the graph.
 
 
+\vspace{0.5em} 
 \begin{definition}\label{def: node variant}
   Let $\Omega$ be some totally ordered set. A \emph{Node invariant} is a function
   \[\phi : \mathcal{G} \times \Pi \times V^* \to \Omega\]
@@ -456,7 +499,7 @@ The function $\phi$ has a few properties to take into account:
       \item if $\pi= R (G,\pi_0, \sigma)$ and $\pi' = R (G,\pi_0, \sigma')$ are discrete,\\
       then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \mathrel{\Leftrightarrow} G^\pi= G^{\pi'}$ (equality relation).
       \item for any $g \mathrel{\in}S_n$, we have $\phi(G^g,\pi_0^g, \sigma^g) = \phi(G,\pi_0, \sigma)$.
-      \item Leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. This is the case, if there is a unique $g \mathrel{\in}Aut (G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R (G,\pi_0, \sigma') R {(G,\pi_0, \sigma)}^{-1}$.\rodolphe{Je pense que je vais retirer ça parce que je préfère parler de tout ce qui est groupe d'automorphisme dans la section prévue pour, t'en penses quoi?}
+      \item Leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. This is the case, if there is a unique $g \mathrel{\in}Aut (G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R (G,\pi_0, \sigma') R {(G,\pi_0, \sigma)}^{-1}$.
   \end{enumerate}
 \end{definition}
 
@@ -469,6 +512,7 @@ This means that:
   \item if we have two equal colourings, then their invariants are equal if and only if they produce exactly the same canonical labelling; applying the permutation associated with their colouring yields exactly the same graph.
   
   \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the \emph{node invariant} to these elements, it is equivalent to applying the \emph{node invariant} directly to our original graph, colouring, and vertex sequence.
+  \item \rodolphe{Faire explication 4}
 \end{enumerate}
 
 We can define the canonical form: 
