@@ -268,18 +268,20 @@ In this section, we will focus extensively on McKay's general algorithm: Nauty.
 
 
 \section{Introduction de l'algorithme}
-L'algorithme de Nauty va se baser sur \hyperref[def:canonical form]{la forme canonique} pour arriver à son but final: trouver une labellisation canonique d'un graphe, et ainsi trouver son groupe d'automorphisme. Mais concrètement, pourquoi est-ce que la forme canonique est si importante? En quoi est-ce que c'est un outil puissant pour trouver une labellisation canonique d'un graphe?
+Nauty relies on the notion of a \hyperref[def:canonical form]{canonical form} to achieve its main objective: finding a canonical labeling of a graph and, consequently, determining its automorphism group. But why is the canonical form so important in practice? Why is it such a powerful tool for computing a canonical labeling?
 
-La forme canonique va permettre de coutourner la difficulté du problème d'isomorphisme: plutôt que de comparer deux graphes entre eux, on associe à chaque graphe un représentant unique et standard, appelé graphe canonique (ou canonical form). Deux graphes sont alors isomorphes si et seulement si leurs formes canoniques sont identiques. Cela transforme donc un problème d'équivalence en un problème d'égalité, ce qui est, beaucoup plus facile à résoudre. Cependant, Comment Nauty arrive à la construire? Comment est-ce que l'algorithme arrive à trouver cette forme canonique? C'est ce que nous allons expliquer dans les sections suivantes.
+The canonical form allows us to bypass the intrinsic difficulty of the graph isomorphism problem. Instead of directly comparing two graphs, we associate each graph with a unique and standardized representative, called its canonical graph (or canonical form). Two graphs are then isomorphic if and only if their canonical forms are identical. In this way, an equivalence problem is transformed into an equality problem, which is significantly easier to handle computationally.
 
-Nous allons donc commencer par introduire l'algorithme même et expliquer les différentes fonctions qui le composent, ainsi que la manière de trouver la forme canonique du graphe. Ensuite, nous parlerons de la construction du groupe d'automorphisme à partir de la forme canonique. 
+However, how does Nauty actually construct this canonical form? How does the algorithm determine such a representative? These are the questions we address in the following sections.
+
+We begin by introducing the algorithm itself and describing the different functions that compose it, as well as the process used to compute the canonical form of a graph. We then explain how the automorphism group can be constructed from this canonical form.
 
 
 \section{Search Tree construction}
 
 First of all, the algorithm itself is built upon a very specific type of \hyperref[def:graph]{tree}: a search tree.
 
-De manière informel, un search tree est un arbre de recherche dans lequel, chaque noeud est un état, et chaque branche va correspondre à une action faite qui sera donc différente pour chaque branche. Ça va nous permettre d'explorer tous les états possibles à partir d'un état initial, et de trouver l'état final que nous cherchons. Nous faisons donc bien de la recherche sur un arbre, d'où le nom de search tree.
+Informally, a search tree is a tree structure in which each node represents a state, and each branch corresponds to a specific action leading to another state. Since different actions produce different branches, the tree allows us to systematically explore all possible states starting from an initial state, with the goal of reaching a desired final state. In other words, we are performing a search over a tree structure, which explains the term \textit{search tree}.
 
 However, its particularity is that the leaves of this tree correspond to sequences of vertices \hyperref[def: colouring]{of a coloured graph}. As we move down the tree, these sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a ``controlled'' manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete.The root of this tree is therefore the ``empty'' sequence. 
 
@@ -308,11 +310,11 @@ However, there exist additional functions that are more specific to the implemen
 \begin{figure}[ht]
   \centering
   \input{fig_search_tree.tex}
-  \caption{Construction du \textit{search tree} dans \Naut.}\label{fig:search-tree}
+  \caption{\textit{search tree} construction in \Naut}\label{fig:search-tree}
 \end{figure}
 
 
-Maintenant, que nous avons bien mis en place les différentes fonctions qui composent notre algorithme, nous allons pouvoir les définir formellement et établir les propriétés de notre search tree.
+Now that we have introduced the different functions composing our algorithm, we can formally define them and establish the properties of the associated search tree.
 
 \subsection{Formal definitions of the search tree functions}
 
@@ -385,7 +387,7 @@ Now that all the formal definitions of the tree have been established, we can de
     
 \end{itemize}
 
-\rodolphe{Rédiger une explication non-formelle sur les propriétés}
+
 
 To demonstrate the correctness of the algorithm, the pruning procedure that we will introduce, and to prove that we indeed obtain the canonical form of the graph, we need to establish several properties of this search tree.
 
@@ -512,15 +514,32 @@ This means that:
   \item if we have two equal colourings, then their invariants are equal if and only if they produce exactly the same canonical labelling; applying the permutation associated with their colouring yields exactly the same graph.
   
   \item if we take a permutation of our graph, our colouring, and our vertex sequence, and then apply the \emph{node invariant} to these elements, it is equivalent to applying the \emph{node invariant} directly to our original graph, colouring, and vertex sequence.
-  \item \rodolphe{Faire explication 4}
+  \item We recall that $R(G, \pi_0, \sigma)$ is the discrete partition obtained by applying the refinement function along the sequence $\sigma$, and can therefore be viewed as a permutation of the vertices. Since both leaves are equivalent, their node invariants are equal, which means there exists a permutation $g$ such that:
+  \[R{(G, \pi_0, \sigma)}^g = R(G, \pi_0, \sigma')\]
+  Isolating $g$, we obtain:
+  \[g = R{(G, \pi_0, \sigma)}^{-1} \cdot R(G, \pi_0, \sigma')\]
+  If this permutation turns out to be an automorphism of $(G, \pi_0)$, it means that both leaves describe the same graph up to a relabelling of vertices, and are therefore 
+  equivalent.
 \end{enumerate}
+
+By \hyperref[cor: Corollary]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}(G, \pi_0)$, then so is $\sigma^g$ for any $g \in \Aut(G,\pi_0)$. Moreover, due to the properties of $\phi$, all such leaves $\sigma^g$ share the same $\phi$-value, and no other leaf has this value. Consequently, for each leaf $\sigma$, we can say that:
+
+
+\begin{align*}
+\Aut(G,\pi_0) = \big\{R(G,\pi_0, \sigma')R{(G,\pi_0, \sigma)}^{-1} :\ &\sigma' \text{ is a leaf of } \mathcal{T}(G,\pi_0) \\
+&\text{ with } \phi(G,\pi_0, \sigma') = \phi(G,\pi_0, \sigma)\big\}.
+\end{align*}
 
 We can define the canonical form: 
 
 \[
-\phi^*(G,\pi_0)= \max\ \{\phi(G,\pi_0, \sigma): \sigma \text{ is a leaf of } \mathcal{T}(G,\pi_0)\} ,
+\phi^*(G,\pi_0)= \max\ \{\phi(G,\pi_0, \sigma): \sigma \text{ is a leaf of } \mathcal{T}(G,\pi_0)\},
 \]
 
+and let $\sigma^*$ be any leaf of $\mathcal{T}(G, \pi_0)$ that achieves the maximum. Now 
+define $C(G, \pi_0) = {(G, \pi_0)}^{R(G, \pi_0, \sigma^*)}$. By the properties of $\phi$, 
+$C(G, \pi_0)$ thus defined is independent of the choice of $\sigma^*$, which is 
+consistent with the definition of \hyperref[def:canonical form]{the canonical form}.
 
 \subsection{Implementation strategies}
 
@@ -560,7 +579,9 @@ To construct our refinement function, we need two auxiliary functions: a functio
   }
   \end{definition}
 
-  \rodolphe{Faire une explication plus détaillée de l'algorithme?}
+  
+
+  \rodolphe{Faire ici une explication plus détaillée sur les différentes parties, surtout les parties avec les fragments}
   
   \vspace{1em}
   
@@ -579,7 +600,7 @@ To construct our refinement function, we need two auxiliary functions: a functio
   We say that the vertex $v$ is individualized in $\pi$. We see that $I (\pi, v)$ differs from $\pi$ in that a unique colour has been given to vertex v.
 \end{definition}
 
-\rodolphe{Même chose ici? Faire une explication plus détaillée de la fonction?}
+\rodolphe{Ici très straightforward mais juste dire que concrètement on va juste prendre la cellule de v et la diviser en 2 cellules, une avec v et une avec les autres éléments de la cellule. (avec la nouvelle cellule avant)}
   
 Now we can define a refinement function. For a sequence of vertices $v_1$,$v_2$,$\ldots$, define
 \begin{itemize}
@@ -595,10 +616,6 @@ The algorithm satisfies the required properties of a refinement function and per
 
 \subsubsection{Implementation Target Cell Selector}
 
-\rodolphe{Même chose ici, c'est un peu du copier coller du papier de mckay, je laisse ça comme ça, ou alors je rajoute un peu de sel avec?}
-
-\rodolphe{Mettre pseudo-code}
-
 For the implementation of the \hyperref[def: target cell function]{target cell selection function} in the construction of the search tree, several strategies can be adopted. Choosing the right target cell at each step is important because it influences the shape and depth of the tree, and therefore the overall performance of the search.
 
 In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an orbit of the group that stabilizes the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
@@ -613,8 +630,7 @@ As a result, \Naut{} now supports two strategies for target cell selection that 
 
 In our implementation we will only use the first strategy. 
 
-\rodolphe{S'il reste du temps, intéressant de faire une comparaison entre les 2 stratégies?}
-
+\rodolphe{Mettre pseudo-code}
 
 \subsubsection{Implementation Node Invariant}
 
@@ -632,7 +648,7 @@ The node invariant already computed by \Naut{} is a deterministic function of th
 
 In our implementation, we will use the first source described above. We rely on the number and size of the cells, and we apply combinatorial properties of the coloured graph to compute our node invariant. Several invariant methods have been implemented in order to test their efficiency and computational speed. We will present the different methods we implemented, as well as the results obtained for each of them, in the results section.
 
-\rodolphe{Bon je savais pas trop quoi dire sur la fin, dans le sens où je sais pas si je présente déjà ici mes méthodes d'invariants, (j'ai ici que le nombre de triangle dans les cellules mais je rajouterai les prochaines que vais implémenter.), ou alors comme j'ai dit, je mets dans plus dans les résultats mais en faisant ce commentaire j'ai l'impression que c'est quand même mieux ici}
+\rodolphe{texte à retravailler ici}
 
 We will also briefly discuss the computational complexity of these different invariant methods, and how they compare to one another. Since this function is called at each node creation, it is important that its computation remains fast in order to avoid slowing down the algorithm.
 
@@ -686,4 +702,6 @@ used in the operations $P_C$ that were performed, and let $A = \{g \mathrel{\in}
 
 We can put in practice ours different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations have both type $P_A (\sigma^*, \sigma)$ and
 $P_V (\sigma_1*, \sigma)$.\rodolphe{Ça parle aussi de P\_C ici, est-ce que j'enlève?}
+
+\rodolphe{Mettre pseudo-code général ici}
 \printbibliography\end{document}
