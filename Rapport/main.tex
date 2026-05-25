@@ -58,6 +58,7 @@
 \usepackage{xspace}
 \usepackage{svg}
 
+\DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator{\Aut}{Aut}
 \newcommand{\Naut}{\textit{Nauty}\xspace}
 
@@ -646,17 +647,17 @@ In our implementation we will only use the first strategy.
 \vspace{0.5em}
 \noindent\fbox{%
 \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
-\textit{pseudo-code of}
+\textit{pseudo-code of targetCellSelector}
 
 \vspace{0.5em}
 
 \begin{algorithmic}[1]
-\State\textbf{Data:} 
-\State\textbf{Result:} 
+\State\textbf{Data:} a partition $\pi = \{X_1, \ldots, X_k\}$
+\State\textbf{Result:} the first cell of maximum size in $\pi$
+\State\Return$\text{first-}\!\argmax_{X \in \pi} |X|$
 \end{algorithmic}
 }%
 }
-
 \subsubsection{Implementation Node Invariant}
 
 Now that the search tree is implemented, we need to define the \hyperref[def: node variant]{node invariant function}, which will allow us to determine the canonical form. To compute this function, we can rely on two related sources:
