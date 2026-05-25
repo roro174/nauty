@@ -309,7 +309,7 @@ However, there exist additional functions that are more specific to the implemen
 
 \begin{figure}[ht]
   \centering
-  \input{fig_search_tree.tex}
+  \input{figTex/fig_search_tree.tex}
   \caption{\textit{search tree} construction in \Naut}\label{fig:search-tree}
 \end{figure}
 
@@ -552,6 +552,7 @@ In order to ensure that the properties of the \hyperref[def: refinement function
 
 To construct our refinement function, we need two auxiliary functions: a function that refines a colouring so that it becomes an equitable colouring, and an individualisation function.
 
+\vspace{0.5em}
 \begin{definition}\label{def:refinement_algo}
   The function \emph{$F (G,\pi, \alpha)$} is our refinement algorithm (implemented in a label-invariant manner).
   
@@ -579,10 +580,22 @@ To construct our refinement function, we need two auxiliary functions: a functio
   }
   \end{definition}
 
-  
 
-  \rodolphe{Faire ici une explication plus détaillée sur les différentes parties, surtout les parties avec les fragments}
+  This function is, at first glance, relatively straightforward to understand. However, it is important to carefully examine the different steps involved in the refinement process. We therefore describe these steps in more detail below.
+
+  As stated in the pseudo-algorithm, we are given a graph $G$, a colouring $\pi$, and a sequence of cells of $\pi$ that will be used to refine the colouring. As long as not all cells in the sequence have been processed and the colouring is not yet discrete, we continue refining the colouring.
   
+  At each iteration, we remove a cell $W$ from the sequence. Then, for every cell $X$ of the current colouring, we split $X$ into several cells $X_1, \ldots, X_k$ according to the number of edges each vertex of $X$ has with the vertices of $W$ (with respect to the graph $G$). We then replace the cell $X$ in the colouring by the newly created cells $X_1, \ldots, X_k$.
+  
+  If the cell $X$ already belongs to the sequence, we replace it in the sequence by the cells $X_1, \ldots, X_k$. Otherwise, we add all cells among $X_1, \ldots, X_k$ to the sequence except one, namely a largest cell. If several cells have the same maximum size, one of them is chosen arbitrarily and is not added to the sequence.
+
+  \begin{figure}[ht]
+    \centering
+    \input{figTex/fig_refinement.tex}
+    \caption{Fragmentation of cell $X$ with respect to $W$}\label{fig:refinement}
+  \end{figure}
+
+
   \vspace{1em}
   
   \begin{definition}\label{def: individualized function}
@@ -600,9 +613,9 @@ To construct our refinement function, we need two auxiliary functions: a functio
   We say that the vertex $v$ is individualized in $\pi$. We see that $I (\pi, v)$ differs from $\pi$ in that a unique colour has been given to vertex v.
 \end{definition}
 
-\rodolphe{Ici très straightforward mais juste dire que concrètement on va juste prendre la cellule de v et la diviser en 2 cellules, une avec v et une avec les autres éléments de la cellule. (avec la nouvelle cellule avant)}
+The purpose of this function is to construct a new partition from a given partition by individualizing a vertex. More precisely, the operation assigns a unique colour to a specific vertex $v$ by removing it from its original cell and placing it into a new singleton cell. This new cell is inserted immediately before the original cell containing $v$.
   
-Now we can define a refinement function. For a sequence of vertices $v_1$,$v_2$,$\ldots$, define
+Now we can define our refinement function. For a sequence of vertices $v_1$,$v_2$,$\ldots$, define
 \begin{itemize}
     \item $R (G, \pi_0, ()) = F (G, \pi_0,\text{ a list of all the cells of } \pi_0)$  
     \item $R (G, \pi_0, (v_1)) = F (G, I ((R (G,\pi_0, ()), v_1), \{v_1\}))$ 
@@ -630,7 +643,19 @@ As a result, \Naut{} now supports two strategies for target cell selection that 
 
 In our implementation we will only use the first strategy. 
 
-\rodolphe{Mettre pseudo-code}
+\vspace{0.5em}
+\noindent\fbox{%
+\parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+\textit{pseudo-code of}
+
+\vspace{0.5em}
+
+\begin{algorithmic}[1]
+\State\textbf{Data:} 
+\State\textbf{Result:} 
+\end{algorithmic}
+}%
+}
 
 \subsubsection{Implementation Node Invariant}
 
