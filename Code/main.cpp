@@ -15,7 +15,7 @@ bool compareLexicoLess(const vector<vector<int>>& a, const vector<vector<int>>& 
     return std::lexicographical_compare(a.begin(),a.begin() + b.size(),b.begin(),b.end());
     }
 
-void refinementFunction(const Graph& G,Partition& currentPartition, Partition& BetterPartition,vector<vector<int>> &bestInvariant,
+void generalNauty(const Graph& G,Partition& currentPartition, Partition& BetterPartition,vector<vector<int>> &bestInvariant,
                         vector<vector<int>> &currentInvariant,vector<vector<int>>* allPermutations){
     currentInvariant.push_back(currentPartition.InvariantTriangleByCell(G));
     if (currentPartition.isDiscrete()) {
@@ -41,13 +41,13 @@ void refinementFunction(const Graph& G,Partition& currentPartition, Partition& B
             copyPartition.individualizeVertex(v);
             alpha.push_back(copyPartition.getCellByVertex(v));
             copyPartition.refineGraph(G, alpha);
-            refinementFunction(G,copyPartition,BetterPartition,bestInvariant,currentInvariant,allPermutations);
+            generalNauty(G,copyPartition,BetterPartition,bestInvariant,currentInvariant,allPermutations);
             alpha.pop_back();
             currentInvariant.pop_back();}
     }
 }
 
-NautyResult computeNauty(const Graph& mainGraph, bool storePerms = false) {
+NautyResult preNauty(const Graph& mainGraph, bool storePerms = false) {
     Partition P(mainGraph.size());
     vector<Partition::Cell> alpha = P.getCells();
     P.refineGraph(mainGraph, alpha);
@@ -56,7 +56,7 @@ NautyResult computeNauty(const Graph& mainGraph, bool storePerms = false) {
     vector<vector<int>> currInv;
     vector<vector<int>> allPerms;
     vector<vector<int>>* ptrPerms = storePerms ? &allPerms : nullptr;
-    refinementFunction(mainGraph,P,BestP,bestInv,currInv,ptrPerms);
+    generalNauty(mainGraph,P,BestP,bestInv,currInv,ptrPerms);
     vector<int> perm = BestP.transformCellsToInt();
     Graph canonG = mainGraph.applyPermutation(perm);
     return {canonG, allPerms};
@@ -77,8 +77,8 @@ int main(int argc, char* argv[]) {
         }
         string g1_str = argv[2];
         string g2_str = argv[3];
-        auto res1 = computeNauty(Graph(g1_str));
-        auto res2 = computeNauty(Graph(g2_str));
+        auto res1 = preNauty(Graph(g1_str));
+        auto res2 = preNauty(Graph(g2_str));
         if (res1.canonicalGraph.toGraph6() == res2.canonicalGraph.toGraph6()) cout << "Isomorphes" << endl; 
         else cout << "Non isomorphes" << endl;
     }
@@ -90,12 +90,12 @@ int main(int argc, char* argv[]) {
         string g_str = argv[2];
         Graph mainGraph(g_str);
         bool storePerms = (mode == "all");
-        auto result = computeNauty(mainGraph, storePerms);
+        auto result = preNauty(mainGraph, storePerms);
         result.canonicalGraph.printGraph6();
         if (mode == "all") {
             for (const auto& perm : result.allPermutations) {
                 Graph gPerm = mainGraph.applyPermutation(perm);
-                auto res = computeNauty(gPerm);
+                auto res = preNauty(gPerm);
                 res.canonicalGraph.printGraph6();
             }
         }
