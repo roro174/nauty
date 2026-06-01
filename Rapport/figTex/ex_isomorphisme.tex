@@ -1,0 +1,40 @@
+\node[gnode] (a) at (0,  0) {$a$};
+\node[gnode] (b) at (2,  0) {$b$};
+\node[gnode] (c) at (2, -2) {$c$};
+\node[gnode] (d) at (0, -2) {$d$};
+ 
+\draw[gedge] (a) -- (b);
+\draw[gedge] (b) -- (c);
+\draw[gedge] (c) -- (d);
+\draw[gedge] (d) -- (a);
+\draw[gedge] (a) -- (c);
+ 
+\node[font=\normalsize\bfseries] at (1, 0.8) {$G$};
+ 
+% =======================================================
+%  RIGHT GRAPH  H
+% =======================================================
+ 
+\node[gnode] (u) at (5,   0) {$u$};
+\node[gnode] (v) at (6.5,  -1) {$v$};
+\node[gnode] (w) at (5,  -2) {$w$};
+\node[gnode] (x) at (3.5,-1) {$x$};
+ 
+\draw[gedge] (u) -- (v);
+\draw[gedge] (v) -- (w);
+\draw[gedge] (w) -- (x);
+\draw[gedge] (x) -- (u);
+\draw[gedge] (u) -- (w);
+ 
+\node[font=\normalsize\bfseries] at (5.25, 0.8) {$H$};
+ 
+% =======================================================
+%  LEGEND
+% =======================================================
+ 
+\node[font=\small, anchor=north west] (l1) at (8.2, -0.6)  {$a \mapsto u$};
+\node[font=\small, anchor=north west] (l2) at (8.2, -1.1)  {$b \mapsto v$};
+\node[font=\small, anchor=north west] (l3) at (8.2, -1.6)  {$c \mapsto w$};
+\node[font=\small, anchor=north west] (l4) at (8.2, -2.1)  {$d \mapsto x$};
+ 
+\end{tikzpicture}
