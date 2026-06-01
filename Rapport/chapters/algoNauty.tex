@@ -1,4 +1,4 @@
-\chapter{Algorithme Nauty}
+\chapter{Nauty Algorithm}
 
 
 In this section, we will focus extensively on McKay's general algorithm: Nauty.
@@ -125,8 +125,9 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
     \textbf{Base case} ($s = 0$): The empty sequence $()$ is the root of any search tree.
     So ${[\sigma^g]}_0$ is trivially a node of $\mathcal{T}(G^g, \pi_0^g)$.
     
-    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of
-    $\mathcal{T}(G^g, \pi_0^g)$. Since $(\sigma_1, \ldots, \sigma_s, \sigma_{s+1})$ is a node of
+    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of$\mathcal{T}(G^g, \pi_0^g)$. 
+    
+    Since $(\sigma_1, \ldots, \sigma_s, \sigma_{s+1})$ is a node of
     $\mathcal{T}(G, \pi_0)$, the element $\sigma_{s+1}$ was individualised to go from level $s$
     to level $s+1$. Since we apply $g$ to the entire structure, $\sigma_{s+1}$ is also mapped
     to $\sigma_{s+1}^g$, which is equivalent to directly individualising $\sigma_{s+1}^g$ in $G^g$
@@ -257,7 +258,7 @@ Now that we have all the theoretical tools in hand, we can begin discussing the 
 \subsubsection{Implementation Refinement function}
 
 
-In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. To this end, we rely on a theorem: for every colouring $\pi$, there exists a unique (up to cell ordering) coarsest equitable colouring $\pi'$ such that $\pi' \preccurlyeq\pi$.
+In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. This motivates the need for an algorithm that computes a coarsest equitable colouring, in order to prevent refinement from being too aggressive and skipping intermediate structure in the search tree.
 
 To construct our refinement function, we need two auxiliary functions: a function that refines a colouring so that it becomes an equitable colouring, and an individualisation function.
 
@@ -303,6 +304,9 @@ To construct our refinement function, we need two auxiliary functions: a functio
     \input{figTex/fig_refinement.tex}
     \caption{Fragmentation of cell $X$ with respect to $W$}\label{fig:refinement}
   \end{figure}
+
+
+\rodolphe{Rajouter une ``preuve'' pour bien dire qu'on obtient bien un coarest equitable partition?}
 
 
   \vspace{1em}
@@ -439,7 +443,8 @@ used in the operations $P_C$ that were performed, and let $A = \{g \mathrel{\in}
 
 \subsubsection{Implementation of the search tree}
 
-We can put in practice ours different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations have both type $P_A (\sigma^*, \sigma)$ and $P_B (\sigma_1*, \sigma)$. Nous pouvons donc en conclure que seulement une partie de l'arbre sera générée, et que les feuilles qui seront générées sont celles qui ont une chance d'être équivalentes ou ``better'' que les feuilles déjà découvertes.
+We can put in practice ours different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations have both type $P_A (\sigma^*, \sigma)$ and $P_B (\sigma_1*, \sigma)$. We can therefore conclude that only a subset of the tree will be generated, and that the generated leaves are those that may be ``better'' than the leaves already discovered.
+
 
 
 \vspace{0.5em}
@@ -484,6 +489,8 @@ We can put in practice ours different pruning strategies on our search tree. \Na
     \end{algorithmic}
   }%
 }
+
+The graph encoding is not fixed; however, we adopt the same approach as nauty, namely representing input graphs using the graph6 format~\cite{mckay_graph6_formats}. This choice enables more efficient testing of our algorithm.
 
 \rodolphe{J'ai voulu mettre que les choses importantes dans le pseudo-code en omettant certains détails qui étaient seulement liés à ma conception, donc normalement ici c'est un peu le général, t'en penses quoi? Je vais surement le bouger de place dans le futur + le modifier parce qu'il manque $P_C$}
 

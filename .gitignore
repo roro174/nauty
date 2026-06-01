@@ -1,0 +1,6 @@
+Code/obj/
+Code/bin/
+*.vscode
+tests/
+Rapport/build/
+Rapport/.latexmkrc
