@@ -450,7 +450,7 @@ We can put in practice ours different pruning strategies on our search tree. \Na
 \vspace{0.5em}
 \noindent\fbox{%
   \parbox{\linewidth-2\fboxsep-2\fboxrule}{%
-    \textit{Pseudo-code of} \textsc{Nauty}
+    \textit{Pseudo-code of canonical labelling} 
 
     \vspace{0.5em}
 
@@ -460,30 +460,29 @@ We can put in practice ours different pruning strategies on our search tree. \Na
 
       \vspace{0.4em}
 
-      \State$\pi \leftarrow$ unit partition of $V$
-      \State$\pi  \leftarrow F(G, \pi , \alpha)$
+      \State$\pi \leftarrow (\{0, 1, \dots, |V|-1\})$
+      \State$\pi  \leftarrow F(G, \pi , \text{a list of all the cell of } 
+      \pi)$ 
+      \State$\pi ^* \leftarrow \pi$ \Comment{$\pi^*$ the best sequence}
+      \State$\sigma \leftarrow ()$, \quad $\sigma^* \leftarrow ()$ \Comment{current and best vertex sequences}
 
       \vspace{0.4em}
 
-      \Require$\pi$ is refined, $\pi ^* \leftarrow \pi$ \Comment{$\pi ^*$ = Best leaf}
-
-
-      \vspace{0.3em}
-
       \Procedure{NAUTY}{$G,\, \pi $}
-        \If{$\pi$ is discrete \textbf{and} $\pi  > \pi ^*$ }\Comment{Update best leaf}
-            \State{$\pi ^* \leftarrow \pi $}
-        \ElsIf{$\pi ^*$ is discrete \textbf{and} $\mathrm{nodeInvariant}(G, \pi )\leq \mathrm{nodeInvariant}(G, \pi ^*)$ } 
+        \If{$\pi$ is discrete \textbf{and} $\phi(G, \pi, \sigma)  > \phi(G, \pi^*, \sigma)$ }\Comment{Update best leaf}
+            \State{$\pi ^* \leftarrow \pi $}\quad $\sigma^* \leftarrow \sigma$
+        \ElsIf{$\pi ^*$ is discrete \textbf{and} $\phi(G, \pi, \sigma )\leq \phi(G, \pi ^*,\sigma)$ } 
           \State\Return\Comment{Pruning $P_A + P_B$}
-        \Else\State{$\text{Cell} \leftarrow \mathrm{targetCellSelector}(\pi)$}
-          \For{each $\sigma \in \text{Cell}$}
-            \State{$\pi _\sigma \leftarrow I(\pi , \sigma)$}
-            \State{$\pi _\sigma \leftarrow F(G,\, \pi _\sigma,\, \alpha \leftarrow \{\{\sigma\}\})$}
-            \State\Call{NAUTY}{$G,\, \pi _\sigma$}
-            \State{Remove last entry from $\alpha$}
+        \Else\State{$\text{Cell} \leftarrow T(G,\pi,\sigma)$}
+          \For{each $\nu \in \text{Cell}$}
+            \State{$\pi _\nu \leftarrow I(\pi , \nu)$}
+            \State{$\pi _\nu \leftarrow F(G,\, \pi _\nu,\,\{\nu\})$}
+            \State{Append $\nu$ to $\sigma$}
+            \State\Call{NAUTY}{$G,\, \pi _\nu$}
+            \State{Remove last entry from $\sigma$}
           \EndFor\EndIf\EndProcedure\vspace{0.3em}
 
-      \State{$g \leftarrow$ permutation induced by $\pi^*$}
+  \State$g \leftarrow$ canonical vertex ordering induced by $\pi^*$
       \State\Return{$G^g$} \Comment{Apply g to $G$ to get the canonical form}
 
     \end{algorithmic}
