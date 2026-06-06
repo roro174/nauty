@@ -372,8 +372,9 @@ In our implementation we will only use the first strategy.
 
 \begin{algorithmic}[1]
 \State\textbf{Data:} a partition $\pi = (X_1, \ldots, X_k)$
-\State\textbf{Result:} the first cell of maximum size in $\pi$
-\State\Return{the first $X \in \pi$ such that $|X| = \max_{Y \in \pi} |Y|$}
+\State\textbf{Result:} the first non-singleton cell of minimum size in $\pi$
+\State\Return{the first $X \in \pi$ such that $|X| > 1$ and
+$|X| = \min_{Y \in \pi,\ |Y| > 1} |Y|$}
 \end{algorithmic}
 }%
 }
@@ -400,22 +401,31 @@ Here is the exhaustive list of invariant methods that we have implemented so far
 \begin{enumerate}
   \item \textit{Number of triangles per cell}: for each cell of the partition, we compute the number of triangles contained in that cell. We then obtain a vector where each entry corresponds to the number of triangles in the corresponding cell. Finally, we apply a lexicographic ordering to this vector to compute our node invariant.
 
-  For counting the number of triangles in a cell, several methods are possible; the most classical one runs in $O (n^3)$, but there also exist faster approaches in \rodolphe{Pas encore codé mais ça arrive pour avoir ma complexité}.
-
-
+  For counting the number of triangles in a cell, the most classical approach enumerates all triplets of vertices $(u, v, w)$ from the cell and checks for each one whether all three edges exist, running in $O(n^3)$ where $n$ is the number of vertices in the cell. A faster approach exploits the sorted neighbor lists $N(v)$: for each vertex $u \in C$, one iterates over its neighbors $v$ in the cell with $v > u$, then looks for common neighbors $w$ of both $u$ and $v$ still in the cell with $w > v$. Since the neighbor lists are sorted, each such lookup runs in $O(d)$ where $d$ is the largest number of neighbors that any vertex in the cell has, yielding an overall complexity of $O(n \cdot d^2)$.
+  
   \vspace{0.5em}
   \noindent\fbox{%
-  \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
-  \textit{pseudo-code of}
+    \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+    \textit{Pseudo-code: Number of triangles per cell}
   
-  \vspace{0.5em}
+    \vspace{0.5em}
   
-  \begin{algorithmic}[1]
-  \State\textbf{Data:} 
-  \State\textbf{Result:} 
-  \end{algorithmic}
-  }%
-}
+    \begin{algorithmic}[1]
+    \State\textbf{Data:} A graph $G$, a cell $C = \{v_1, \ldots, v_k\}$
+    \State\hspace{1.5em} $N(u)$ denotes the ordered neighbor list of $u$ in $G$
+    \State\textbf{Result:} The number of triangles contained in $C$
+  
+    \vspace{0.5em}
+  
+    \State$\mathit{count} \gets 0$
+    \For{each $u \in C$}
+        \For{each $v \in N(u) \cap C$ such that $v > u$}
+            \For{each $w \in N(u) \cap N(v) \cap C$ such that $w > v$}
+                \State$\mathit{count} \gets \mathit{count} + 1$
+            \EndFor\EndFor\EndFor\State\Return$\mathit{count}$
+    \end{algorithmic}
+    }%
+  }
 \end{enumerate}
 
 \subsubsection{Implementation prunning}
@@ -491,6 +501,5 @@ We can put in practice ours different pruning strategies on our search tree. \Na
 
 The graph encoding is not fixed; however, we adopt the same approach as nauty, namely representing input graphs using the graph6 format~\cite{mckay_graph6_formats}. This choice enables more efficient testing of our algorithm.
 
-\rodolphe{J'ai voulu mettre que les choses importantes dans le pseudo-code en omettant certains détails qui étaient seulement liés à ma conception, donc normalement ici c'est un peu le général, t'en penses quoi? Je vais surement le bouger de place dans le futur + le modifier parce qu'il manque $P_C$}
 
 \rodolphe{J'ai encore une grosse partie à faire ici, concernant la détection des automorphismes et l'application de $P_C$ dans le code}

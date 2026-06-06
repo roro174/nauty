@@ -144,9 +144,11 @@ void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
 }
 
 const Partition::Cell& Partition::targetCellSelector() const {
-    auto it = std::max_element(cells.begin(), cells.end(),
+    auto it = std::min_element(cells.begin(), cells.end(),
         [](const Cell &a, const Cell &b) {
-            return a.verts.size() < b.verts.size(); // premier plus grand élément
+            if (a.verts.size() <= 1) return false;
+            if (b.verts.size() <= 1) return true;
+            return a.verts.size() < b.verts.size();
         });
     return *it;
 }
@@ -155,38 +157,6 @@ const Partition::Cell& Partition::getCellByVertex(int vert) const {
     int cellId = vertexToCellId[vert];
     size_t idx = indexOf(cellId);
     return cells[idx];    
-}
-
-const vector<int> Partition::InvariantTriangleByCell(const Graph &G) const {
-    vector<int> triangle(cells.size(), 0);
-
-    for (size_t i = 0; i < cells.size(); ++i) {
-        const auto verts = cells[i].verts;
-        int n = verts.size();
-
-        // On parcourt tous les triplets (a,b,c) de sommets dans la cellule
-        for (int x = 0; x < n; ++x) {
-            int v1 = verts[x];
-
-            for (int y = x + 1; y < n; ++y) {
-                int v2 = verts[y];
-
-                if (!G.hasEdge(v1, v2)) 
-                    continue; // arête absente, pas de triangle
-
-                for (int z = y + 1; z < n; ++z) {
-                    int v3 = verts[z];
-
-                    // Vérifie que les 3 arêtes existent
-                    if (G.hasEdge(v1, v3) && G.hasEdge(v2, v3)) {
-                        triangle[i]++;
-                    }
-                }
-            }
-        }
-    }
-
-    return triangle;
 }
 
 const vector<int> Partition::transformCellsToInt() const {

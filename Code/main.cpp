@@ -1,5 +1,6 @@
 #include "Graph.hpp"
 #include "Partition.hpp"
+#include "invariant.cpp"
 #include <iostream>
 #include <vector>
 
@@ -17,7 +18,7 @@ bool compareLexicoLess(const vector<vector<int>>& a, const vector<vector<int>>& 
 
 void generalNauty(const Graph& G,Partition& currentPartition, Partition& BetterPartition,vector<vector<int>> &bestInvariant,
                         vector<vector<int>> &currentInvariant,vector<vector<int>>* allPermutations){
-    currentInvariant.push_back(currentPartition.InvariantTriangleByCell(G));
+    currentInvariant.push_back(InvariantTriangleByCell(G, currentPartition));
     if (currentPartition.isDiscrete()) {
         if (allPermutations != nullptr) allPermutations->push_back(currentPartition.transformCellsToInt());
         if (!BetterPartition.isDiscrete()) {
@@ -34,15 +35,12 @@ void generalNauty(const Graph& G,Partition& currentPartition, Partition& BetterP
     }
 
     else {
-        vector<Partition::Cell> alpha;
         Partition::Cell targetCell = currentPartition.targetCellSelector();
         for (int v : targetCell.verts) {
             Partition copyPartition = currentPartition;
             copyPartition.individualizeVertex(v);
-            alpha.push_back(copyPartition.getCellByVertex(v));
-            copyPartition.refineGraph(G, alpha);
+            copyPartition.refineGraph(G, {copyPartition.getCellByVertex(v)});
             generalNauty(G,copyPartition,BetterPartition,bestInvariant,currentInvariant,allPermutations);
-            alpha.pop_back();
             currentInvariant.pop_back();}
     }
 }

@@ -28,6 +28,7 @@ struct Partition {
             std::cout << "\n";
         };
         };
+        
 
     private:
         std::vector<Cell> cells; 
@@ -57,8 +58,6 @@ struct Partition {
         const Cell& targetCellSelector() const;
 
         const Cell& getCellByVertex(int vert) const;
-
-        const vector<int> InvariantTriangleByCell(const Graph &G) const;
 
         const vector<int> transformCellsToInt() const;
 
