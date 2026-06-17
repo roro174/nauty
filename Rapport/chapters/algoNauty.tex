@@ -428,7 +428,8 @@ Here is the exhaustive list of invariant methods that we have implemented so far
   }
 \end{enumerate}
 
-\subsubsection{Implementation prunning}
+\rodolphe{les prochaines méthodes d'invariants arrivent mais la structure est là}
+\subsection{Pruning strategies}
 
 To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define two types of pruning strategies to optimize our construction:
 
@@ -451,7 +452,171 @@ used in the operations $P_C$ that were performed, and let $A = \{g \mathrel{\in}
 
 \rodolphe{Faire preuve}
 
-\subsubsection{Implementation of the search tree}
+The first two types of pruning are not particularly difficult to implement.
+The third type of pruning, however, is more delicate, as it requires the
+detection of graph automorphisms. To achieve this, the original versions of
+\Naut{} relied on automorphisms discovered directly from the leaves of the
+search tree. This approach did not necessarily require sophisticated group
+theoretic algorithms, but it could significantly limit the pruning potential.
+
+However, in more recent versions of \Naut{}, the Random Schreier
+method~\rodolphe{mettre citatation} is used to maintain the automorphisms discovered during the search. This allows a more compact representation of the generated subgroup and leads to stronger pruning. To understand how this works, we first present its deterministic counterpart: the Schreier-Sims algorithm~\rodolphe{mettre citatation}. This deterministic version provides the foundations necessary to understand the ideas behind the randomized approach.
+
+\subsubsection{Schreier-Sims Algorithm}
+
+Let $G \leq S_n$ be a permutation group given by a finite set of generators.
+The purpose of the Schreier-Sims algorithm is to construct a compact
+representation of $G$ that allows one to efficiently compute the order $|G|$
+without enumerating its elements, test whether a given permutation belongs to
+$G$, and compute orbits and stabilizers of points under $G$.
+
+The key idea is to replace the explicit enumeration of the elements of $G$ by
+a chain of nested point stabilizers
+
+\[
+G = G^{(0)} \supseteq G^{(1)} \supseteq \dots \supseteq G^{(k)} = \{e\},
+\]
+
+where $G^{(i)} = \mathrm{Stab}_{G^{(i-1)}}(b_i)$ for a sequence of points
+$b_1,\dots,b_k$ called a \emph{base}. Each stabilizer $G^{(i)}$ is the
+subgroup of $G^{(i-1)}$ consisting of those permutations that fix $b_i$, and
+it is recursively decomposed at the next level using a new base point
+$b_{i+1}$.
+
+At each level $i$, the group $G^{(i)}$ is represented not by an explicit
+enumeration of its elements, but by a finite set of generators sufficient to
+generate it entirely. These generators serve a dual purpose: they are used to
+perform a breadth-first search that computes both the orbit of $b_{i+1}$
+under $G^{(i)}$ and the associated transversal, and they provide the
+information needed to derive generators for the next stabilizer
+$G^{(i+1)}$.
+
+The orbit of $b_{i+1}$ under $G^{(i)}$ is the set of all points to which
+$b_{i+1}$ can be mapped by an element of $G^{(i)}$. By the
+orbit-stabilizer theorem~\cite{DixonMortimer1996}, its cardinality gives the
+index of $G^{(i+1)}$ in $G^{(i)}$, namely
+
+\[
+|G^{(i)}|
+=
+|b_{i+1}^{G^{(i)}}|
+\cdot
+|G^{(i+1)}|.
+\]
+
+The transversal records, for each point
+$p \in b_{i+1}^{G^{(i)}}$, a permutation
+$\sigma_p \in G^{(i)}$ such that
+$\sigma_p(b_{i+1}) = p$.
+
+While the orbit only indicates which points are reachable, the transversal
+provides an explicit way of reaching them. This is what makes the
+decomposition computationally useful: for each generator $g$ of $G^{(i)}$ and each point $p$ in the orbit,
+the permutation
+
+\[
+\sigma_{g(p)}^{-1} g \sigma_p
+\]
+
+fixes $b_{i+1}$ and therefore belongs to $G^{(i+1)}$. The collection of all
+such permutations, known as \emph{Schreier generators}, generates
+$G^{(i+1)}$ entirely~\cite{Seress2003}. In this way, a generating set for
+$G^{(i+1)}$ can be obtained from a generating set for $G^{(i)}$, allowing the
+construction to proceed recursively until $G^{(k)}=\{e\}$.
+
+This collection of data, namely a base together with a generating set for
+each stabilizer, is called a \emph{Base and Strong Generating Set} (BSGS).
+The key property of a BSGS is that the generating sets at each level only
+need to be sufficient, meaning that they generate the corresponding
+stabilizer entirely, but do not need to be minimal. Applying the
+orbit-stabilizer theorem recursively along the chain yields
+
+\[
+|G|
+=
+\prod_{i=0}^{k-1}
+|b_{i+1}^{G^{(i)}}|,
+\]
+
+which provides an efficient way to compute the order of the group.
+
+To better understand the construction, we consider the graph $K_{1,3}$,
+consisting of a central vertex connected to three peripheral vertices. We
+build the BSGS associated with $\mathrm{Aut}(K_{1,3})$ using the base
+$(b_1=1,b_2=2)$.
+
+\begin{figure}[h]
+  \centering
+  \input{figTex/K1_3.tex}
+  \caption{Example of a $K_{1,3}$.}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \input{figTex/fig_shreir.tex}%
+  }
+  \caption{Tree associated with the BSGS of $\mathrm{Aut}(K_{1,3})$ with base $(b_1=1,b_2=2)$.}
+\end{figure}
+
+We observe that each edge at level $i$ is labelled by an element
+$\sigma_p^{(i)}$ of the transversal associated with the orbit of
+$b_{i+1}$ under $G^{(i)}$. Each leaf corresponds to an element
+$g \in G$, obtained by composing the transversal representatives along the
+path from the root. The $3 \times 2 \times 1 = 6$ leaves therefore represent exactly the six elements of $\mathrm{Aut}(K_{1,3})$.
+Observe that the tree itself is not the search tree explored by \Naut{},
+but a visualization of the stabilizer chain and transversal structure
+associated with the BSGS.\@
+\subsubsection{Schreier-Sims for \Naut{}}
+
+Let $G$ be the input graph and $\pi_0$ its initial partition.
+
+\Naut{} performs a depth-first traversal of the search tree, and at each leaf
+it is possible to discover a new automorphism of the graph and add it to the
+currently known automorphism group. Whenever two distinct leaves $\sigma$ and
+$\sigma'$ produce the same invariant, the permutation $g =R(G,\pi_0,\sigma')R{(G,\pi_0,\sigma)}^{-1}$ is an automorphism of $G$.
+
+These automorphisms, discovered one by one during the depth-first traversal,
+form the generators from which the group structure is built. It is therefore
+not necessary to know $\mathrm{Aut}(G,\pi_0)$ in advance: the generators
+emerge dynamically during the search, and the group structure is updated
+incrementally as new automorphisms are discovered.
+
+The automorphism $g$ is then sifted through the existing stabilizer chain,
+correcting its action on each base point successively. It is either absorbed
+by an existing level, in which case it provides no new information, or it is
+identified as a new strong generator and enriches the chain. The orbit of
+each base point and its associated transversal are updated after each
+insertion, and the generators of the next stabilizer are recomputed using
+Schreier's lemma.
+
+Each automorphism discovered at a leaf is propagated to the ancestor nodes
+for which it remains relevant. The accumulated group information is then used when selecting the next vertex to individualize. Once a target cell has been chosen, its vertices are partitioned into orbits under the currently known automorphism group. Two vertices belonging to the same orbit necessarily lead to isomorphic subtrees, since they are related by an automorphism already known to the algorithm.
+Consequently, it is sufficient to explore a single representative of each
+orbit, while all other vertices can be pruned without exploration.
+
+This is a direct application of the pruning operation $P_C$.
+
+To get a concrete idea of what this looks like in code, here is a simplified pseudo-code of the Schreier-Sims method for \Naut{}.
+
+
+\vspace{0.5em}
+\noindent\fbox{%
+\parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+\textit{pseudo-code of Schreier-Sims}
+
+\vspace{0.5em}
+
+\begin{algorithmic}[1]
+\State\textbf{Data:}
+\State\textbf{Result:}
+\end{algorithmic}
+}%
+}
+
+\subsubsection{Random Schreier method}
+
+\subsection{Final Search Tree Construction}
 
 We can put in practice ours different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations have both type $P_A (\sigma^*, \sigma)$ and $P_B (\sigma_1*, \sigma)$. We can therefore conclude that only a subset of the tree will be generated, and that the generated leaves are those that may be ``better'' than the leaves already discovered.
 
