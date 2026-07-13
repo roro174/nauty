@@ -146,3 +146,77 @@ such that for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ and  $g \m
 \end{enumerate}
 \end{definition}
 
+\section{Complexity Definitions}
+
+For more informations on the complexity definitions, you can refer to  Michael Sipser's book: Introduction to the Theory of Computation~\cite{sipser1996introduction}
+
+\vspace{1em}
+
+\begin{definition}[minimalist]\label{def:NP}
+The class \emph{\NP} (comes from nondeterministic polynomial) is the set of decision problems for which the problem instances have certificates verifiable in polynomial time by a deterministic Turing machine, or alternatively the set of problems that can be solved in polynomial time by a nondeterministic Turing machine.
+
+A decision problem  is a member of \coNP{} iff its complement is in the complexity class \NP.
+
+A decision problem $B$ is \emph{\NP-complete} if it satisfies the two following conditions:
+\begin{enumerate}
+    \item $B$ must belong to the class \NP{}.
+    \item Every problem in \NP{} can be reduced to $B$ in polynomial time.
+\end{enumerate}
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}
+A problem is \emph{\NP-intermediate} (\NPI) if it is not \NP{}-complete nor \P. 
+\end{definition}
+
+\vspace{1em}
+
+\begin{definition}\label{def: logspace}
+$\LOGSPACE$ (or \L) is the complexity class of decision problems that can be solved by a deterministic Turing machine using a logarithmic amount of writable memory.
+\end{definition}
+
+
+\vspace{1em}
+
+\begin{definition}
+An \emph{oracle} for a language $B$ is an external device that is capable of reporting whether any string $w$ is a member of $B$. An oracle Turing machine is a modified Turing machine that has the additional capability of querying an oracle. We write $M^B$ to describe an oracle Turing machine that has an oracle for language $B$.
+
+The \emph{Polynomial-Time Hierarchy} (\PH) is a hierarchy of complexity classes that generalizes the classes \NP{} and \coNP. Formally, the base level of the hierarchy is defined as:
+\[
+\Delta_0^{\P} \coloneqq \Sigma_0^{\P} \coloneqq \Pi_0^{\P} \coloneqq \P,
+\]
+
+where $\P$ denotes the class of decision problems solvable in polynomial time by a deterministic Turing machine. Then, for every $i \geq 0$, the hierarchy is defined recursively as follows:
+
+\begin{itemize}
+    \item $\Delta_{i+1}^{\P} \coloneqq \P^{\Sigma_i^{\P}}$
+    \item $\Sigma_{i+1}^{\P} \coloneqq \NP^{\Sigma_i^{\P}}$
+    \item $\Pi_{i+1}^{\P} \coloneqq \coNP^{\Sigma_i^{\P}}$
+\end{itemize}
+
+Here, $\P^A$ denotes the class of problems solvable in polynomial time by a deterministic Turing machine equipped with an oracle for some complete problem in class $A$. The classes $\NP^A$ and $\coNP^A$ are defined analogously, using nondeterministic and co-nondeterministic Turing machines, respectively.
+
+For example, $\Sigma_{i}^{\P} = \NP$, $\Pi_{i}^{\P} = \coNP$,  and $\Delta_{2}^{\P} \coloneqq \P^{\NP}$ is the class of problems solvable in polynomial time with access to an oracle for an \NP-complete problem.
+
+This definition implies that each level of the hierarchy is contained within the next. That is:
+
+\begin{itemize}
+    \item $\Sigma_i^{\P} \subseteq \Delta_{i+1}^{\P} \subseteq \Sigma_{i+1}^{\P}$
+    \item $\Pi_i^{\P} \subseteq \Delta_{i+1}^{\P} \subseteq \Pi_{i+1}^{\P}$
+\end{itemize}
+
+The union of all classes in this hierarchy forms the polynomial-time hierarchy, denoted by \PH{}.
+\end{definition}
+
+
+\vspace{1em}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{imgs/Complexity-classes-the-polynomial-hierarchy-Stockmeyer-1976.png}
+    \caption{Polynomial Time Hierarchy where the arrows denote the inclusion: image from~\cite{ph}}
+    \label{fig: ph}
+\end{figure}
+

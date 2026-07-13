@@ -1,0 +1,47 @@
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        vsimple/.style={circle, draw=black, thick, minimum size=7mm, font=\small, inner sep=0pt},
+        vdouble/.style={circle, draw=black, thick, double, double distance=1.2pt, minimum size=7mm, font=\small, inner sep=0pt},
+        lbl/.style={font=\scriptsize}
+    ]
+
+        \node[vsimple] (a1) at (0,0)    {1};
+        \node[vsimple] (a2) at (-1,1.3) {2};
+        \node[vsimple] (a3) at (0,1.6)  {3};
+        \node[vsimple] (a4) at (1,1.3)  {4};
+        \draw[thick] (a1)--(a2);
+        \draw[thick] (a1)--(a3);
+        \draw[thick] (a1)--(a4);
+
+        \node[above=5mm of a3, font=\bfseries\small] {Initialisation};
+        \node[below=6mm of a1, lbl] {$c_0=\{1,2,3,4\}$};
+
+
+        \begin{scope}[shift={(5.5,0)}]
+            \node[vdouble] (b1) at (0,0)    {1};
+            \node[vsimple] (b2) at (-1,1.3) {2};
+            \node[vsimple] (b3) at (0,1.6)  {3};
+            \node[vsimple] (b4) at (1,1.3)  {4};
+            \draw[thick] (b1)--(b2);
+            \draw[thick] (b1)--(b3);
+            \draw[thick] (b1)--(b4);
+
+            \node[above=5mm of b3, font=\bfseries\small] {Refinement Step};
+            \node[right=1mm of b1, lbl] {$c_1$};
+            \node[above=1mm of b2, lbl] {$c_2$};
+            \node[above=1mm of b3, lbl] {$c_2$};
+            \node[above=1mm of b4, lbl] {$c_2$};
+        \end{scope}
+
+
+        \draw[->, very thick] (a1.east) -- (b1.west)
+            node[midway, above, font=\footnotesize] {\texttt{Repeat}};
+            \node[below=6mm of b1, lbl] {$c_1=\{1\}$ and $c_2=\{2,3,4\}$};
+    \end{tikzpicture}
+
+    \vspace{2mm}
+
+    \caption{Exemple of colour refinement on $K_{1,3}$.}\label{fig:colour-refinement-k13}
+\end{figure}
