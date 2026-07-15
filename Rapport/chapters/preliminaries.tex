@@ -172,6 +172,18 @@ A problem is \emph{\NP-intermediate} (\NPI) if it is not \NP{}-complete nor \P.
 
 \vspace{1em}
 
+\begin{definition}\label{def:SPP}
+    A language $L$ belongs to the class \emph{SPP} (\textbf{S}toic \textbf{PP}) if there exists a polynomial-time nondeterministic Turing machine $M$ such that
+    \[
+    x\in L \iff \#\mathrm{acc}_M(x)=1  \text{ and }  x\notin L \iff \#\mathrm{acc}_M(x)=0,
+    \]
+    where $\#\mathrm{acc}_M(x)$ denotes the number of accepting computation paths
+    of $M$ on input $x$.
+    \end{definition}
+
+
+\vspace{1em}
+
 \begin{definition}\label{def: logspace}
 $\LOGSPACE$ (or \L) is the complexity class of decision problems that can be solved by a deterministic Turing machine using a logarithmic amount of writable memory.
 \end{definition}
@@ -216,7 +228,6 @@ The union of all classes in this hierarchy forms the polynomial-time hierarchy, 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\linewidth]{imgs/Complexity-classes-the-polynomial-hierarchy-Stockmeyer-1976.png}
-    \caption{Polynomial Time Hierarchy where the arrows denote the inclusion: image from~\cite{ph}}
-    \label{fig: ph}
+    \caption{Polynomial Time Hierarchy where the arrows denote the inclusion: image from~\cite{ph}}\label{fig: ph}
 \end{figure}
 

@@ -17,11 +17,15 @@ The Graph Isomorphism (GI) problem is very well known among computer scientists 
 
 GI was referred to as an ``open problem'' in the 1970s, a problem for which it was not known whether it was \NP-complete, belonged to $\P$, or neither~\cite{garey2002computers}. Nowadays, its \NP-completeness is considered highly unlikely, as proving GI \NP-complete would imply a collapse of the polynomial-time hierarchy (\PH) to its second level~\cite{goldreich1991proofs, schoning1988graph}—a result that would have major consequences for computational complexity theory. This is especially problematic because it is widely conjectured that all levels of \PH{} are distinct. If \GI{} were \NP-complete, all levels above the second level would collapse to the second level.
 
+Cependant, quelques recherches nous permettent de rapprocher de plus en plus GI vers certaines classes de complexité. Par exemple, Il a été démontré que The graph Isomorphism is in \hyperref[def:SPP]{SPP}~\cite{arvind2006graph}. Ce qui permet de dire que si 2 graphes sont isomorphes, il n'y a qu'une seule réponse possible à ce ce problème. De plus, 
+
 
 \rodolphe{Rajouter worst Case et average Case}
 For three decades, the fastest proven running time for the Graph Isomorphism problem was $e^{\mathcal{O}(\sqrt{n \log n})}$~\cite{babai1983computational}. But in 2016, it was shown that GI can be solved in quasi-polynomial time: $e^{\log(n){}^{\mathcal{O}(1)}}$~\cite{babai2016graph}, which makes one think even more that GI is only \NP{}-intermediate rather than \NP{}-complete, since otherwise every problem in \NP{} would be solvable in quasi-polynomial time.
 
-\rodolphe{Rajouter SPP for GI and hard for DET }
+\rodolphe{Ici aussi je pourrai potentiellement parler plus de l'algorithme de Babai et de comment il fonctionne. Mais je ne sais pas si c'est utile pour le mémoire. T'en penses quoi?}
+
+
 
 
 Despite the extensive research conducted on GI, its exact complexity status remains unresolved. The discovery of new algorithms has significantly improved our understanding of the problem, but a polynomial-time algorithm for the general case is still unknown.
@@ -41,9 +45,11 @@ To solve the Graph Isomorphism (GI) problem, three main types of algorithms can 
 
 The first family consists of \emph{graph-theoretic algorithms}, classical algorithms that exploit structural properties of specific graph classes. A representative example is the algorithm of Hopcroft and Wong~\cite{hopcroft1974linear} for planar graphs, which relies on the decomposition of the graph into triconnected (3-connected) components and uses graph-theoretic techniques to solve the isomorphism problem efficiently.
 
-The second family comprises \emph{group-theoretic algorithms}, based on computing generators for the automorphism group of a graph. These methods leverage group-theoretic properties and have dominated GI research since the early 1980s. This is the case of Luks' algorithm~\cite{luks1982isomorphism}, which solves the isomorphism problem on graphs of bounded degree by decomposing the graph into subgraphs and exploiting the structure of the automorphism group to reduce the problem to simpler instances.
+The second family comprises \emph{group-theoretic algorithms}, based on computing generators for the automorphism group of a graph. These methods leverage group-theoretic properties and have dominated GI research since the early 1980s. Indeed, GI and the problem of computing a generating set for a graph's automorphism group can each be reduced to the other in polynomial time~\cite{mathon1979note}: the two problems are polynomial-time equivalent, so that solving either one suffices to solve the other. This is the case of Luks' algorithm~\cite{luks1982isomorphism}, which solves the isomorphism problem on graphs of bounded degree by exploiting the structure of the automorphism group to reduce the problem to a sequence of simpler instances.
 
-Finally, \emph{combinatorial algorithms} are simple, general-purpose procedures that do not rely on the specific structure of graph classes. All combinatorial algorithms are based on the idea of \emph{colour refinement} (the 1-dimensional version of the Weisfeiler-Leman algorithm~\cite{kiefer2020power}), which aims to compute a \emph{stable colouring} of a graph, as illustrated in \cref{alg:colour-refinement}.
+\rodolphe{Je pourrai aller plus loin ici et parler d'orbite et tout mais je ne sais pas si c'est utile d'aller aussi en profondeur ici. T'en penses quoi?}
+
+Finally, \emph{combinatorial algorithms} are simple, general-purpose procedures that do not rely on the specific structure of graph classes. All combinatorial algorithms are based on the idea of \emph{colour refinement} (the 1-dimensional version of the Weisfeiler-Leman algorithm~\cite{kiefer2020power}), which aims to compute a \emph{stable colouring} of a graph, as illustrated in \cref{alg:colour-refinement}. Le color refinement algorithm est une des idées les plus simple pour tester l'isomorphisme entre deux graphes. Il a été réutilisé et modifier énormément de fois.  Cependant, la plus vieille version de l'algorithme date de 1965~\cite{morgan1965generation} pour des structures chimiques. 
 
 \begin{algorithm}
 \caption{Colour Refinement Algorithm~\cite{grohe2012structural}}\label{alg:colour-refinement}
@@ -70,7 +76,7 @@ Colour refinement is not only used in the context of Graph Isomorphism; it also 
 
 \input{figTex/colorRefinement.tex}
 
-Regarding the time complexity, for a graph $G$ with $n$ vertices and $m$ edges, a stable colouring can be reached after at most n refinement steps. Then, it can be computed in time $\mathcal{O}((n + m)\log n)$~\cite{cardon1982partitioning}, and has a lower bound of $\Omega((n + m)\log n)$ for the natural class of iterative partition refinement algorithms~\cite{berkholz2017tight}. This gives a tight bound of $\Theta((n + m)\log n)$ for such algorithms.
+Regarding the time complexity, for a graph $G$ with $n$ vertices and $m$ edges, a stable colouring can be reached after at most n refinement steps. In fact, it can be computed in time $\mathcal{O}((n + m)\log n)$~\cite{cardon1982partitioning}, and has a lower bound of $\Omega((n + m)\log n)$ for the natural class of iterative partition refinement algorithms~\cite{berkholz2017tight}. This gives a tight bound of $\Theta((n + m)\log n)$ for such algorithms.
 
 Now that the concept of colour refinement is well defined, we can turn to the types of combinatorial algorithms that build upon it. The most direct generalisation is the \textit{Weisfeiler-Leman algorithm} (or $k$-WL)~\cite{kiefer2020power}. Its underlying principle remains largely the same as that of colour refinement, except that instead of comparing individual vertices, the algorithm operates on $k$-tuples of vertices. The central concept it introduces is that of \textit{$i$-neighbours}: for $\vec{v}, \vec{w} \in V^k$ and $i \in \{1, \dots, k\}$, the tuples $\vec{v}$ and $\vec{w}$ are said to be $i$-neighbours if $v_j = w_j$ for all $j \neq i$. 
 
@@ -102,10 +108,10 @@ Now that the concept of colour refinement is well defined, we can turn to the ty
 \end{algorithmic}
 \end{algorithm}
 
-\rodolphe{Rajouter exemple de $k$-WL sur un graphe simple avec petite explication avec peut-êtr?}
+\rodolphe{Rajouter exemple de $k$-WL sur un graphe simple}
 
 
-An interesting result is that for all graphs $G$ and $H$, $2$-WL can distinguish $G$ and $H$ if and only if colour refinement can distinguish them. In other words, despite the fact that $2$-WL operates on pairs of vertices and provides a richer representation of the graph structure, it has the same distinguishing power as colour refinement for the graph isomorphism problem.~\cite{grohe2012structural}
+An interesting result is that for all graphs $G$ and $H$, $2$-WL can distinguish $G$ and $H$ if and only if colour refinement can distinguish them. In other words, despite the fact that $2$-WL operates on pairs of vertices and provides a richer representation of the graph structure, it has the same distinguishing power as colour refinement for the graph isomorphism problem~\cite{grohe2012structural}.
 
 However, the situation changes when considering dimensions higher than two. For every $k \geq 3$, $k$-WL is strictly more powerful than $(k-1)$-WL.\@ In particular, while $2$-WL and colour refinement have the same distinguishing power, $3$-WL can distinguish graph pairs that are indistinguishable by $1$-WL and $2$-WL.\@
 
@@ -115,15 +121,20 @@ For example, $3$-WL can solve the graph isomorphism problem for planar graphs~\c
 
 Regarding its complexity, for a graph $G$ with $n$ vertices, the stable colouring of $k$-WL can be reached after at most $n^k$ refinement rounds. The stable colouring can then be computed in time $\mathcal{O}(n^k \log n)$.
 
-Beyond this tuple-based generalisation, a second and quite different family of approaches relies on \textit{individualisation-refinement}. This technique consists of fixing vertices (individualisation) combined with the refinement of partitions of the vertex set; it was first introduced by Parris and Read~\cite{parris1969coding}, as cited in~\cite{mckay2014practical}. Its first implementation appeared in \Naut, whose key idea is to construct a \textit{search tree} in which individualisation and refinement are applied recursively to guide the traversal. Once the search tree has been fully built, a \textit{node invariant} function is applied to compute a \textit{canonical labelling} of the graph: a unique representation, or canonical form, of that graph. This canonical labelling lies at the heart of solving the Graph Isomorphism problem (GI), since two graphs are isomorphic if and only if their canonical forms coincide.
 
-Over time, several other GI solvers based on the individualisation-refinement paradigm have emerged, each building on or extending the ideas underlying \Naut. \textit{Saucy}, introduced in 2004, follows the same principle but was designed to outperform \Naut{} on sparse graphs~\cite{darga2004exploiting}. A few years later, \textit{Bliss} was released; it also computes canonical forms but incorporates additional techniques that improve performance on more complex graphs (\cite{junttila2011conflict}, as cited in~\cite{mckay2014practical}).\textit{Conauto}, introduced in 2009, has shown remarkable efficiency on random graphs and on certain families of hard instances~\cite{lopez2011conauto}. Finally, \textit{Traces} was developed~\cite{piperno2008search} as a tool able to compete with \Naut{} on the Graph Isomorphism problem; today, Traces and \Naut{} are tightly integrated and distributed together~\cite{mckay2014practical}.
+Beyond this tuple-based generalisation, En pratique, c'est assez lourd de lancer $2$-WL algorithm sur des graphes. En règle général, dans les current isomorphism package, nous allons utiliser le color refinement comme vu précédemment. Cela reste sufficient pour la majorité des graphes. Si par contre, on remarque que ça ne suffit pas, alors l'algorithme va passer au concept de \textit{l'individualisation}. This isa second and quite different family of approaches relies on \textit{individualisation-refinement}. This technique consists of fixing vertices (individualisation) combined with the refinement of partitions of the vertex set; it was first introduced by Parris and Read~\cite{parris1969coding}, as cited in~\cite{mckay2014practical}. Ça va permettre de casser la symétrie and subsequently color refinement can be potentially
+applied again to produce a more refined partition of the vertices.~\cite{grohe2020graph}. Its first implementation appeared in \Naut{}, whose key idea is to construct a \textit{search tree} in which individualisation and refinement are applied recursively to guide the traversal. During the exploration of the search tree, a \textit{node invariant} is computed at each node to guide the search and prune unnecessary branches. Once the search is complete, the information gathered throughout this exploration is used to determine a \textit{canonical labelling} of the graph, that is, a unique representation, or canonical form, of the graph. This canonical labelling lies at the heart of solving the Graph Isomorphism problem (GI), since two graphs are isomorphic if and only if their canonical forms coincide. These notions will be revisited and studied in much greater detail in the next chapter.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{imgs/pré-mémoire.png}
     \caption{Example of GI with canonical labelling from~\cite{mckay2024nug}}\label{fig: canonical labbeling}
 \end{figure}
+
+
+Over time, several other GI solvers based on the individualisation-refinement paradigm have emerged, each building on or extending the ideas underlying \Naut. \textit{Saucy}, introduced in 2004, follows the same principle but was designed to outperform \Naut{} on sparse graphs~\cite{darga2004exploiting}. A few years later, \textit{Bliss} was released; it also computes canonical forms but incorporates additional techniques that improve performance on more complex graphs (\cite{junttila2011conflict}, as cited in~\cite{mckay2014practical}).\textit{Conauto}, introduced in 2009, has shown remarkable efficiency on random graphs and on certain families of hard instances~\cite{lopez2011conauto}. Finally, \textit{Traces} was developed~\cite{piperno2008search} as a tool able to compete with \Naut{} on the Graph Isomorphism problem; today, Traces and \Naut{} are tightly integrated and distributed together~\cite{mckay2014practical}.
+
+
 
 \medskip
 
