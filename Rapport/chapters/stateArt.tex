@@ -17,13 +17,16 @@ The Graph Isomorphism (GI) problem is very well known among computer scientists 
 
 GI was referred to as an ``open problem'' in the 1970s, a problem for which it was not known whether it was \NP-complete, belonged to $\P$, or neither~\cite{garey2002computers}. Nowadays, its \NP-completeness is considered highly unlikely, as proving GI \NP-complete would imply a collapse of the polynomial-time hierarchy (\PH) to its second level~\cite{goldreich1991proofs, schoning1988graph}—a result that would have major consequences for computational complexity theory. This is especially problematic because it is widely conjectured that all levels of \PH{} are distinct. If \GI{} were \NP-complete, all levels above the second level would collapse to the second level.
 
-Cependant, quelques recherches nous permettent de rapprocher de plus en plus GI vers certaines classes de complexité. Par exemple, Il a été démontré que The graph Isomorphism is in \hyperref[def:SPP]{SPP}~\cite{arvind2006graph}. Ce qui permet de dire que si 2 graphes sont isomorphes, il n'y a qu'une seule réponse possible à ce ce problème. De plus, 
+Cependant, quelques recherches nous permettent de rapprocher de plus en plus GI vers certaines classes de complexité. Par exemple, Il a été démontré que The graph Isomorphism is in \hyperref[def:SPP]{SPP}~\cite{arvind2006graph}. Ce qui permet de dire que si 2 graphes sont isomorphes, il n'y a qu'une seule réponse possible à ce ce problème. De plus, Un papier assez récent a montré que GI est hard pour une grande quantité de classes d'espaces logarithmique.~\cite{toran2004hardness}. GI nous réserve beucoup de surprises et il est encore loin d'être complètement compris.
+
+\rodolphe{Ici c'est un gros papier sur sa complexité, je peux en parler plus mais je me suis dit qu'il ne fallait pas trop aller dans les détails, t'en penses quoi?}
 
 
-\rodolphe{Rajouter worst Case et average Case}
-For three decades, the fastest proven running time for the Graph Isomorphism problem was $e^{\mathcal{O}(\sqrt{n \log n})}$~\cite{babai1983computational}. But in 2016, it was shown that GI can be solved in quasi-polynomial time: $e^{\log(n){}^{\mathcal{O}(1)}}$~\cite{babai2016graph}, which makes one think even more that GI is only \NP{}-intermediate rather than \NP{}-complete, since otherwise every problem in \NP{} would be solvable in quasi-polynomial time.
+For three decades, the fastest proven running time for the Graph Isomorphism problem was $e^{\mathcal{O}(\sqrt{n \log n})}$~\cite{babai1983computational}. But in 2016, it was shown that GI can be solved in quasi-polynomial time: $e^{\log(n){}^{\mathcal{O}(1)}}$~\cite{babai2016graph}, which makes one think even more that GI is only \NP{}-intermediate rather than \NP{}-complete, since otherwise every problem in \NP{} would be solvable in quasi-polynomial time. Regarding the average-case complexity, Graph Isomorphism can be solved in expected linear time in the $\mathcal{G}(n,1/2)$ random graph model, where each edge is included independently with probability $1/2$~\cite{babai1980random}. In particular, the algorithm runs in linear time asymptotically almost surely, implying an expected linear running time. This result is particularly significant because it shows that Graph Isomorphism is easy to solve for almost all graphs, even though it remains challenging in the worst case.
 
-\rodolphe{Ici aussi je pourrai potentiellement parler plus de l'algorithme de Babai et de comment il fonctionne. Mais je ne sais pas si c'est utile pour le mémoire. T'en penses quoi?}
+\rodolphe{À vérifier pour average case}
+
+\rodolphe{Ici aussi je pourrai potentiellement parler plus du papier de Babai et de comment il fonctionne. Mais je ne sais pas si c'est utile pour le mémoire. T'en penses quoi?}
 
 
 
@@ -134,11 +137,11 @@ applied again to produce a more refined partition of the vertices.~\cite{grohe20
 
 Over time, several other GI solvers based on the individualisation-refinement paradigm have emerged, each building on or extending the ideas underlying \Naut. \textit{Saucy}, introduced in 2004, follows the same principle but was designed to outperform \Naut{} on sparse graphs~\cite{darga2004exploiting}. A few years later, \textit{Bliss} was released; it also computes canonical forms but incorporates additional techniques that improve performance on more complex graphs (\cite{junttila2011conflict}, as cited in~\cite{mckay2014practical}).\textit{Conauto}, introduced in 2009, has shown remarkable efficiency on random graphs and on certain families of hard instances~\cite{lopez2011conauto}. Finally, \textit{Traces} was developed~\cite{piperno2008search} as a tool able to compete with \Naut{} on the Graph Isomorphism problem; today, Traces and \Naut{} are tightly integrated and distributed together~\cite{mckay2014practical}.
 
-
+Malheureusement, En 2017, David Neuen and Pascal Schweitzer demonstrated that all individualisation-refinement algorithms have an Exponential Lower Bound. In other words even though these algorithms are very efficient in practice, they are still runnning in polynomial time.~\cite{10.1145/3188745.3188900}. De nos jours, il n'y a pas encore de meilleur algorithme pour résoudre GI.\ Ce qui montre que la pratique est encore très loin de la théorie.
 
 \medskip
 
-Finally, an alternative approach to solving GI relies on linear programming. Given the adjacency matrices of two graphs $G$ and $H$, they are isomorphic if and only if there exists a permutation matrix $X$ such that $X^\top A X = B$.
+Finally, Il existe une toute dernière approche pour résoudre GI qui sort un peu des méthodes citées jusqu'ici. C'est une méthode relies on linear programming. Given the adjacency matrices of two graphs $G$ and $H$, they are isomorphic if and only if there exists a permutation matrix $X$ such that $X^\top A X = B$.
 
 This formulation can be relaxed using LP techniques, notably the Sherali-Adams hierarchy. In particular, level-$k$ Sherali-Adams relaxations offer a powerful framework that has been investigated for graph isomorphism testing~\cite{grohe2012structural}.
 
