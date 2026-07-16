@@ -2,7 +2,7 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17 -MMD
 TARGET = bin/main
-OBJS = obj/main.o obj/Graph.o obj/Partition.o
+OBJS = obj/main.o obj/Graph.o obj/Partition.o obj/bsgs.o
 
 
 all: dirs $(TARGET)
