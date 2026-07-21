@@ -40,27 +40,26 @@ As an example, let \emph{$S_n$} denote the \emph{symmetric group} acting on a se
   \]
 \end{definition}
 
-
-
 \vspace{1em}
- 
-\begin{definition}
-An \emph{equivalence relation}, denoted by $\sim$, on a set $X$ is a binary relation that is reflexive, symmetric, and transitive.
-
-For any element $x \mathrel{\in}X$, the \emph{equivalence class} of $x$ under $\sim$ is the subset
-\[
-[x] = \{ y \mathrel{\in}X \mid y \sim x \}.
-\]
-
-The \emph{quotient set} of $X$ by $\sim$, denoted by
-\[
-X / {\sim} = \{ [x] \mid x \mathrel{\in}X \},
-\]
-is the set of all equivalence classes of $X$ under $\sim$.
-\end{definition}
 
 
+\begin{definition}\label{def:orbit}
+    Let $G \leq S_n$ be a permutation group and let $\alpha \in \{1,\dots,n\}$. 
+    The \emph{orbit} of $\alpha$ under the action of $G$ is the set
+    \[
+    \operatorname{Orb}_G(\alpha)=\{\alpha^g \mid g\in G\}.
+    \]
+    \end{definition}
 
+    \vspace{1em}
+    
+    \begin{definition}\label{def:stabilizer}
+    Let $G \leq S_n$ be a permutation group and let $\alpha \in \{1,\dots,n\}$. 
+    The \emph{stabilizer} of $\alpha$ in $G$ is the subgroup
+    \[
+    G_\alpha=\{g\in G \mid \alpha^g=\alpha\}.
+    \]
+    \end{definition}
 
 \section{Graph Definitions}
 
@@ -92,8 +91,21 @@ Let $G= (V,E)$ be a graph. Let $\sim$ be an equivalence relation on $V$. The \em
 We let \emph{$\mathcal{G}_n$} be the set of all graphs on $n$ vertices (without loss of generality, say $V = \{1, 2, \ldots, n\}$).\emph{$\mathcal{G}$} represents the set of all graphs.
 \end{definition}
 
+\vspace{1em}
+
+\begin{definition}\label{def:$K1_3$}
+
+The \emph{star graph} $K_{1,3}$ is a tree with one internal node and three leaves. It is also known as the \emph{claw graph}. The internal node is called the \emph{center} of the star graph. Pour la majorité de nos exemples, nous allons utiliser ce graphe.
+
+\begin{figure}[ht]
+    \centering
+        \input{figTex/K1_3.tex}
+    \caption{The star graph $K_{1,3}$ with its center and leaves.}
+\end{figure}
+\end{definition}
 \subsection{Definitions specifics to isomorphisms}
 
+\vspace{1em}
 
 \begin{definition}\label{def: colouring}
 A \emph{colouring} of $V$ (or of $G \mathrel{\in}\mathcal{G}$) is a surjective function $\pi$ from $V$ onto $\{1, 2,\ldots, k\}$ for some $k$. The number of colours, i.e. $k$, is denoted by $|\pi|$. A cell of $\pi$ is the set of vertices with some given colour; that is, $\pi^{-1} (j)$ for some $j$ with $1 \mathrel{\leq} j \mathrel{\leq} |\pi|$. We let $\Pi$ be the set of all colourings.
