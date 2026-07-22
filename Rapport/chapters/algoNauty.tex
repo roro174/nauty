@@ -375,6 +375,11 @@ $|X| = \min_{Y \in \pi,\ |Y| > 1} |Y|$}
 \end{algorithmic}
 }%
 }
+
+
+\rodolphe{Mettre graphe exemple}
+
+
 \subsubsection{Implementation Node Invariant}
 
 Now that the search tree is implemented, we need to define the \hyperref[def: node variant]{node invariant function}, which will allow us to determine the canonical form. To compute this function, we can rely on two related sources:
@@ -426,6 +431,7 @@ Here is the exhaustive list of invariant methods that we have implemented so far
 \end{enumerate}
 
 \rodolphe{les prochaines méthodes d'invariants arrivent mais la structure est là}
+
 \subsection{Pruning strategies}
 
 To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define two types of pruning strategies to optimize our construction:
@@ -531,27 +537,36 @@ This is a direct application of the pruning operation $P_C$.
 
 To get a concrete idea of what this looks like in code, here is a simplified pseudo-code of the Schreier-Sims method for \Naut{}.
 
-
-\vspace{0.5em}
 \noindent\fbox{%
-\parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
-\textit{pseudo-code of Schreier-Sims within \Naut{}}
+  \parbox{\linewidth-2\fboxsep-2\fboxrule}{%
+    \textit{Pseudo-code of Schreier-Sims method for \Naut{}} 
 
-\vspace{0.5em}
-
+    \vspace{0.5em}
 \begin{algorithmic}[1]
-\State\textbf{Data:} reference leaf $\sigma_0$ (the first leaf reached), current leaf $\sigma'$, group data $(B, \Delta_i, U_i)$ built so far
-\State\textbf{Result:} group data updated with any automorphism found at $\sigma'$
-
-\If{$\mathrm{invariant}(\sigma') = \mathrm{invariant}(\sigma_0)$}
-    \State $g \gets R(G,\pi_0,\sigma')\, R(G,\pi_0,\sigma_0)^{-1}$ \Comment{candidate automorphism}
-    \If{$g \neq \mathrm{id}$}
-        \State \Call{InsertGenerator}{$g$, level $1$} \Comment{see previous section}
-    \EndIf
-\EndIf
-\end{algorithmic}
-}%
-}
+  \State\textbf{Data:} graph $G$, initial partition $\pi_0$, reference leaf $\sigma_0$, current base $B$
+  \State\textbf{Result:} BSGS
+  
+  \For{each leaf $\sigma'$ reached by the depth-first search}
+  \If{$\phi(G,\pi_0,\sigma') = \phi(G,\pi_0,\sigma_0)$} 
+  \State$g \gets R(G,\pi_0,\sigma')\, R(G,\pi_0,\sigma_0){}^{-1}$ \Comment{candidate automorphism}
+          \If{$g \neq \mathrm{id}$}
+              \State\Call{InsertGenerator}{$g$, level $1$}
+          \EndIf{}
+      \EndIf{}
+  \EndFor{}
+  
+  \Statex{}
+  
+  \Procedure{InsertGenerator}{$g$, level $i$}
+      \If{$B$ has no point at level $i$}
+          \State{} choose a new base point $b_i$ moved by $g$
+      \EndIf{}
+      \State{} add $g$ to the strong generators at level $i$
+      \State\Call{GrowOrbit}{$i$} \Comment{updates the orbit and transversal at level $i$}
+      \State\Call{CloseStabilizer}{$i$} \Comment{Schreier generators, recurses if needed}
+  \EndProcedure\end{algorithmic}
+  }%
+  }
 
 \subsubsection{Random Schreier method}
 
@@ -561,6 +576,10 @@ The objective is not to compute the complete BSGS as early as possible, but rath
 
 Since the method relies on randomization, its effectiveness depends on the input graph. For many highly symmetric graphs, it substantially improves the pruning process. However, for graphs with few automorphisms, the additional computations required to generate and process random group elements may outweigh the benefits. For this reason, the Random Schreier method is implemented as an optional feature in \Naut{}.
 
+\rodolphe{Mettre complexité}
+
+
+\rodolphe{Mettre graphe final de pruning exemple}
 
 \subsection{Final Search Tree Construction}
 
