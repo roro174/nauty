@@ -130,7 +130,7 @@ std::string Graph::toGraph6() const {
     return result;
 }
 
-// --- Upper triangle ---
+
 std::string Graph::upperTriangleMatrix() const {
     std::string result;
     for(size_t i=1; i < n; ++i)
