@@ -6,7 +6,7 @@ Partition::Partition(int nVertices) {
     Cell c;
     c.id = CellId++;
     c.verts.resize(nVertices);
-    iota(c.verts.begin(), c.verts.end(), 0);
+    iota(c.verts.begin(), c.verts.end(), 0); // Fill with 0, 1, ..., nVertices-1
     idToIndex[c.id] = 0;
     for(int v : c.verts)
         vertexToCellId[v] = c.id;
@@ -33,9 +33,6 @@ void Partition::rebuildIndex() {
 
 
 bool Partition::isDiscrete() const {
-    /*
-    * Normalement ici la fonction est bonne
-    */
     for (auto &c : cells)
         if (c.verts.size() > 1)
             return false;
@@ -57,7 +54,7 @@ void Partition::individualizeVertex(int v) {
     Cell& old = cells[idx];
     if (old.verts.size() == 1) return; // déjà singleton
 
-    // Nouvelle cellule
+    // New cell for the individualized vertex
     Cell newCell;
     newCell.id = CellId++;
     newCell.verts.push_back(v);
@@ -69,9 +66,6 @@ void Partition::individualizeVertex(int v) {
     }
 
 std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, size_t cellIndex, const vector<int> splitterVerts) const {
-    /*
-    * Normalement ici la fonction est bonne
-    */
     const vector<int> &Xverts = cells[cellIndex].verts;
     std::map<int, std::vector<int>> groups;
     std::unordered_set<int> S(splitterVerts.begin(), splitterVerts.end());
@@ -85,9 +79,6 @@ std::map<int, std::vector<int>> Partition::fragmentCellByCounts(const Graph &G, 
 }
 
 std::vector<Partition::Cell> Partition::applyFragmentation(size_t cellIndex, const std::map<int, std::vector<int>>& groups) {
-    /*
-    * Normalement ici la fonction est bonne
-    */
     std::vector<Cell> newCells;
     for (const auto& [_, verts] : groups) {
         Cell newCell;
@@ -107,15 +98,13 @@ void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
         alpha.erase(alpha.begin());
         vector<int> cellIds;
         for (const auto& c : cells) cellIds.push_back(c.id);
-        for (int cellId : cellIds) { // parcours les id au lieu des cellules
+        for (int cellId : cellIds) { // pass by value to avoid invalidating the iterator
             size_t XIdx = indexOf(cellId);
             std::map<int, std::vector<int>> fragments = fragmentCellByCounts(G, XIdx, W.verts);
 
             if (fragments.size() <= 1) continue;
 
             std::vector<Cell> newCells = applyFragmentation(XIdx, fragments);
-
-            // Vérifie si la cellule était dans alpha
             bool inAlpha = false;
             size_t index = 0;
             for (const auto& c : alpha) {
@@ -130,7 +119,7 @@ void Partition::refineGraph(const Graph &G, vector<Cell> alpha) {
                 alpha.erase(alpha.begin() + index);
                 alpha.insert(alpha.begin() + index, newCells.begin(), newCells.end());
             } else {
-                // Ajouter toutes sauf la plus grande à alpha
+                // add all new cells except the largest one to alpha
                 auto it = std::max_element(newCells.begin(), newCells.end(),
                                            [](const Cell &a, const Cell &b) {
                                                return a.verts.size() < b.verts.size();

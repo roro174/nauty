@@ -1,5 +1,4 @@
-#ifndef GRAPH_HPP
-#define GRAPH_HPP
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -164,5 +163,3 @@ public:
      */
     std::string toGraph6() const;
 };
-
-#endif // GRAPH_HPP

@@ -1,7 +1,11 @@
-#include "Partition.hpp"
-#include "Graph.hpp"
+#include "invariant.hpp"
+#include <algorithm>
+#include <unordered_set>
+#include <iterator>
 
-const vector<int> InvariantTriangleByCell(const Graph &G, const Partition &P){
+using namespace std;
+
+vector<int> InvariantTriangleByCell(const Graph &G, const Partition &P){
     vector<Partition::Cell> Pcells = P.getCells();
     vector<int> triangle(Pcells.size(), 0);
 
