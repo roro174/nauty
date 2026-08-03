@@ -2,40 +2,30 @@
 
 \section{The Graph Isomorphism Problem}
 
-\begin{figure}[ht]
-    \centering
-    \resizebox{\textwidth}{!}{%
-    \input{figTex/ex_isomorphisme.tex}%
-    }
-    \caption{Example of isomorphism between two graphs $G_1$ and $G_2$}
-  \end{figure}
+The Graph Isomorphism (GI) problem is one of the best-known problems in theoretical computer science and graph theory. It has attracted so much attention from algorithm designers that it was referred to as a ``disease'' by researchers~\cite{read1977graph}. GI belongs to the complexity class \hyperref[def:NP]{$\NP$}, whose certificate is a claimed isomorphism between the two graphs: for every pair of vertices, one simply checks that they are adjacent in one graph if and only if their images under the claimed isomorphism are adjacent in the other. Yet it remains unknown whether it can be solved in polynomial time, that is, whether GI belongs to $\P$. Likewise, GI is not known to be \NP-complete, and its relationship with $\coNP$ also remains unresolved. As a result, the Graph Isomorphism problem continues to occupy a unique position in computational complexity theory.
+
+During the 1970s, GI became one of the emblematic ``open problems'' of complexity theory: it was unknown whether it belonged to $\P$, was \NP-complete, or occupied an intermediate position between the two~\cite{garey2002computers}. Today, the possibility that GI is \NP-complete is considered highly unlikely. Indeed, it has been shown that proving GI \NP-complete would imply that the polynomial-time hierarchy (\PH) collapses to its second level~\cite{goldreich1991proofs, schoning1988graph}. Such a collapse is considered extremely unlikely, as complexity theorists widely conjecture that all levels of the polynomial hierarchy are distinct~\cite{aaronson2016p}. Consequently, GI is regarded as one of the strongest candidates for an \NP-intermediate problem.
+
+Although its exact complexity remains unknown, several important theoretical results have progressively clarified GI's position within the complexity landscape. For instance, Graph Isomorphism has been shown to belong to \hyperref[def:SPP]{\textsf{SPP}}. Furthermore, Torán proved that GI is hard for a large collection of logarithmic-space complexity classes, highlighting that the problem also occupies a central role in the study of space complexity~\cite{toran2004hardness}. These results illustrate that, despite decades of research, the exact complexity of GI remains remarkably subtle.
+
+Progress has also been made from an algorithmic perspective. For more than thirty years, the fastest proven algorithm for Graph Isomorphism had a running time of 
+$e^{\mathcal{O}(\sqrt{n \log n})}$~\cite{babai1983computational}. 
+A major breakthrough came in 2016, when László Babai introduced the first quasi-polynomial-time algorithm, running in time 
+$e^{\log(n){}^{\mathcal{O}(1)}}$~\cite{babai2016graph}. 
+The algorithm builds upon previous advances in Graph Isomorphism algorithms and handles highly symmetric cases using group-theoretic (introduced in more details in a few paragraphs) local certificates\footnote{Efficiently verifiable structures that reveal properties of local graph structures without requiring a complete global analysis.} and combinatorial canonical partitioning techniques. 
+Although this result does not settle whether GI belongs to $\P$, it further supports the belief that the problem is $\NP$-intermediate rather than $\NP$-complete, since an $\NP$-complete problem admitting a quasi-polynomial-time algorithm would imply that every problem in $\NP$ also has a quasi-polynomial-time algorithm. This would be a major and unexpected consequence in computational complexity theory, as it would refute the Exponential Time Hypothesis (ETH)~\cite{impagliazzo2001complexity}.
+
+Despite the difficulty of the general Graph Isomorphism problem, efficient algorithms can be obtained for specific classes of graphs. In particular, Babai, Erdős and Selkow showed that in the Erdős–Rényi random graph model $\mathcal{G}(n,1/2)$, where each edge is independently included with probability $1/2$, almost all graphs can be canonically labelled in linear time by a simple refinement procedure~\cite{babai1980random}. This result illustrates that, although carefully constructed graphs can remain challenging, random graphs are typically easy to distinguish due to their lack of structural symmetries.
 
 
-  The Graph Isomorphism (GI) problem is one of the best-known problems in theoretical computer science and graph theory. It has attracted so much attention from algorithm designers that it was referred to as a ``disease'' by researchers~\cite{read1977graph}. GI belongs to the complexity class $\NP$ (cf.~\cref{def:NP}), yet it remains unknown whether it can be solved in polynomial time. In other words, it is still open whether GI belongs to $\P$. Likewise, GI is not known to be \NP-complete, and its relationship with $\coNP$ also remains unresolved. As a result, the Graph Isomorphism problem continues to occupy a unique position in computational complexity theory.
+Despite these advances, the precise complexity of Graph Isomorphism remains unresolved. Nevertheless, polynomial-time algorithms are known for numerous restricted graph classes. These classes are typically characterised by structural constraints, such as excluded minors\footnote{A graph $H$ that cannot be formed within another graph G through any sequence of edge deletions, vertex deletions or edge contractions.} (see~\cite{ponomarenko1988isomorphism} in Russian, as cited in~\cite{mckay2014practical}), or excluded topological subgraphs\footnote{Same idea of a minor but only allow for the contraction of edges adjacent to degree-two vertices.}~\cite{grohe2012structural}. Prominent examples include graphs of bounded degree\footnote{A graph whose maximum degree is bounded by a fixed constant $d$.}~\cite{luks1982isomorphism}, bounded tree-width~\cite{bodlaender1990polynomial}\footnote{An integer measuring, informally, how far the graph is from being a tree. See Reinhard Diestel’s book on graph theory for further information~\cite{diestel2025}.}, and, more recently, graphs of clique-width\footnote{It measures the structural complexity of a graph by the minimum number of labels required to construct it using simple graph operation.} at most three~\cite{das2020polynomial}. Graphs of bounded genus\footnote{The genus of a graph is the minimum number of handles required on a surface to embed the graph without edge crossings.} were also claimed to admit a polynomial-time algorithm~\cite{filotti1980polynomial}; however, the correctness of the original proof was later questioned~\cite{myrvold2011errors}.
 
-  During the 1970s, GI became one of the emblematic ``open problems'' of complexity theory: it was unknown whether it belonged to $\P$, was \NP-complete, or occupied an intermediate position between the two~\cite{garey2002computers}. Today, the possibility that GI is \NP-complete is considered highly unlikely. Indeed, it has been shown that proving GI \NP-complete would imply that the polynomial-time hierarchy (\PH) collapses to its second level~\cite{goldreich1991proofs, schoning1988graph}. Such a collapse is considered extremely unlikely, as complexity theorists widely conjecture that all levels of the polynomial hierarchy are distinct. Consequently, GI is regarded as one of the strongest candidates for an \NP-intermediate problem.
-  
-  Although its exact complexity remains unknown, several important theoretical results have progressively clarified GI's position within the complexity landscape. For instance, Graph Isomorphism has been shown to belong to \hyperref[def:SPP]{SPP}. Furthermore, Torán proved that GI is hard for a large collection of logarithmic-space complexity classes, highlighting that the problem also occupies a central role in the study of space complexity~\cite{toran2004hardness}. These results illustrate that, despite decades of research, the exact complexity of GI remains remarkably subtle.
-  
-  Progress has also been made from an algorithmic perspective. For more than thirty years, the fastest proven algorithm for Graph Isomorphism had a running time of 
-  $e^{\mathcal{O}(\sqrt{n \log n})}$~\cite{babai1983computational}. 
-  A major breakthrough came in 2016, when Babai introduced the first quasi-polynomial-time algorithm, running in time 
-  $e^{\log(n){}^{\mathcal{O}(1)}}$~\cite{babai2016graph}. 
-  The algorithm builds upon previous advances in Graph Isomorphism algorithms and handles highly symmetric cases using group-theoretic (introduced in more details in a few paragraphs) local certificates\footnote{efficiently verifiable structures that reveal properties of local graph structures without requiring a complete global analysis} and combinatorial canonical partitioning techniques. 
-  Although this result does not settle whether GI belongs to $\P$, it further supports the belief that the problem is $\NP$-intermediate rather than $\NP$-complete, since an $\NP$-complete problem admitting a quasi-polynomial-time algorithm would imply that every problem in $\NP$ also has a quasi-polynomial-time algorithm.
+For some restricted graph classes, even stronger complexity bounds are known. In particular, Graph Isomorphism for planar graphs\footnote{ Graph that can be drawn on a flat surface so that its edges intersect only at their shared endpoints.} and interval graphs\footnote{An undirected graph formed from a set of intervals on the real line.} belongs to the complexity class $\LOGSPACE$ (cf.~\cref{def: logspace}), representing a significant improvement in memory complexity~\cite{datta2009planar, kobler2011interval}.
+
+As increasingly sophisticated techniques have been developed, polynomial-time algorithms have been obtained for a growing number of graph classes. However, many of these algorithms remain primarily of theoretical interest and are difficult to implement efficiently. Notable exceptions include \hyperref[def:tree]{trees}~\cite{aho1974design}, planar graphs~\cite{10.1145/800119.803896}, and interval graphs~\cite{colbourn1981linear}, for which practical algorithms are available.
 
 
-  Despite the difficulty of the general Graph Isomorphism problem, efficient algorithms can be obtained for specific classes of graphs. In particular, Babai, Erdős, and Selkow showed that in the Erdős–Rényi random graph model $\mathcal{G}(n,1/2)$, where each edge is independently included with probability $1/2$, almost all graphs can be canonically labeled in linear time by a simple refinement procedure~\cite{babai1980random}. This result illustrates that, although carefully constructed graphs can remain challenging, random graphs are typically easy to distinguish due to their lack of structural symmetries.
-
-
-  Despite these advances, the precise complexity of Graph Isomorphism remains unresolved. Nevertheless, polynomial-time algorithms are known for numerous restricted graph classes. These classes are typically characterised by structural constraints, such as excluded minors\footnote{A graph $H$ that cannot be formed within another graph G through any sequence of edge deletions, vertex deletions or edge contractions} (see~\cite{ponomarenko1988isomorphism} in Russian, as cited in~\cite{mckay2014practical}), or excluded topological subgraphs\footnote{Same idea of a minor but only allow for the contraction of edges adjacent to degree-two}~\cite{grohe2012structural}. Prominent examples include graphs of bounded degree\footnote{A graph whose maximum degree is bounded by a fixed constant d.}~\cite{luks1982isomorphism}, bounded tree-width~\cite{bodlaender1990polynomial}\footnote{An integer number which specifies, informally, how far the graph is from being a tree}, and, more recently, graphs of clique-width\footnote{It measures the structural complexity of a graph by the minimum number of labels required to construct it using simple graph operation} at most three~\cite{das2020polynomial}. Graphs of bounded genus\footnote{The genus of a graph is the minimum number of handles required on a surface to embed the graph without edge crossings} were also claimed to admit a polynomial-time algorithm~\cite{filotti1980polynomial}; however, the correctness of the original proof was later questioned~\cite{myrvold2011errors}.
-  
-  For some restricted graph classes, even stronger complexity bounds are known. In particular, Graph Isomorphism for planar graphs\footnote{ graph that can be drawn on a flat surface so that its edges intersect only at their shared endpoints} and interval graphs\footnote{An undirected graph formed from a set of intervals on the real line.} can be solved in $\LOGSPACE$ (cf.~\cref{def: logspace}), representing a significant improvement in memory complexity~\cite{datta2009planar, kobler2011interval}.
-  
-  As increasingly sophisticated techniques have been developed, polynomial-time algorithms have been obtained for a growing number of graph classes. However, many of these algorithms remain primarily of theoretical interest and are difficult to implement efficiently. Notable exceptions include \hyperref[def:tree]{trees}~\cite{aho1974design}, planar graphs~\cite{10.1145/800119.803896}, and interval graphs~\cite{colbourn1981linear}, for which practical algorithms are available.
-
-  
-  Conversely, restricting the input to particular graph families does not necessarily simplify the problem. Indeed, Graph Isomorphism remains GI-complete on several seemingly restricted classes, including bipartite graphs\footnote{a network of vertices divided into two disjoint sets, where every edge connects a vertice in one set to a vertice in the other}, chordal graphs\footnote{An undirected graph where every cycle of length 4 or greater has a chord}, graphs of bounded degeneracy\footnote{ graph has bounded degeneracy $d$ if every subgraph contains a vertex with a degree of $d$ or less}, and graphs of bounded expansion\footnote{Graphs of bounded expansion are families of sparse graphs (a graph whose number of edges is small compared to its number of vertices) where all shallow minors (a minor obtained by restricting the depth of the contractions) have bounded average density}~\cite{grohe2012structural}.
+Conversely, restricting the input to particular graph families does not necessarily simplify the problem. Indeed, Graph Isomorphism remains GI-complete\footnote{A specific family or class of graphs has an isomorphism problem that is as hard as the general GI problem.} on several seemingly restricted classes, including bipartite graphs\footnote{A network of vertices divided into two disjoint sets, where every edge connects a vertex in one set to a vertex in the other.}, chordal graphs\footnote{An undirected graph where every cycle of length 4 or greater has a chord.}, graphs of bounded degeneracy\footnote{A graph has bounded degeneracy $d$ if every subgraph contains a vertex with a degree of $d$ or less.}, and graphs of bounded expansion\footnote{Graphs of bounded expansion are families of sparse graphs (a graph whose number of edges is small compared to its number of vertices) where all shallow minors (a minor obtained by restricting the depth of the contractions) have bounded average density.}~\cite{grohe2012structural}.
 
 To solve the Graph Isomorphism (GI) problem, three main types of algorithms can be considered~\cite{grohe2012structural}: graph-theoretic algorithms, group-theoretic algorithms, and combinatorial algorithms.
 
@@ -44,36 +34,42 @@ The first family consists of \emph{graph-theoretic algorithms}, classical algori
 The second family comprises \emph{group-theoretic algorithms}, based on computing generators for the automorphism group of a graph. These methods leverage group-theoretic properties and have dominated GI research since the early 1980s. Indeed, GI and the problem of computing a generating set for a graph's automorphism group can each be reduced to the other in polynomial time~\cite{mathon1979note}: the two problems are polynomial-time equivalent, so that solving either one suffices to solve the other. This is the case of Luks' algorithm~\cite{luks1982isomorphism}, which solves the isomorphism problem on graphs of bounded degree by exploiting the structure of the automorphism group to reduce the problem to a sequence of simpler instances.
 
 
-Finally, \emph{combinatorial algorithms} are simple, general-purpose procedures that do not rely on the specific structure of graph classes. All combinatorial algorithms are based on the idea of \emph{colour refinement} (the 1-dimensional version of the Weisfeiler-Leman algorithm~\cite{kiefer2020power}), which aims to compute a \emph{stable colouring} of a graph, as illustrated in \cref{alg:colour-refinement}.Colour refinement is one of the simplest ideas for testing graph isomorphism and has been refined, extended, and incorporated into numerous algorithms over the years. However, the earliest version of the algorithm dates back to 1965, when it was introduced by Morgan for the study of chemical structures~\cite{morgan1965generation}.
+Finally, \emph{combinatorial algorithms} are simple, general-purpose procedures that do not rely on the specific structure of graph classes. All combinatorial algorithms are based on the idea of \emph{colour refinement} (the 1-dimensional version of the Weisfeiler-Leman algorithm~\cite{kiefer2020power}), which aims to compute a \emph{stable colouring} of a graph, as illustrated in \cref{alg:colour-refinement}. Colour refinement is one of the simplest ideas for testing graph isomorphism and has been refined, extended, and incorporated into numerous algorithms over the years. However, the earliest version of the algorithm dates back to 1965, when it was introduced by H. L. Morgan for the study of chemical structures~\cite{morgan1965generation}.
 
 \begin{algorithm}
-\caption{Colour Refinement Algorithm~\cite{grohe2012structural}}\label{alg:colour-refinement}
-\begin{algorithmic}[1]
-\State\textbf{Initialisation:} Assign the same initial colour to all vertices.
-\Repeat{}
-    \State\textbf{Refinement Step:}
-    \ForAll{pairs of vertices $v, w \in V$}
-        \ForAll{colours $c$ in the current colouring}
-            \If{the number of neighbours of $v$ of colour $c$ differs from that of $w$}
-                \State{Assign different colours to $v$ and $w$}
+    \caption{Colour Refinement Algorithm~\cite{grohe2012structural}}\label{alg:colour-refinement}
+    \begin{algorithmic}[1]
+    
+    \State\textbf{Input:} A graph $G=(V,E)$
+    \State\textbf{Initialisation:} Assign the same colour to every vertex.
+
+    \Repeat{}
+        \State\textbf{Refinement Step:}
+        \ForAll{vertices $v,w$ with the same colour}
+        \If{$v$ and $w$ have different numbers of neighbours in some colour class}
+                \State{} Assign different colours to $v$ and $w$.
             \EndIf{}
         \EndFor{}
-    \EndFor{}
-\Until{(the colouring is stable)}
-\end{algorithmic}
+    \Until{the colouring is stable}
+
+    \State\textbf{Return:} the stable colouring.
+
+    \end{algorithmic}
 \end{algorithm}
-
-
 
 To use colour refinement as an isomorphism test, we apply it to the disjoint union of the input graphs $G$ and $G'$. The algorithm \emph{distinguishes} $G$ and $G'$ if there exists a colour $c$ in the stable colouring such that $G$ and $G'$ contain different numbers of vertices of colour $c$. Colour refinement \emph{identifies} a graph $G$ if it distinguishes $G$ from all non-isomorphic graphs; that is, no non-isomorphic graph shares the same stable colouring as $G$. However, if two graphs share the same stable partition, this is not a sufficient condition to prove that they are isomorphic; it is only a necessary one. Therefore, colour refinement does not fully solve the Graph Isomorphism problem, but rather provides a useful indication.
 
-Colour refinement is not only used in the context of Graph Isomorphism; it also plays a role in reducing the cost of solving linear programs~\cite{grohe2014dimension}, as well as in computing graph kernels~\cite{shervashidze2011weisfeiler}.
-
 \input{figTex/colorRefinement.tex}
 
-Regarding the time complexity, for a graph $G$ with $n$ vertices and $m$ edges, a stable colouring can be reached after at most n refinement steps. In fact, it can be computed in time $\mathcal{O}((n + m)\log n)$~\cite{cardon1982partitioning}, and has a lower bound of $\Omega((n + m)\log n)$ for the natural class of iterative partition refinement algorithms~\cite{berkholz2017tight}. This gives a tight bound of $\Theta((n + m)\log n)$ for such algorithms.
+Figure~\ref{fig:colour-refinement-k13} illustrates the execution of colour refinement on $K_{1,3}$. Initially, all four vertices belong to the same colour class $c_0$. During the first refinement step, the algorithm compares the neighbourhood profiles of the vertices. Vertex $1$ has three neighbours, all of colour $c_0$, whereas vertices $2$, $3$, and $4$ each have exactly one neighbour of colour $c_0$. Consequently, the refinement produces two colour classes: vertex $1$ receives one colour, while vertices $2$, $3$, and $4$, which remain indistinguishable from one another, receive another. A second refinement step leaves the colouring unchanged. Vertex $1$ is already isolated in its own colour class, while vertices $2$, $3$, and $4$ still each have exactly one neighbour of the first colour and therefore remain indistinguishable. The resulting colouring is stable, and the algorithm terminates.
 
-Now that the concept of colour refinement is well defined, we can turn to the types of combinatorial algorithms that build upon it. The most direct generalisation is the \textit{Weisfeiler-Leman algorithm} (or $k$-WL)~\cite{kiefer2020power}. Its underlying principle remains largely the same as that of colour refinement, except that instead of comparing individual vertices, the algorithm operates on $k$-tuples of vertices. The central concept it introduces is that of \textit{$i$-neighbours}: for $\vec{v}, \vec{w} \in V^k$ and $i \in \{1, \dots, k\}$, the tuples $\vec{v}$ and $\vec{w}$ are said to be $i$-neighbours if $v_j = w_j$ for all $j \neq i$. 
+Although originally developed in the context of GI, colour refinement has since found applications well beyond it: it has been used to reduce the cost of solving linear programs~\cite{grohe2014dimension} and serves as the foundation of the Weisfeiler-Lehman graph kernels used in machine learning~\cite{shervashidze2011weisfeiler}.
+
+
+
+Regarding the time complexity, for a graph $G$ with $n$ vertices and $m$ edges, a stable colouring can be reached after at most $n$ refinement steps. In fact, it can be computed in time $\mathcal{O}((n + m)\log n)$~\cite{cardon1982partitioning}, and has a lower bound of $\Omega((n + m)\log n)$ for the natural class of iterative partition refinement algorithms~\cite{berkholz2017tight}. This gives a tight bound of $\Theta((n + m)\log n)$ for such algorithms.
+
+Now that we have introduced colour refinement, we can turn to the types of combinatorial algorithms that build upon it. The most direct generalisation is the \textit{Weisfeiler-Leman algorithm} (or $k$-WL)~\cite{kiefer2020power}. Its underlying principle remains largely the same as that of colour refinement, except that instead of comparing individual vertices, the algorithm operates on $k$-tuples of vertices. The central concept it introduces is that of \textit{$i$-neighbours}: for $\vec{v}, \vec{w} \in V^k$ and $i \in \{1, \dots, k\}$, the tuples $\vec{v}$ and $\vec{w}$ are said to be $i$-neighbours if $v_j = w_j$ for all $j \neq i$. 
 
 \begin{algorithm}
 \caption{$k$-dimensional Weisfeiler-Leman ($k$-WL) algorithm}
@@ -112,10 +108,10 @@ The reason behind this improvement is that $k$-WL considers tuples of $k$ vertic
 
 For example, $3$-WL can solve the graph isomorphism problem for planar graphs~\cite{kiefer2019weisfeiler}. This result illustrates the increasing expressive power of higher-dimensional Weisfeiler-Leman algorithms.
 
-Regarding its complexity, for a graph $G$ with $n$ vertices, the stable colouring of $k$-WL can be reached after at most $n^k$ refinement rounds. The stable colouring can then be computed in time $\mathcal{O}(n^k \log n)$.
+Regarding its complexity, for a graph $G$ with $n$ vertices, the stable colouring of $k$-WL can be reached after at most $n^k$ refinement rounds. The stable colouring can then be computed in time $\mathcal{O}(n^k \log n)$~\cite{grohe2012structural}.
 
 
-Beyond this tuple-based generalisation, applying higher-dimensional Weisfeiler-Leman algorithms quickly becomes computationally expensive in practice. Consequently, most modern graph isomorphism software relies on the one-dimensional version, namely \emph{colour refinement}, introduced in the previous section. For the vast majority of graphs, colour refinement already provides a sufficiently informative partition of the vertex set.
+Beyond this tuple-based generalisation, applying higher-dimensional Weisfeiler-Leman algorithms quickly becomes computationally expensive in practice. Consequently, most modern graph isomorphism software rely on the one-dimensional version, namely \emph{colour refinement}, introduced in the previous section. For the vast majority of graphs, colour refinement already provides a sufficiently informative partition of the vertex set.
 
 When colour refinement alone fails to distinguish two graphs, modern isomorphism algorithms typically resort to a second family of techniques known as \emph{individualisation-refinement}. This approach combines the individualisation of carefully chosen vertices with repeated applications of colour refinement. The technique was first introduced by Parris and Read~\cite{parris1969coding}, as cited in~\cite{mckay2014practical}. Individualising a vertex breaks graph symmetries, allowing colour refinement to be applied again and often producing a significantly finer partition of the vertices~\cite{grohe2020graph}.
 

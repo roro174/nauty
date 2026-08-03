@@ -12,6 +12,15 @@
 }%
 }
 
+\tikzset{
+  stepmark/.style={
+    circle, draw=black, fill=white,
+    inner sep=0pt, minimum size=4.2mm,
+    font=\tiny\bfseries, line width=0.4pt
+  }
+}
+
+
 
 \newcommand{\ktgraph}[4][black]{%
 \begin{tikzpicture}[
@@ -54,7 +63,7 @@
 \node[anchor=north,align=center] (init) at (8.75,14)
 {
 \ktgraph{}{}{}\\[2pt]
-$[\,0,1,2,3\,]$
+$\pi_0 = [\,0,1,2,3\,]$
 };
 
 
@@ -185,6 +194,18 @@ node[midway,left,gray] {$1$};
 
 \draw[dashed,gray] (C.south) -- (L6.north)
 node[midway,right,gray] {$2$};
+
+
+% ---------- Step markers ----------
+\node[stepmark] at ($(init.north west)+(-0.3,0.3)$) {1};
+\node[stepmark] at ($(L1.north west)+(-0.3,0.3)$) {2};
+\node[stepmark] at ($(L2.north east)+(-0.3,0.3)$) {3};
+\node[stepmark] at ($(B.north east)+(-0.3,0.3)$) {4};
+\node[stepmark] at ($(L3.north west)+(0.3,0.3)$) {5};
+\node[stepmark] at ($(L4.north east)+(-1,0.4)$) {6};
+\node[stepmark] at ($(C.north east)+(-1,0.4)$) {7};
+
+
 
 
 \end{tikzpicture}

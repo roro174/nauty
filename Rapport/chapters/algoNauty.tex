@@ -1,24 +1,25 @@
 \chapter{Nauty Algorithm}
 
 
-In this section, we will focus extensively on McKay's general algorithm: Nauty.
+In this section, we will present McKay's general algorithm, \Naut{}, in detail. This section is therefore largely inspired by his paper, *Practical Graph Isomorphism*~\cite{mckay2014practical}, with the aim of providing a clearer and more accessible presentation.
 
 
 \section{Introduction of the algorithm}
-Nauty relies on the notion of a \hyperref[def:canonical form]{canonical form} to achieve its main objective: finding a canonical labeling of a graph and, consequently, determining its automorphism group. The canonical form plays a central role in practice, as it constitutes a powerful tool for computing a canonical labeling.
+Nauty relies on the notion of a \hyperref[def:canonical form]{canonical form} to achieve its main objective: finding a canonical labelling of a graph and, consequently, determining its automorphism group. 
 
-The canonical form allows us to bypass the intrinsic difficulty of the graph isomorphism problem. Instead of directly comparing two graphs, we associate each graph with a unique and standardized representative, called its canonical graph (or canonical form). Two graphs are then isomorphic if and only if their canonical forms are identical. In this way, an equivalence problem is transformed into an equality problem, which is significantly easier to handle computationally.
+The canonical form allows us to bypass the intrinsic difficulty of the graph isomorphism problem. Instead of directly comparing two graphs, we associate each graph with a unique and standardised representative, called its canonical graph (or canonical form). Two graphs are then isomorphic if and only if their canonical forms are identical. In this way, an equivalence problem is transformed into an equality problem, which is significantly easier to handle computationally. For instance, when comparing a large collection of graphs, it is more efficient to compute the canonical form of each graph once and then compare these canonical forms, rather than perform an isomorphism test for every pair of graphs.
+
 
 We begin by introducing the algorithm itself and describing the different functions that compose it, as well as the process used to compute the canonical form of a graph. We then explain how the automorphism group can be constructed from this canonical form.
 
 
-\section{Search Tree construction}
+\section{Search tree construction}
 
-First of all, the algorithm itself is built upon a very specific type of \hyperref[def:graph]{tree}: a search tree.
+First of all, the algorithm itself is built upon a very specific type of graph: a \hyperref[def:graph]{tree}. More specifically, it relies on a search tree.
 
 Informally, a search tree is a tree structure in which each node represents a state, and each branch corresponds to a specific action leading to another state. Since different actions produce different branches, the tree allows us to systematically explore all possible states starting from an initial state, with the goal of reaching a desired final state. In other words, we are performing a search over a tree structure, which explains the term \textit{search tree}.
 
-However, its particularity is that the leaves of this tree correspond to sequences of vertices \hyperref[def: colouring]{of a coloured graph}. As we move down the tree, these sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a ``controlled'' manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete.The root of this tree is therefore the ``empty'' sequence. 
+However, its particularity is that the nodes of this tree correspond to sequences of vertices \hyperref[def: colouring]{of a coloured graph}. As we move down the tree, these sequences grow longer. These sequences define a colouring of the graph obtained by first assigning unique colours to the vertices in the sequence and then deducing, in a ``controlled'' manner, the colouring of the remaining vertices. The leaves of this tree correspond to sequences whose derived colouring is discrete. The root of this tree is therefore the empty sequence. 
 
 To correctly construct this tree and find our canonical form, we will need several functions:
 
@@ -26,7 +27,7 @@ To correctly construct this tree and find our canonical form, we will need sever
 
   \item \textit{A refinement function}: Starting from a  partition, this function allows us to construct a new partition that is finer than the previous one.
   
-  \item \textit{A target cell selection function}: Starting from a partition, this function allows us to choose a cell from this partition in order to create the ``child'' of the previous partition. 
+  \item \textit{A target cell selection function}: Starting from a partition, this function allows us to choose a cell from this partition in order to create the ``children'' of the previous partition. 
   
   \item \textit{A node invariant function}: A function that allows us to efficiently compare the different nodes/leaves of our search tree in order to determine the canonical form of the graph.
   
@@ -40,9 +41,10 @@ To correctly construct this tree and find our canonical form, we will need sever
 
 These three functions are the fundamental components required to construct our search tree and find our canonical form. Before defining them formally, we will informally explain how they work and how they interact with each other to build our search tree.
 
-Starting from a graph, we first apply the refinement function to obtain a so-called equitable partition (we will come back to this later when discussing the implementation of this function). This partition constitutes the root of our search tree.
+Starting from a graph, we first apply the refinement function to obtain an equitable partition (we will come back to this later when discussing the implementation of this function). This partition constitutes the root of our search tree.
 
-Then, as long as we do not have a discrete partition, we apply the target cell selector to choose a cell from the current partition. Each branch represents a choice of element from the parent node's selected cell. This cell is then split into two cells using an individualisation method (which will also be detailed later). For each branch, we apply the refinement function again to obtain a new partition, thereby creating a new node. Finally, on each node, we apply the node invariant function, which will be useful for determining the canonical form of our graph. We repeat this process until we obtain discrete partitions, which correspond to the leaves of our search tree. In summary, each node represents a partition, and each branch represents a cell chosen from the parent node to be individualised.
+Then, as long as we do not have a discrete partition, we apply the target cell selector to choose a cell from the current partition. Each branch represents a choice of element from the parent node's selected cell. This cell is then split into two cells using an individualisation method (which will also be detailed later). For each branch, we apply the refinement function again to obtain a new partition, thereby creating a new node. Finally, on each node, we apply the node invariant function, which will be useful for determining the canonical form of our graph. We repeat this process until we obtain discrete partitions, which correspond to the leaves of our search tree. In summary, each node represents a partition, and each branch corresponds to the individualisation of a vertex from a chosen cell of the parent node.
+
 
 However, there exist additional functions that are more specific to the implementation of the algorithm and that will be explained in the implementation section of this document.
 
@@ -52,20 +54,20 @@ However, there exist additional functions that are more specific to the implemen
 Now that we have introduced the different functions composing our algorithm, we can formally define them and establish the properties of the associated search tree.
 
 \begin{definition}\label{def: refinement function}
-  The \emph{Refinement function } is a function
+  A \emph{refinement function} is a function
   \[
   R : \mathcal{G} \times \Pi \times V^* \to \Pi
   \]
   
   
-  such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$,
+  such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$:
   
   \begin{enumerate}[label=\textit{R\arabic*.}]
     \item\label{RefinementRule:finer}
     $R (G, \pi, \sigma) \preccurlyeq\pi$.
     
     \item\label{RefinementRule:singleton}
-     if $\sigma_i \mathrel{\in}\sigma$, then \{$\sigma_i$\} is a cell of
+     if $v \mathrel{\in}\sigma$\footnote{Here, the notation $v \in \sigma$ is used informally to indicate that the vertex $v$ appears in the sequence $\sigma$.}, then \{$v$\} is a cell of
     $R (G, \pi, \sigma)$.
     
     \item\label{RefinementRule:equivariance}
@@ -78,17 +80,17 @@ In other words, the refinement function returns a colouring that is finer than $
 
 \vspace{0.5em}
 \begin{definition}\label{def: target cell function}
-  The \emph{Target cell selector function} is a function  
+  The \emph{target cell selector function} is a function  
   \[
   T : \mathcal{G} \times \Pi \times V^* \to 2^V
   \]
   
-  such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$
+  such that, for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ \ and  $\sigma\mathrel{\in}V^*$:
   
   \begin{enumerate}[label=\textit{T\arabic*.}]
-      \item if $R (G, \pi_0, \sigma)$ is discrete, then $T  (G, \pi_0, \sigma)$ = \cancel{0}.
-      \item if $R (G, \pi_0, \sigma)$ is not discrete, then $T (G, \pi_0,\sigma)$ is a non-singleton cell of $R (G, \pi_0, \sigma)$.
-     \item for any g $\mathrel{\in}S_n$, we have $T (G^g, \pi^g, \sigma^g) = T {(G, \pi, \sigma)}^g$.
+      \item if $R (G, \pi, \sigma)$ is discrete, then $T  (G, \pi, \sigma)$ = \cancel{0}.
+      \item if $R (G, \pi, \sigma)$ is not discrete, then $T (G, \pi,\sigma)$ is a non-singleton cell of $R (G, \pi, \sigma)$.
+     \item for any $g \mathrel{\in}S_n$, we have $T (G^g, \pi^g, \sigma^g) = T {(G, \pi, \sigma)}^g$.
   \end{enumerate}
   \end{definition}
 
@@ -98,7 +100,8 @@ Now that all the formal definitions of the tree have been established, we can de
 
 \begin{itemize}
     \item The root of $\mathcal{T} (G, \pi_0)$ is the empty sequence ().
-    \item if $\sigma$ is a node of $\mathcal{T} (G, \pi_0)$, let W = $T (G, \pi_0, \sigma)$. Then the children of $\pi$ are $\{\sigma\mathrel{\mid}\mathrel{\mid} w: w\mathrel{\in}W\}$.
+    \item if $\sigma$ is a node of $\mathcal{T} (G, \pi_0)$, let W = $T (G, \pi_0, \sigma)$. Then the children of $\pi$ are 
+    \\ $\{\sigma\mathrel{\mid}\mathrel{\mid} w: w\mathrel{\in}W\}$.
     \item a node $\sigma$ of $\mathcal{T} (G, \pi_0)$ is a leaf iff $R (G, \pi_0, \sigma)$ is discrete.
     \item for any node $\sigma$ of $\mathcal{T} (G, \pi_0)$, define $\mathcal{T} (G, \pi_0, \sigma)$ to be the subtree of $\mathcal{T} (G, \pi_0)$ consisting of $\sigma$ and all its descendants.
     
@@ -116,16 +119,15 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
 
 \vspace{-0.7em}
   \begin{proof}
-    Let $\sigma = (\sigma_1, \ldots, \sigma_k)$ be a node of $\mathcal{T}(G, \pi_0)$. We first show that
-    $\mathcal{T}{(G, \pi_0)}^g \subseteq\mathcal{T}(G^g, \pi_0^g)$. Such that $\sigma^g = (\sigma_1^g, \ldots, \sigma_k^g)$
-    is a node of $\mathcal{T}(G^g, \pi_0^g)$.
+    Let $\sigma = (\sigma_1, \ldots, \sigma_k)$ be a node of $\mathcal{T}(G, \pi_0)$, and let $\sigma^g = (\sigma_1^g, \ldots, \sigma_k^g)$ $\mathcal{T}(G^{g}, \pi_0^{g})$. We first show that $\mathcal{T}(G, \pi_0){^g} \subseteq \mathcal{T}(G^g, \pi_0^g)$.
+
     
-    We proceed by induction on $s$, for $0 \leq s \leq k$, showing that ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of $\mathcal{T}(G^g, \pi_0^g)$.
+    We proceed by induction on $s$, for $0 \leq s \leq k$, showing that ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of  $\mathcal{T}(G^g, \pi_0^g)$.
     
     \textbf{Base case} ($s = 0$): The empty sequence $()$ is the root of any search tree.
     So ${[\sigma^g]}_0$ is trivially a node of $\mathcal{T}(G^g, \pi_0^g)$.
     
-    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of$\mathcal{T}(G^g, \pi_0^g)$. 
+    \textbf{Inductive step}: Assume ${[\sigma^g]}_s = (\sigma_1^g, \ldots, \sigma_s^g)$ is a node of $\mathcal{T}(G^g, \pi_0^g)$. 
     
     Since $(\sigma_1, \ldots, \sigma_s, \sigma_{s+1})$ is a node of
     $\mathcal{T}(G, \pi_0)$, the element $\sigma_{s+1}$ was individualised to go from level $s$
@@ -144,13 +146,13 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
     \end{proof}
   
   \begin{corollary}\label{cor: Corollary}
-  Let $\sigma$ be a node of $\mathcal{T} (G,\pi_0)$ and let $g \mathrel{\in}Aut (G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T} (G,\pi_0)$ and $\mathcal{T} (G, \pi_0, \sigma^g) = \mathcal{T} {(G, \pi_0, \sigma)}^g$.
+  Let $\sigma$ be a node of $\mathcal{T} (G,\pi_0)$ and let $g \mathrel{\in}\text{Aut} (G, \pi_0)$. Then $\sigma^g$, is a node of $\mathcal{T} (G,\pi_0)$ and $\mathcal{T} (G, \pi_0, \sigma^g) = \mathcal{T} {(G, \pi_0, \sigma)}^g$.
   \end{corollary}
 
 \vspace{-0.7em}
   \begin{proof}
     \leavevmode\\
-    \textbf{Part 1:} $\sigma^g$ is a node of $\mathcal{T}(G, \pi_0)$.\\
+    \textbf{Part 1} ($\sigma^g$ is a node of $\mathcal{T}(G, \pi_0)$):\\
     By \hyperref[lem: equivariance of the search tree]{Lemma 1}, we have: 
     \[
     \mathcal{T}(G^{g}, \pi_0^{g}) = \mathcal{T}{(G, \pi_0)}^{g}
@@ -162,11 +164,11 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
     Since $\sigma$ is a node of $\mathcal{T}(G, \pi_0)$, $\sigma^g$ is a node of
     $\mathcal{T}{(G, \pi_0)}^g = \mathcal{T}(G, \pi_0)$.
     
-    \textbf{Part 2:} $\mathcal{T}(G, \pi_0, \sigma^g) = \mathcal{T}{(G, \pi_0, \sigma)}^g$\\
+    \textbf{Part 2} ($\mathcal{T}(G, \pi_0, \sigma^g) = \mathcal{T}{(G, \pi_0, \sigma)}^g$):\\
     We apply Lemma 1 to the subtree rooted at $\sigma$. Since $g$ maps each node
     of the subtree rooted at $\sigma$ to a node of the subtree rooted at $\sigma^g$,
     and since $g \in \text{Aut}(G, \pi_0)$ implies $G^g = G$ and $\pi_0^g = \pi_0$,
-    the same argument as in Lemma 1 gives both inclusions:
+    the same argument as in \hyperref[lem: equivariance of the search tree]{Lemma 1} gives both inclusions:
     \[\mathcal{T}{(G, \pi_0, \sigma)}^g \subseteq \mathcal{T}(G, \pi_0, \sigma^g)
     \quad \text{and} \quad
     \mathcal{T}(G, \pi_0, \sigma^g) \subseteq \mathcal{T}{(G, \pi_0, \sigma)}^g\]
@@ -183,19 +185,19 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
   \begin{proof}
     We show both inclusions to establish the equality.
 
-    \textbf{Part 1:} $\text{Aut}(G, \pi) \subseteq$ point-wise stabilizer of $\sigma$\\
-    Let $g \in \text{Aut}(G, \pi)$. By \hyperref[RefinementRule:singleton]{R2}, for each $\sigma_i \in \sigma$, $\{\sigma_i\}$ is a singleton
+    \textbf{Part 1} ($\text{Aut}(G, \pi) \subseteq$ point-wise stabilizer of $\sigma$):\\
+    Let $g \in \text{Aut}(G, \pi)$. By \hyperref[RefinementRule:singleton]{R2}, for each $v \in \sigma$, $\{v\}$ is a singleton
     cell of $\pi = R(G, \pi_0, \sigma)$. Since $g$ is an automorphism of $(G, \pi)$, it must
-    map each cell of $\pi$ to a cell of $\pi$. A singleton $\{\sigma_i\}$ can only be mapped to
-    itself, hence $\sigma_i^g = \sigma_i$ for every $\sigma_i \in \sigma$, so $g$ stabilizes $\sigma$ point-wise.
+    map each cell of $\pi$ to a cell of $\pi$. A singleton $\{v\}$ can only be mapped to
+    itself, hence $v^g = v$ for every $v \in \sigma$, so $g$ stabilises $\sigma$ point-wise.
     
-    \textbf{Part 2:} point-wise stabilizer of $\sigma$ $\subseteq \text{Aut}(G, \pi)$\\
-    Let $g \in \text{Aut}(G, \pi_0)$ be such that $g$ stabilizes $\sigma$ point-wise, that is
-    $\sigma^g = \sigma$. We want to show that $g \in \text{Aut}(G, \pi)$. So, $\pi^g = \pi$.
+    \textbf{Part 2} (point-wise stabilizer of $\sigma$ $\subseteq \text{Aut}(G, \pi)$):\\
+    Let $g \in \text{Aut}(G, \pi_0)$ be such that $g$ stabilises $\sigma$ point-wise, that is
+    $\sigma^g = \sigma$. We want to show that $g \in \text{Aut}(G, \pi)$ (so, $\pi^g = \pi$).
     By \hyperref[RefinementRule:equivariance]{R3} applied to $G$, $\pi_0$ and $\sigma$:
     \[R(G^g, \pi_0^g, \sigma^g) = R{(G, \pi_0, \sigma)}^g\]
     Since $g \in \text{Aut}(G, \pi_0)$, we have $G^g = G$ and $\pi_0^g = \pi_0$, and since
-    $g$ stabilizes $\sigma$ point-wise, $\sigma^g = \sigma$. Therefore:
+    $g$ stabilises $\sigma$ point-wise, $\sigma^g = \sigma$. Therefore:
     \[  R(G, \pi_0, \sigma) = R{(G, \pi_0, \sigma)}^g\]
     which gives exactly $\pi = \pi^g$, and hence $g \in \text{Aut}(G, \pi)$.
     \end{proof}
@@ -209,30 +211,28 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
   Let $\Omega$ be some totally ordered set. A \emph{Node invariant} is a function
   \[\phi : \mathcal{G} \times \Pi \times V^* \to \Omega\]
 
-  Such that, for any $\pi_0 \mathrel{\in}\Pi$, $G \mathrel{\in}\mathcal{G}$ and distinct $\sigma, \sigma' \mathrel{\in}\mathcal{T} (G, \pi_0)$.
+  Such that, for any $\pi_0 \mathrel{\in}\Pi$, $G \mathrel{\in}\mathcal{G}$ and distinct $\sigma, \sigma' \mathrel{\in}\mathcal{T} (G, \pi_0)$:
 
-The function $\phi$ has a few properties to take into account:
 
-  \begin{enumerate}
+  \begin{enumerate}[label=\textit{$\phi$\arabic*.}]
       \item if $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) < \phi(G,\pi_0, \sigma')$,\\
       then for every leaf $\sigma_1 \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma)$ and leaf $\sigma_1' \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma')$ we have $\phi(G,\pi_0, \sigma_1) < \phi(G,\pi_0, \sigma_2)$.
       \item if $\pi= R (G,\pi_0, \sigma)$ and $\pi' = R (G,\pi_0, \sigma')$ are discrete,\\
-      then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \mathrel{\Leftrightarrow} G^\pi= G^{\pi'}$ (equality relation).
+      then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \mathrel{\Leftrightarrow} G^\pi= G^{\pi'}$.
       \item for any $g \mathrel{\in}S_n$, we have $\phi(G^g,\pi_0^g, \sigma^g) = \phi(G,\pi_0, \sigma)$.
-      \item Leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. This is the case, if there is a unique $g \mathrel{\in}Aut (G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R (G,\pi_0, \sigma') R {(G,\pi_0, \sigma)}^{-1}$.
   \end{enumerate}
 \end{definition}
 
 {\sloppy
 Property~1 ensures that the ordering induced by $\phi$ is consistent across the search tree: if two sequences of equal length satisfy $\phi(G,\pi_0,\sigma) < \phi(G,\pi_0,\sigma')$, then this strict inequality propagates to all descendant leaves, so no leaf below $\sigma$ can exceed any leaf below $\sigma'$. Property~2 states that at the leaves (where both refined partitions are discrete) the invariant captures the canonical labelling exactly: two leaves yield equal invariants if and only if they produce the same canonically labelled graph. Property~3 expresses that $\phi$ is invariant under permutation: applying any $g \in S_n$ to the graph, the colouring, and the vertex sequence before computing $\phi$ leaves the result unchanged.}
 
-Finally, Property~4 connects equivalence of leaves to the automorphism group. We recall that $R(G, \pi_0, \sigma)$ is the discrete partition obtained by applying the refinement function along the sequence $\sigma$, and can therefore be viewed as a permutation of the vertices. Since both leaves are equivalent, their node invariants are equal, which means there exists a permutation $g$ such that:
+We can say that leaves $\sigma, \sigma'$ are \textit{equivalent} if  $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma')$. If this is the case, there is a unique $g \mathrel{\in}\text{Aut} (G, \pi_0)$ such that $\sigma^g  = \sigma'$, with $g = R (G,\pi_0, \sigma') R {(G,\pi_0, \sigma)}^{-1}$. In other words, it connects equivalence of leaves to the automorphism group. We recall that $R(G, \pi_0, \sigma)$ is the discrete partition obtained by applying the refinement function along the sequence $\sigma$, and can therefore be viewed as a labelling of the vertices. Since both leaves are equivalent, their node invariants are equal, which means there exists a permutation $g$ such that:
 \[R{(G, \pi_0, \sigma)}^g = R(G, \pi_0, \sigma')\]
 Isolating $g$, we obtain:
 \[g = R{(G, \pi_0, \sigma)}^{-1} \cdot R(G, \pi_0, \sigma')\]
 If this permutation turns out to be an automorphism of $(G, \pi_0)$, it means that both leaves describe the same graph up to a relabelling of vertices, and are therefore equivalent.
 
-By \hyperref[cor: Corollary]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}(G, \pi_0)$, then so is $\sigma^g$ for any $g \in \Aut(G,\pi_0)$. Moreover, due to the properties of $\phi$, all such leaves $\sigma^g$ share the same $\phi$-value, and no other leaf has this value. Consequently, for each leaf $\sigma$, we can say that:
+By \hyperref[cor: Corollary]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}(G,\pi_0)$, then all leaves of the form $\sigma^g$, where $g\in\Aut(G,\pi_0)$, are also leaves of $\mathcal{T}(G,\pi_0)$, and, due to the properties of $\phi$, they all share the same $\phi$-value, while no other leaf has this value. Consequently, for each leaf $\sigma$, we can say that:
 
 
 \begin{align*}
@@ -240,25 +240,39 @@ By \hyperref[cor: Corollary]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}
 &\text{ with } \phi(G,\pi_0, \sigma') = \phi(G,\pi_0, \sigma)\big\}.
 \end{align*}
 
-We can define the canonical form: 
 
+This means that the automorphism group is generated entirely from leaves sharing the  same $\phi$-value as a fixed reference leaf $\sigma$: for each such leaf $\sigma'$, composing  the permutation $R(G,\pi_0,\sigma')$ with the inverse of $R(G,\pi_0,\sigma)$ yields an automorphism of $(G,\pi_0)$, and every automorphism arises this way. This holds for any choice of reference leaf $\sigma$.
+
+
+We first define the \emph{canonical invariant} of $(G,\pi_0)$:
 \[
-\phi^*(G,\pi_0) \coloneqq\max\ \{\phi(G,\pi_0, \sigma): \sigma \text{ is a leaf of } \mathcal{T}(G,\pi_0)\},
+\phi^*(G,\pi_0) \coloneqq \max\ \{\phi(G,\pi_0, \sigma): \sigma \text{ is a leaf of } \mathcal{T}(G,\pi_0)\}.
 \]
+Let $\sigma^*$ be any leaf of $\mathcal{T}(G, \pi_0)$ achieving this maximum. We can now define 
+the \hyperref[def:canonical form]{canonical form} of $(G,\pi_0)$ as
+\[
+C(G, \pi_0) \coloneqq {(G, \pi_0)}^{R(G, \pi_0, \sigma^*)}.
+\]
+By the properties of $\phi$, $C(G, \pi_0)$ thus defined is independent of the choice of 
+$\sigma^*$; in particular, any leaf achieving the maximum may be picked arbitrarily, and 
+the resulting canonical form will always be the same.
 
-and let $\sigma^*$ be any leaf of $\mathcal{T}(G, \pi_0)$ that achieves the maximum. Now 
-define $C(G, \pi_0) \coloneqq {(G, \pi_0)}^{R(G, \pi_0, \sigma^*)}$. By the properties of $\phi$, 
-$C(G, \pi_0)$ thus defined is independent of the choice of $\sigma^*$, which is 
-consistent with the definition of \hyperref[def:canonical form]{the canonical form}.
-
+In other words, the canonical invariant represents the maximum $\phi$-value achieved among 
+all leaves of the search tree, and $\sigma^*$ is a leaf that achieves this maximum. The 
+canonical form $C(G, \pi_0)$ is then obtained by applying the permutation associated with 
+the leaf $\sigma^*$, namely $R(G, \pi_0, \sigma^*)$ (our canonical labelling), to the initial 
+graph $(G, \pi_0)$. Here, we allow ourselves an abuse of notation, using the refinement function itself to 
+denote the permutation associated with the leaf $\sigma^*$. Indeed, since this leaf is 
+discrete, it corresponds to an ordered partition of $V(G)$ into singletons (an ordering of the vertices); as the vertex set is already identified with $\{1,\ldots,n\}$, 
+this ordering genuinely defines a permutation, and thus an element of $S_n$.
 \subsection{Implementation strategies}
 
 Now that we have all the theoretical tools in hand, we can begin discussing the implementation of the algorithm. Our implementation is based on the definitions of the algorithm, but it is not a direct or simplistic reproduction of its source code.
 
-\subsubsection{Implementation Refinement function}
+\subsubsection{Implementation of the refinement function}
 
 
-In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer) than the original colouring. This motivates the need for an algorithm that computes a coarsest equitable colouring, in order to prevent refinement from being too aggressive and skipping intermediate structure in the search tree.
+In order to ensure that the properties of the \hyperref[def: refinement function]{refinement function} defined in the search tree are respected, we must implement an algorithm that outputs a colouring that is equal to (or finer than) the original colouring. This motivates the need for an algorithm that computes a coarsest equitable colouring, in order to prevent refinement from being too aggressive and skipping intermediate structure in the search tree.
 
 To construct our refinement function, we need two auxiliary functions: a function that refines a colouring so that it becomes an equitable colouring, and an individualisation function.
 
@@ -297,7 +311,7 @@ To construct our refinement function, we need two auxiliary functions: a functio
   
   At each iteration, we remove a cell $W$ from the sequence. Then, for every cell $X$ of the current colouring, we split $X$ into several cells $X_1, \ldots, X_k$ according to the number of edges each vertex of $X$ has with the vertices of $W$ (with respect to the graph $G$). We then replace the cell $X$ in the colouring by the newly created cells $X_1, \ldots, X_k$.
   
-  If the cell $X$ already belongs to the sequence, we replace it in the sequence by the cells $X_1, \ldots, X_k$. Otherwise, we add all cells among $X_1, \ldots, X_k$ to the sequence except one, namely a largest cell. If several cells have the same maximum size, one of them is chosen arbitrarily and is not added to the sequence.
+  If the cell $X$ already belongs to the sequence, we replace it in the sequence by the cells $X_1, \ldots, X_k$. Otherwise, we add all cells among $X_1, \ldots, X_k$ to the sequence except one, namely one of the largest cells. If several cells have the same maximum size, one of them is chosen arbitrarily and is not added to the sequence.
 
   \begin{figure}[ht]
     \centering
@@ -308,15 +322,13 @@ To construct our refinement function, we need two auxiliary functions: a functio
 
   \vspace{1em}
   
-  \begin{definition}[Individualization]\label{def:individualized_function}
+  \begin{definition}[Individualisation]\label{def:individualised_function}
     Let $\pi \in \Pi$ and let $v \in V$ be a vertex belonging to a non-singleton cell of $\pi$.
-    The \emph{individualization function}
+    The \emph{individualisation function}
     \[
     I : \Pi \times V \to \Pi
     \]
-    maps $(\pi,v)$ to the partition $\pi' = I(\pi,v)$ defined, for every
-    $w \in V$, by
-    
+    maps $(\pi,v)$ to the partition $\pi' = I(\pi,v)$ defined, for every $w \in V$, by
     \[
     \pi'(w)=
     \begin{cases}
@@ -324,31 +336,37 @@ To construct our refinement function, we need two auxiliary functions: a functio
     \pi(w)+1, & \text{otherwise}.
     \end{cases}
     \]
-    
-    The vertex $v$ is said to be \emph{individualized} in $\pi$.
-    Equivalently, $I(\pi,v)$ is obtained from $\pi$ by assigning a unique
-    colour to the vertex $v$.
+    The vertex $v$ is said to be \emph{individualised} in $\pi$.
     \end{definition}
 
-The purpose of this function is to construct a new partition from a given partition by individualizing a vertex. More precisely, the operation assigns a unique colour to a specific vertex $v$ by removing it from its original cell and placing it into a new singleton cell. This new cell is inserted immediately before the original cell containing $v$.
+  Intuitively, individualisation splits the cell containing $v$ into two parts: the vertex $v$ 
+  itself becomes a singleton cell retaining the original position $\pi(v)$, while the remaining 
+  vertices of that cell are shifted to position $\pi(v)+1$, immediately after $v$. Every cell 
+  that originally preceded $v$'s cell is left unchanged, and every cell that came after is 
+  shifted up by one position to make room; the relative order of the cells is thus preserved. Equivalently, $v$ is assigned a unique colour by removing it from its original cell and placing it into a new singleton cell, inserted immediately before the remaining vertices of that cell.
   
-Now we can define our refinement function. For a sequence of vertices $v_1$,$v_2$,$\ldots$, define
-\begin{itemize}
-    \item $R (G, \pi_0, ()) = F (G, \pi_0,\text{ a list of all the cells of } \pi_0)$  
-    \item $R (G, \pi_0, (v_1)) = F (G, I ((R (G,\pi_0, ()), v_1), \{v_1\}))$ 
-    \item $R (G, \pi_0, (v_1, v_2)) = F (G, I ((R (G,\pi_0, (v_1)), v_2), \{v_2\}))$ 
-    \item $R (G, \pi_0, (v_1, v_2, v_3)) = F (G, I ((R (G,\pi_0, (v_1, v_2)), v_3), \{v_3\}))$ 
-    \item and so on.
-\end{itemize}
+  Now we can define our refinement function. For a sequence of vertices $v_1, v_2, \ldots$, define
+  \begin{itemize}
+      \item $R(G, \pi_0, ()) = F(G, \pi_0, \text{ a list of all the cells of } \pi_0)$  
+      \item $R(G, \pi_0, (v_1)) = F(G,\ I(R(G,\pi_0, ()), v_1),\ (\{v_1\}))$ 
+      \item $R(G, \pi_0, (v_1, v_2)) = F(G,\ I(R(G,\pi_0, (v_1)), v_2),\ (\{v_2\}))$ 
+      \item $R(G, \pi_0, (v_1, v_2, v_3)) = F(G,\ I(R(G,\pi_0, (v_1, v_2)), v_3),\ (\{v_3\}))$ 
+      \item and so on, whose general form is, for $k \geq 1$:
+    \end{itemize}
+      \[
+      R(G,\pi_0,(v_1,\ldots,v_k)) = F\Big(G,\ I\big(R(G,\pi_0,(v_1,\ldots,v_{k-1})),\ v_k\big),\ \{v_k\}\Big).
+      \]
 
-The algorithm satisfies the required properties of a refinement function and performs well in practice. However, the refinement step is the most computationally expensive part of the algorithm, which is why special care must be taken in its implementation. C'est pourquoi, pour réduire les temps de calculs, nous allons utiliser des méthodes de prunning dont nous parlerons un peu plus tard.
 
+The algorithm satisfies the required properties of a refinement function and performs well in practice. However, the refinement step is the most computationally expensive part of the algorithm, which is why special care must be taken in its implementation. Therefore, to reduce the overall running time, we will employ pruning techniques, which will be discussed later.
 
-\subsubsection{Implementation Target Cell Selector}
+\rodolphe{Faire preuve que ça satisfies les propriétés de la fonction de raffinement.}
+
+\subsubsection{Implementation of the target cell selector}
 
 For the implementation of the \hyperref[def: target cell function]{target cell selector function} in the construction of the search tree, several strategies can be adopted. Choosing the right target cell at each step is important because it influences the shape and depth of the tree, and therefore the overall performance of the search.
 
-In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an orbit of the group that stabilizes the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
+In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an orbit of the group that stabilises the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
 
 As a result, \Naut{} now supports two strategies for target cell selection that we can choose:
 
@@ -377,7 +395,7 @@ $|X| = \min_{Y \in \pi,\ |Y| > 1} |Y|$}
 }
 
 
-\subsubsection{Intermediate Search Tree Construction}
+\subsubsection{Intermediate search tree construction}
 
 All the functions required to define the search tree have now been implemented. The following example illustrates the construction of the search tree for the graph $K_{1,3}$ using target-cell selection and equitable refinement.
 
@@ -389,13 +407,12 @@ All the functions required to define the search tree have now been implemented. 
   \input{figTex/nauty_tree.tex}
   }
 
-\caption{Individualized vertices are represented by double circles. The encircled set in each partition denotes the current target cell.}\label{fig:nauty-tree-k13}
+\caption{Individualised vertices are represented by double circles. The encircled set in each partition denotes the current target cell.}\label{fig:nauty-tree-k13}
 
 \end{figure}
 
-\newpage
 
-\subsubsection{Implementation Node Invariant}
+\subsubsection{Implementation of the node invariant}
 
 Once the search tree construction is in place, the next step is to define the \hyperref[def: node variant]{node invariant function}, which will allow us to determine the canonical form. To compute this function, we can rely on two related sources:
 
@@ -405,8 +422,10 @@ Once the search tree construction is in place, the next step is to define the \h
   In \Naut, the second source is used: the value of $f (\sigma)$ is an integer, and the pruning rules are applied as each node is computed.
   \end{enumerate}
 
-  Another potential method is based on the concept of the \textit{quotient graph} $Q (G,\pi)$ (see \cref{def:graph}), assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q (G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \mathrel{\in}\pi$, possibly equal, the corresponding vertices in $Q (G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
-The node invariant already computed by \Naut{} is a deterministic function of the sequence of quotient graphs $Q (G, R (G, \pi_0, {[v]}_i))$ for $i = 0, \ldots, |v|$. Therefore, it would be possible to use the sequence of quotient graphs to obtain information about the cells, but this would be far too costly in both time and memory.
+  Another potential method is based on the concept of the \textit{quotient graph}\footnote{Informally, the \emph{quotient graph} $Q(G,\pi)$ of a coloured graph $(G,\pi)$ is 
+  the graph whose vertices are the cells of $\pi$, with two cells $X_i$ and $X_j$ ($i\neq j$) 
+  joined by an edge whenever some vertex in $X_i$ is adjacent (in $G$) to some vertex in $X_j$.} $Q (G,\pi)$, assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q (G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \mathrel{\in}\pi$, possibly equal, the corresponding vertices in $Q (G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
+The node invariant already computed by \Naut{} is a deterministic function of the sequence of quotient graphs $Q (G, R (G, \pi_0, {[\sigma]}_i))$ for $i = 0, \ldots, |\sigma|$. Therefore, it would be possible to use the sequence of quotient graphs to obtain information about the cells, but this would be far too costly in both time and memory.
   
 
 In our implementation, we will use the first source described above. We rely on the number and size of the cells, and we apply combinatorial properties of the coloured graph to compute our node invariant. Several invariant methods have been implemented in order to test their efficiency and computational speed.
@@ -416,9 +435,7 @@ Since this function is called at each node creation, it is important that its co
 Here is the exhaustive list of invariant methods that we have implemented so far:
 
 \begin{enumerate}
-  \item \textit{Number of triangles per cell}: for each cell of the partition, we compute the number of triangles contained in that cell. We then obtain a vector where each entry corresponds to the number of triangles in the corresponding cell. Finally, we apply a lexicographic ordering to this vector to compute our node invariant.
-
-  For counting the number of triangles in a cell, the most classical approach enumerates all triplets of vertices $(u, v, w)$ from the cell and checks for each one whether all three edges exist, running in $O(n^3)$ where $n$ is the number of vertices in the cell. A faster approach exploits the sorted neighbor lists $N(v)$: for each vertex $u \in C$, one iterates over its neighbors $v$ in the cell with $v > u$, then looks for common neighbors $w$ of both $u$ and $v$ still in the cell with $w > v$. Since the neighbor lists are sorted, each such lookup runs in $O(d)$ where $d$ is the largest number of neighbors that any vertex in the cell has, yielding an overall complexity of $O(n \cdot d^2)$.
+  \item \textit{number of triangles per cell}: for each cell of the partition, we compute the number of triangles contained in that cell. This yields a vector whose $i$-th entry is the number of triangles contained in the $i$-th cell of the partition. This vector constitutes the node invariant. During the search, node invariants are then compared lexicographically to determine the best invariant encountered so far.
   
   \vspace{0.5em}
   \noindent\fbox{%
@@ -443,54 +460,138 @@ Here is the exhaustive list of invariant methods that we have implemented so far
     \end{algorithmic}
     }%
   }
+
+  For counting the number of triangles in a cell, the most classical approach enumerates all triplets of vertices $(u, v, w)$ from the cell and checks for each one whether all three edges exist, running in $O(n^3)$ where $n$ is the number of vertices in the cell. A faster approach exploits the sorted neighbor lists $N(v)$: for each vertex $u \in C$, one iterates over its neighbors $v$ in the cell with $v > u$, then looks for common neighbors $w$ of both $u$ and $v$ still in the cell with $w > v$. Since the neighbor lists are sorted, each such lookup runs in $O(d)$ where $d$ is the largest number of neighbors that any vertex in the cell has, yielding an overall complexity of $O(n \cdot d^2)$.
+
+  \item\textit{two paths by cell}: for each cell of the partition, we examine every path of length two starting from a vertex of that cell, and weight each such walk by the cell it reaches (which may be the starting vertex itself). Here, each cell of the partition is represented by an integer, namely its index within the partition, denoted $\mathrm{cellIndex}(v)$ in the code. The invariant of a cell $C$ is then obtained by summing, over every vertex $v \in C$ and every vertex $w$ reachable from $v$ by a path of length two, the index of the cell containing $w$. This yields a single integer representing the invariant of the cell. This method is adapted directly from the \Naut{} user's guide~\cite{mckay2024nug}; since only its high-level description was
+  available to us, rather than the corresponding source code, it had to be reconstructed and generalised to fit our cell-based framework.
+  
+
+\vspace{0.5em}
+\noindent\fbox{%
+\parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+\textit{pseudo-code of InvariantTwoPathsByCell}
+
+\vspace{0.5em}
+
+\begin{algorithmic}[1]
+    \State\textbf{Data:} A graph $G$, a cell $C = \{v_1, \ldots, v_k\}$
+  \State\textbf{Result:} the invariant value of the cell $C$
+  \State$\mathit{count} \gets 0$
+
+  \ForAll{vertices $v \in C$}
+      \ForAll{neighbors $u \in N(v)$}
+          \State$\mathit{count} \gets \mathit{count} + \sum_{w \in N(u)} \mathrm{cellIndex}(w)$
+      \EndFor{}
+  \EndFor{}
+
+  \State\Return{$\mathit{count}$}
+  \end{algorithmic}
+}%
+}
+
+The computation of this invariant is divided into two steps. First, for every vertex $u \in V$, we precompute the value $S(u)=\sum_{w \in N(u)} \mathrm{cellIndex}(w)$ by scanning the adjacency list of each vertex once. Since every edge is traversed at most twice, this preprocessing step requires $O(n+m)$ time, where $n$ is the number of vertices and $m$ is the number of edges.Once these values have been computed, the invariant of a cell $C$ is obtained by iterating over every vertex of the cell and summing the precomputed values of its neighbors. The running time for one cell is therefore $O\!\left(\sum_{v\in C}\deg(v)\right)$. Since the cells form a partition of the vertex set, each vertex is processed exactly once when computing the invariant for all cells, yielding an overall running time of $O(n+m)$.
+
+\item\textit{triple by cell}:  It is also an invariant method adapted directly from the \Naut{} user's guide~\cite{mckay2024nug}. However, since no source code was available, we had to reconstruct the method from its description. The idea is to consider, for each cell, every triple ofvertices $\{u,v,w\}$ it contains. For each triple, we count the number of vertices $x$ of the graph that are adjacent to an odd number of the vertices of $\{u,v,w\}$ (that is, adjacent to exactly one or exactly three of them); this count is the weight of the triple, and it is added
+to the counter of each of the three vertices $u$, $v$ and $w$. The final invariant of the cell
+is the sum of these counters over every vertex it contains. The main drawback of this method
+is that it is computationally expensive, as it requires enumerating every triple of vertices
+in each cell, which can be prohibitive for large cells.
+
+\vspace{0.5em}
+\noindent\fbox{%
+\parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
+\textit{pseudo-code of InvariantCellTriplesByCell}
+
+\begin{algorithmic}[1]
+    \State\textbf{Data:} A graph $G$, a partition $\pi = (C_1,\ldots,C_k)$
+    \State\textbf{Result:} the invariant value of each cell of $\pi$
+    
+    \State$I \gets (0,\ldots,0)$ of size $k$
+    
+    \ForAll{cells $C_i \in \pi$}
+        \State$\mathit{count}(v) \gets 0$ for all vertices $v \in C_i$
+        
+        \ForAll{triples of vertices $\{u,v,w\} \subseteq C_i$}
+            \State$weight \gets 0$
+            
+            \ForAll{vertices $x \in V(G)$}
+                \If{$|N(x)\cap\{u,v,w\}|$ is odd}
+                    \State$weight \gets weight + 1$
+                \EndIf{}
+            \EndFor{}
+            
+            \State$\mathit{count}(u) \gets\mathit{count}(u)+weight$
+            \State$\mathit{count}(v) \gets \mathit{count}(v)+weight$
+            \State$\mathit{count}(w) \gets \mathit{count}(w)+weight$
+        \EndFor{}
+        
+        \State$I[i] \gets \sum_{v \in C_i} \mathit{count}(v)$
+    \EndFor{}
+    
+    \State\Return{$I$}
+\end{algorithmic}
+}%
+}
 \end{enumerate}
 
-\rodolphe{les prochaines méthodes d'invariants arrivent mais la structure est là}
+For a cell $C_i$ of size $|C_i|$, the number of triples $\{u,v,w\} \subseteq C_i$ is $\binom{|C_i|}{3} = O(|C_i|^3)$, and computing the weight of a single triple requires
+scanning all $n$ vertices of $G$. Evaluating the invariant on $C_i$ therefore costs
+$O(|C_i|^3 \cdot n)$. Since this is computed for every cell of $\pi$, and $\sum_i |C_i| = n$, the worst case gives an overall cost of $O(n^4)$. In practice, cells are usually much smaller once the standard refinement has run, keeping the actual cost far below this bound.
+
 
 \subsection{Pruning strategies}
 
-To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimized tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define two types of pruning strategies to optimize our construction:
+To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimised tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define two types of pruning strategies to optimize our construction:
 
-$P_A (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
+$\mathcal{P}_A (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
 
-$P_B (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) \neq\phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
+$\mathcal{P}_B (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) \neq\phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
 
-$P_C(\sigma, g)$: Suppose $g \in \Aut(G,\pi_0)$ and suppose $\sigma < \sigma'$ are nodes of $T(G, \pi_0)$ such that $\sigma^g = \sigma'$. Then, we will remove $T(G, \pi_0, \sigma')$.
+$\mathcal{P}_C(\sigma, g)$: Suppose $g \in \Aut(G,\pi_0)$ and suppose $\sigma < \sigma'$ are nodes of $T(G, \pi_0)$ such that $\sigma^g = \sigma'$. Then, we will remove $T(G, \pi_0, \sigma')$.
+
+
+Informally, each pruning method serves a distinct purpose. The method $\mathcal{P}_A$ discards branches whose invariant cannot reach the maximal value: at each level of the tree, we keep track of the best invariant found so far, and any other node at the same level with a strictly worse invariant has its branch pruned. The method $\mathcal{P}_B$ is somewhat more subtle. Rather than comparing the current node to the best node found so far, it is compared to a reference node, taken as the node at the same level lying on the first path leading to the first leaf. If the two invariants differ, the current subtree is pruned. Here, the goal is not really to find the best invariant, but rather to uncover new automorphisms. Combining the two methods, a branch is pruned only when both $\mathcal{P}_A$'s and $\mathcal{P}_B$'s conditions are satisfied. 
+In other words, the current node is pruned if its invariant is strictly 
+worse than the best invariant found so far and if it differs from the 
+invariant of the reference node. Finally, the method $\mathcal{P}_C$ exploits automorphisms already discovered during the search. Suppose an automorphism $g \in \Aut(G,\pi_0)$ maps the current node $\sigma$ to another node $\sigma^g$ that has already been explored. Since the corresponding subtrees are isomorphic, exploring both would be redundant; the subtree rooted at $\sigma^g$ can therefore be discarded.
+
 
 Despite these pruning strategies, we must ensure that our search tree, along with the node invariant function, remains functionally correct. To this end, we require a theorem that guarantees the validity of the overall construction.
 
 \begin{theorem}\label{Theo: prunning}
     Consider any $G \mathrel{\in}\mathcal{G}$ and $\pi_0 \mathrel{\in}\Pi$
     \begin{itemize}
-    \item Suppose any sequence of operations of the form $P_A (\sigma, \sigma')$ or $P_C (\sigma, g)$ are performed. \\ Then there remains at least one leaf $\sigma_1$ with $\phi(G,\pi_0, \sigma_1) = \phi^* (G,\pi_0)$.
-    \item Let $\sigma_0$ be some ﬁxed leaf of $T (G, \pi_0)$. Suppose any sequence of operations of the form $P_B (\sigma, \sigma')$ $P_C (\sigma'', g)$ are performed, \\ where $\phi(G,\pi_0, \sigma'') \neq\phi(G,\pi_0, {[\sigma_0]}_{|\sigma''|})$. Let $g_1, \ldots, g_k$ be the automorphisms
-used in the operations $P_C$ that were performed, and let $A = \{g \mathrel{\in}\Aut(G,\pi_0)$: $v_0^g$ is a remaining leaf\}. Then $\Aut(G,\pi_0)$ is generated by $\{g_1, \ldots, g_k\} \,\cup\, A$.
+    \item Suppose any sequence of operations of the form $\mathcal{P}_A (\sigma, \sigma')$ or $\mathcal{P}_C (\sigma, g)$ are performed. \\ Then there remains at least one leaf $\sigma_1$ with $\phi(G,\pi_0, \sigma_1) = \phi^* (G,\pi_0)$.
+    \item Let $\sigma_0$ be some ﬁxed leaf of $T (G, \pi_0)$. Suppose any sequence of operations of the form $\mathcal{P}_B (\sigma, \sigma')$ $\mathcal{P}_C (\sigma'', g)$ are performed, where $\phi(G,\pi_0, \sigma'') \neq\phi(G,\pi_0, {[\sigma_0]}_{|\sigma''|})$. Let $g_1, \ldots, g_k$ be the automorphisms
+used in the operations $\mathcal{P}_C$ that were performed, and let $A = \{g \mathrel{\in}\Aut(G,\pi_0)$: $\sigma_0^g$ is a remaining leaf\}. Then $\Aut(G,\pi_0)$ is generated by $\{g_1, \ldots, g_k\} \,\cup\, A$.
 \end{itemize}
 \end{theorem}
 
+
 \begin{proof}
-  To prove the first point, let $v_1$ denote the lexicographically smallest leaf satisfying $\phi(G,\pi_0,v_1)=\phi^*(G,\pi_0)$.
-  Operation $P_A$ only removes branches whose invariant cannot reach the maximal value, while operation $P_C$ always preserves the lexicographically smallest representative of an automorphism class. Consequently, $v_1$ cannot be removed. Therefore, at least one leaf with maximal invariant always remains after any sequence of pruning operations.
+  To prove the first point, let $\sigma_1$ denote the lexicographically smallest leaf satisfying $\phi(G,\pi_0,v_1)=\phi^*(G,\pi_0)$.
+  Operation $\mathcal{P}_A$ only removes branches whose invariant cannot reach the maximal value, while operation $\mathcal{P}_C$ always preserves the lexicographically smallest representative of an automorphism class. Consequently, $\sigma_1$ cannot be removed. Therefore, at least one leaf with maximal invariant always remains after any sequence of pruning operations.
   
-  For the second point, let $g\in\mathrm{Aut}(G,\pi_0)$ and consider the corresponding leaf $v_0^g$.
+  For the second point, let $g\in\mathrm{Aut}(G,\pi_0)$ and consider the corresponding leaf $\sigma_0^g$.
   
-  If $v_0^g$ is still present after pruning, then by definition $g\in A$.
+  If $\sigma_0^g$ is still present after pruning, then by definition $g\in A$.
   
-  Otherwise, $v_0^g$ must have been removed by an operation $P_C(v'',g_i)$. It cannot be removed by $P_B(v', v)$ because it only removes leaves inequivalent to $v_0$. This implies that there exists a lexicographically smaller equivalent leaf, namely
+  Otherwise, $\sigma_0^g$ must have been removed by an operation $\mathcal{P}_C(\sigma'',g_i)$. It cannot be removed by $\mathcal{P}_B(\sigma', \sigma)$ because it only removes leaves inequivalent to $\sigma_0$. This implies that there exists a lexicographically smaller equivalent leaf, namely
   \[
-  v_0^{gg_i^{-1}}<v_0^g.
+  \sigma_0^{gg_i^{-1}}<\sigma_0^g.
   \]
   
   If this new leaf has also been removed, the same reasoning applies. Repeating this process produces a strictly decreasing sequence of equivalent leaves
   \[
-  v_0^g >
-  v_0^{gg_i^{-1}} >
-  v_0^{gg_i^{-1}g_j^{-1}} >
+  \sigma_0^g >
+  \sigma_0^{gg_i^{-1}} >
+  \sigma_0^{gg_i^{-1}g_j^{-1}} >
   \cdots
   \]
   
   Since the lexicographic order on the finite set of leaves is well-founded, this sequence must eventually terminate at a remaining leaf. Hence, there exists $h\in\langle g_1,\ldots,g_k\rangle$
-  such that $v_0^{gh}$ is a remaining leaf. By definition of $A$, we have $gh\in A$, and therefore $ g=(gh)h^{-1}$ where $gh\in A$ and $h\in\langle g_1,\ldots,g_k\rangle$.
+  such that $\sigma_0^{gh}$ is a remaining leaf. By definition of $A$, we have $gh\in A$, and therefore $ g=(gh)h^{-1}$ where $gh\in A$ and $h^{-1}\in\langle g_1,\ldots,g_k\rangle$.
   
   Since $g$ was arbitrary, every automorphism belongs to the group generated by
   \[
@@ -499,22 +600,22 @@ used in the operations $P_C$ that were performed, and let $A = \{g \mathrel{\in}
   which proves the result.
   \end{proof}
 
-The $P_A$ pruning strategy is relatively straightforward to implement. At each level of the search tree, we simply compare the node invariant of the node currently being explored with the best node invariant encountered so far at the same level. If the invariant of the current node is smaller than the best one found previously, then the corresponding subtree can safely be discarded.
+\rodolphe{Plus parler du résultat}
+The $\mathcal{P}_A$ pruning strategy is relatively straightforward to implement. At each level of the search tree, we simply compare the node invariant of the node currently being explored with the best node invariant encountered so far at the same level. If the invariant of the current node is smaller than the best one found previously, then the corresponding subtree can safely be discarded.
 
-The $P_B$ strategy is slightly more involved. Instead of comparing the current node with the best node encountered so far, we compare its node invariant with that of a reference node. This reference node is chosen as the node at the same level lying on the first path leading to the first leaf. If the two node invariants differ, the current subtree is pruned. Conversely, branches whose node invariants coincide with those of the reference path remain candidates for discovering new automorphisms.
+The $\mathcal{P}_B$ strategy is slightly more involved. Instead of comparing the current node with the best node encountered so far, we compare its node invariant with that of a reference node. This reference node is chosen as the node at the same level lying on the first path leading to the first leaf. If the two node invariants differ, the current subtree is pruned. Conversely, branches whose node invariants coincide with those of the reference path remain candidates for discovering new automorphisms.
 
-Finally, the $P_C$ strategy exploits the automorphisms that have already been discovered during the search. Suppose that an automorphism $g \in \Aut(G,\pi_0)$ maps the current node $\sigma$ to another node $\sigma^g$ that has already been explored. Since the corresponding subtrees are isomorphic, exploring both of them would be redundant. Consequently, the subtree rooted at $\sigma^g$ can be discarded.
+Finally, the $\mathcal{P}_C$ strategy exploits the automorphisms that have already been discovered during the search. Suppose that an automorphism $g \in \Aut(G,\pi_0)$ maps the current node $\sigma$ to another node $\sigma^g$ that has already been explored. Since the corresponding subtrees are isomorphic, exploring both of them would be redundant. Consequently, the subtree rooted at $\sigma^g$ can be discarded.
 
-Implementing this strategy is considerably more challenging than implementing $P_A$ or $P_B$, and several approaches have been proposed over the years. In the earliest versions of \Naut{}, pruning relied solely on the automorphisms discovered during the search. More recent versions additionally provide an optional \textit{Random Schreier} method, which \Naut{} adopted in place of a deterministic alternative for its greater efficiency, and which constructs a randomized approximation of the automorphism group from the automorphisms already found.This often enables more aggressive pruning, although its effectiveness depends on the input graph; for some graph families it provides little or no improvement and may even introduce additional overhead.
+Implementing this strategy is considerably more challenging than implementing $\mathcal{P}_A$ or $\mathcal{P}_B$, and several approaches have been proposed over the years. In the earliest versions of \Naut{}, pruning relied solely on the automorphisms discovered during the search. More recent versions additionally provide an optional \textit{Random Schreier} method, which \Naut{} adopted in place of a deterministic alternative for its greater efficiency, and which constructs a randomised approximation of the automorphism group from the automorphisms already found.This often enables more aggressive pruning, although its effectiveness depends on the input graph; for some graph families it provides little or no improvement and may even introduce additional overhead.
 
 In this work, we implement the original approach, which relies only on the automorphisms discovered during the search. To represent and manipulate the automorphism group efficiently, we use the \textit{Schreier-Sims algorithm}, which constructs a base and strong generating set (BSGS) together with the associated stabilizer chain, allowing efficient orbit computations and pruning decisions.
 
 \subsubsection{Schreier-Sims Algorithm}
 
-A permutation group $G \leq S_n$ given by a set of generators can be
-extremely large, growing combinatorially with $n$, so working with it by
-listing its elements one by one is simply not an option. The Schreier-Sims
-algorithm avoids this by building a compact representation of $G$, from
+\rodolphe{Améliorer compréhension}
+
+A permutation group $G \leq S_n$ given by a set of generators may contain an enormous number of elements, making it impractical to work with by listing them explicitly. The Schreier-Sims algorithm avoids this by building a compact representation of $G$, from
 which the order $|G|$, membership testing, and orbit computations can all
 be obtained efficiently.
 
@@ -552,8 +653,6 @@ bound was then improved by Knuth to $O(n^5)$~\cite{knuth1991efficientrepresentat
 later implementations relying on Schreier vectors, as described by
 Seress, bring the running time down to $O(n^2 \log^3 |G| + tn \log |G|)$~\cite{Seress2003} where $t$ is the number of generators.
 
-\newpage
-
 To better understand the construction, we consider the graph $K_{1,3}$. We
 build the BSGS associated with $\mathrm{Aut}(K_{1,3})$ using the base
 $(b_1=1,b_2=2)$.
@@ -578,7 +677,7 @@ path from the root. The $3 \times 2 \times 1 = 6$ leaves therefore represent exa
 
 Let $G$ be the input graph and $\pi_0$ its initial partition.
 
-\Naut{} performs a depth-first traversal of the search tree, and at each leaf it is possible to discover a new automorphism of the graph and add it to the urrently known automorphism group. Whenever two distinct leaves $\sigma_0$ (the first leaf) and $\sigma'$ produce the same invariant, the permutation $g =R(G,\pi_0,\sigma')R{(G,\pi_0,\sigma)}^{-1}$ is an automorphism of $G$.
+\Naut{} performs a depth-first traversal of the search tree, and at each leaf it is possible to discover a new automorphism of the graph and add it to the currently known automorphism group. Whenever two distinct leaves $\sigma_0$ (the first leaf) and $\sigma'$ produce the same invariant, the permutation $g =R(G,\pi_0,\sigma')R{(G,\pi_0,\sigma)}^{-1}$ is an automorphism of $G$.
 
 These automorphisms, discovered one by one during the depth-first traversal, form the generators from which the group structure is built. It is therefore not necessary to know $\mathrm{Aut}(G,\pi_0)$ in advance: the generators emerge dynamically during the search, and the group structure is updated incrementally as new automorphisms are discovered.
 
@@ -588,7 +687,7 @@ correcting its action on each base point successively. It is either absorbed by 
 Each automorphism discovered at a leaf is propagated to the ancestor nodes
 for which it remains relevant. The accumulated group information is then used when selecting the next vertex to individualize. Once a target cell has been chosen, its vertices are partitioned into orbits under the currently known automorphism group. Two vertices belonging to the same orbit necessarily lead to isomorphic subtrees, since they are related by an automorphism already known to the algorithm. Consequently, it is sufficient to explore a single representative of each orbit, while all other vertices can be pruned without exploration.
 
-This is a direct application of the pruning operation $P_C$.
+This is a direct application of the pruning operation $\mathcal{P}_C$.
 
 To get a concrete idea of what this looks like in code, here is a simplified pseudo-code of the Schreier-Sims method for \Naut{}.
 
@@ -635,28 +734,39 @@ To get a concrete idea of what this looks like in code, here is a simplified pse
   yield a nearly optimal $O(n^3 \log^c n)$ membership
   test~\cite{babai1991fast}.
   
-  The objective is not to compute the complete BSGS as early as possible, but rather to obtain a sufficiently rich approximation of the subgroup generated by the discovered automorphisms. This approximation often provides accurate orbit information much earlier during the search, allowing the $P_C$ pruning strategy to eliminate redundant branches sooner. Consequently, the search tree may become significantly smaller.
+  The objective is not to compute the complete BSGS as early as possible, but rather to obtain a sufficiently rich approximation of the subgroup generated by the discovered automorphisms. This approximation often provides accurate orbit information much earlier during the search, allowing the $\mathcal{P}_C$ pruning strategy to eliminate redundant branches sooner. Consequently, the search tree may become significantly smaller.
   
   Since the method relies on randomization, its effectiveness depends on the input graph. For many highly symmetric graphs, it substantially improves the pruning process. However, for graphs with few automorphisms, the additional computations required to generate and process random group elements may outweigh the benefits. For this reason, the Random Schreier method is implemented as an optional feature in \Naut{}.
 
 
-\subsubsection{Pruned Search Tree Construction}
+  \newpage
+  \subsubsection{Pruned Search Tree Construction}
 
-To demonstrate how $P_C$ works in practice, we return to our search tree for \hyperref[fig:nauty-tree-k13]{$K_{1,3}$} and apply the $P_C$ pruning strategy. As shown, the search tree is significantly reduced due to the first discovered automorphism, $(2,3)$. Subsequently, upon entering the middle branch, another automorphism, $(1,3)$, is identified, enabling us to prune a leaf within that branch. 
-
+  To illustrate how the $\mathcal{P}_C$ pruning strategy operates in practice, we return to our search tree for $K_{1,3}$ (c.f.~\cref{fig:nauty-tree-k13}) and apply the $\mathcal{P}_C$ pruning strategy.
+  
   \begin{figure}[htbp]
-    \centering
-    \resizebox{\linewidth}{!}{%
-    \input{figTex/nauty_tree_prunned.tex}
-    }
-  
-  \caption{Search tree for $K_{1,3}$ with the $P_C$ pruning strategy applied.}\label{fig:nauty-tree-k13-prunned}
-  
+      \centering
+      \resizebox{\linewidth}{!}{%
+          \input{figTex/nauty_tree_prunned.tex}
+      }
+      \caption{Search tree for $K_{1,3}$ with the $\mathcal{P}_C$ pruning strategy applied.}\label{fig:nauty-tree-k13-prunned}
   \end{figure}
+  
+  To better understand how this strategy works, we will walk through the construction of the pruned search tree step by step, highlighting the discovered automorphisms and the branches that are pruned.
+  
+  \begin{itemize}
+    \item[\textcircled{1}] We start from the original graph.
+    \item[\textcircled{2}] The first leaf reached, obtained by individualizing $1$, then $2$, then $3$, is taken as the reference leaf against which every subsequent leaf is compared.
+    \item[\textcircled{3}] Comparing the second leaf to the reference leaf yields the automorphism $(2\ 3)$.
+    \item[\textcircled{4}] When vertex $2$ is individualised, none of the automorphisms found so far allow pruning any of its children. The target cell $\{1,3\}$ is therefore kept in full.
+    \item[\textcircled{5}] Individualizing $1$ next yields a leaf whose comparison with the reference leaf gives the automorphism $(1\ 2)$. Combined with $(2\ 3)$ found earlier, this closes the automorphism group to $S_3$, which in particular contains $(1\ 3)$.
+    \item[\textcircled{6}] This new automorphism is then used to prune the remaining leaf of that branch.
+    \item[\textcircled{7}] Likewise, $(2\ 3)$ shows that individualizing vertex $3$ first is equivalent to individualizing vertex $2$ first. The corresponding branch is therefore pruned entirely, without ever being explored.
+  \end{itemize}
 
 \subsection{Final Search Tree Construction}
 
-We can put in practice ours different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations have both type $P_A (\sigma^*, \sigma)$ and $P_B (\sigma_1*, \sigma)$. We can therefore conclude that only a subset of the tree will be generated, and that the generated leaves are those that may be ``better'' than the leaves already discovered.
+We can put in practice our different pruning strategies on our search tree. \Naut{} will generate its tree in depth-first order. The lexicographically least leaf $\sigma_1$ is kept and if the canonical labelling is sought (rather than just the automorphism group), the leaf $\sigma^*$ with the greatest invariant discovered so far is also kept. A non-discrete node $\sigma$ is pruned if neither $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, {[\sigma_1]}_{|\sigma|})$ or $\phi(G,\pi_0, \sigma) \geq\phi(G,\pi_0, {[\sigma^*]}_{|\sigma|})$. Such operations correspond to $\mathcal{P}_A (\sigma^*, \sigma)$ and $\mathcal{P}_B (\sigma_1, \sigma)$. We can therefore conclude that only a subset of the tree will be generated, and that the generated leaves are those that may be ``better'' than the leaves already discovered.
 
 
 
@@ -692,10 +802,10 @@ We can put in practice ours different pruning strategies on our search tree. \Na
           \State\Return{}
         \EndIf{}
         \If{$\pi^*$ is discrete \textbf{and} $\phi(G,\pi,\sigma) < \phi(G,\pi^*,\sigma^*)$ \textbf{and} $\phi(G,\pi,\sigma)\neq\phi(G,\pi_1,\sigma_1)$}
-          \State\Return\Comment{Pruning $P_A+P_B$: cannot beat $\pi^*$, nor tie $\pi_1$}
+          \State\Return\Comment{Pruning $\mathcal{P}_A+\mathcal{P}_B$: cannot beat $\pi^*$, nor tie $\pi_1$}
         \EndIf{}
         \State$\text{Cell} \leftarrow T(G,\pi,\sigma)$
-        \State$R \leftarrow$ orbit representatives of $\text{Cell}$ \Comment{Pruning $P_C$}
+        \State$R \leftarrow$ orbit representatives of $\text{Cell}$ \Comment{Pruning $\mathcal{P}_C$}
         \For{each $\nu \in R$}
           \State{$\pi _\nu \leftarrow I(\pi , \nu)$}
           \State{$\pi _\nu \leftarrow F(G,\, \pi _\nu,\,\{\nu\})$}
@@ -711,8 +821,6 @@ We can put in practice ours different pruning strategies on our search tree. \Na
   }%
 }
 
-The graph encoding is not fixed; however, we adopt the same approach as nauty, namely representing input graphs using the graph6 format~\cite{mckay_graph6_formats}. This choice enables more efficient testing of our algorithm.
 
-\rodolphe{Tu crois qu'il y a un problème de convention ici et que je devrais juste mettre des $\pi_0$ partout?}
 
 

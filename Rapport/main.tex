@@ -18,6 +18,7 @@
 }
 \usepackage[nameinlink,capitalise]{cleveref}
 \usepackage{cancel}
+\usepackage{fancyhdr}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{tikz}
@@ -39,7 +40,14 @@
   every picture/.append style={node distance=1.2cm and 1.6cm},
 }
 
-
+\fancypagestyle{withlogo}{
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0pt}
+    \lhead{\small\textsc{Master Thesis}}
+    \rhead{\small\nouppercase{\leftmark}}
+    \cfoot{\thepage}
+}
 
 %%%%% amsthm
 \newtheorem{theorem}{Theorem}
@@ -56,6 +64,7 @@
 \newclass\LOGSPACE{LOGSPACE}
 
 \usepackage{parskip}
+\usepackage{lipsum}
 \usepackage{xspace}
 \usepackage{svg}
 \usepackage[margin=3cm,headheight=14pt]{geometry} 
@@ -67,12 +76,16 @@
 \newcommand{\robin}[1]{{\color{blue!60!black}[{\bf Robin:} #1]}}
 \newcommand{\rodolphe}[1]{{\color{green!60!black}[{\bf Rodolphe:} #1]}}
 
+\newcommand{\stepref}[1]{\textcircled{\scriptsize #1}}
 
 \addbibresource{references.bib}
 
 \title{MA-Thesis – Rodolphe}
 \author{Rodolphe Prévot}
 \date{2025--2026}
+
+\setlength{\headheight}{26.84232pt}
+\addtolength{\topmargin}{-12.84232pt}
 
 
 \begin{document}
@@ -97,7 +110,7 @@ Departement of Computer Science
 
 % Title
 \rule{\textwidth}{1mm}
-\textbf{\huge Nauty (trouver un meilleur titre)\\[0.4cm] }
+\textbf{\huge Canonical Labelling and Graph Isomorphism: A C++ Reimplementation of Nauty\\[0.4cm] }
 \rule{\textwidth}{1mm} 
 \vspace*{10mm}
 
@@ -113,12 +126,14 @@ Departement of Computer Science
 \end{center}
 \end{titlepage}
 
+\include{chapters/abstract}
 {\hypersetup{linkcolor=black}\tableofcontents}
-
-
+\pagestyle{withlogo}
 \include{chapters/introduction}
 \include{chapters/preliminaries}
 \include{chapters/stateArt}
 \include{chapters/algoNauty}
+\include{chapters/testAndResult}
+\include{chapters/conclusion}
 
 \printbibliography\end{document}
