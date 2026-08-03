@@ -510,8 +510,6 @@ in each cell, which can be prohibitive for large cells.
     \State$I \gets (0,\ldots,0)$ of size $k$
     
     \ForAll{cells $C_i \in \pi$}
-        \State$\mathit{count}(v) \gets 0$ for all vertices $v \in C_i$
-        
         \ForAll{triples of vertices $\{u,v,w\} \subseteq C_i$}
             \State$weight \gets 0$
             
@@ -521,23 +519,20 @@ in each cell, which can be prohibitive for large cells.
                 \EndIf{}
             \EndFor{}
             
-            \State$\mathit{count}(u) \gets\mathit{count}(u)+weight$
-            \State$\mathit{count}(v) \gets \mathit{count}(v)+weight$
-            \State$\mathit{count}(w) \gets \mathit{count}(w)+weight$
+            \State$I[i] \gets I[i] + weight$
         \EndFor{}
-        
-        \State$I[i] \gets \sum_{v \in C_i} \mathit{count}(v)$
     \EndFor{}
     
     \State\Return{$I$}
 \end{algorithmic}
 }%
 }
-\end{enumerate}
 
 For a cell $C_i$ of size $|C_i|$, the number of triples $\{u,v,w\} \subseteq C_i$ is $\binom{|C_i|}{3} = O(|C_i|^3)$, and computing the weight of a single triple requires
 scanning all $n$ vertices of $G$. Evaluating the invariant on $C_i$ therefore costs
 $O(|C_i|^3 \cdot n)$. Since this is computed for every cell of $\pi$, and $\sum_i |C_i| = n$, the worst case gives an overall cost of $O(n^4)$. In practice, cells are usually much smaller once the standard refinement has run, keeping the actual cost far below this bound.
+\end{enumerate}
+
 
 
 \subsection{Pruning strategies}
