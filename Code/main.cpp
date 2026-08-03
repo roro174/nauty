@@ -1,6 +1,7 @@
 #include "nauty.hpp"
 #include "invariant.hpp"
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -82,6 +83,50 @@ void runAut(int argc, char* argv[]) {
     }
 }
 
+void runFile(int argc, char* argv[]) {
+    if (argc < 4) {
+        cout << "Usage: file fichier_entree fichier_sortie [triangle|paths|triple]\n";
+        return;
+    }
+
+    InvariantFunction inv = getInvariant(argc, argv, 4);
+
+    ifstream in(argv[2]);
+    if (!in) {
+        cerr << "Impossible d'ouvrir le fichier d'entrée : " << argv[2] << "\n";
+        return;
+    }
+
+    ofstream out(argv[3]);
+    if (!out) {
+        cerr << "Impossible de créer le fichier de sortie : " << argv[3] << "\n";
+        return;
+    }
+
+    string line;
+    int numLigne = 0;
+    int numTraites = 0;
+
+    while (getline(in, line)) {
+        ++numLigne;
+
+        while (!line.empty() && isspace((unsigned char)line.back()))
+            line.pop_back();
+
+        if (line.empty())
+            continue; 
+
+        try {
+            Graph g(line);
+            auto result = preNauty(g, inv);
+            out << result.canonicalGraph.toGraph6() << "\n";
+            ++numTraites;
+        } catch (const std::exception& e) {
+            cerr << "Erreur ligne " << numLigne << " (\"" << line << "\") : " << e.what() << "\n";
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         cout << "Usage:\n";
@@ -89,6 +134,7 @@ int main(int argc, char* argv[]) {
         cout << "  canonical graph6 [triangle|paths|triple]\n";
         cout << "  all graph6 [triangle|paths|triple]\n";
         cout << "  aut graph6 [triangle|paths|triple]\n";
+        cout << "  file fichier_entree fichier_sortie [triangle|paths|triple]\n";
         return 1;
     }
 
@@ -106,8 +152,11 @@ int main(int argc, char* argv[]) {
     else if (mode == "aut") {
         runAut(argc, argv);
     }
+    else if (mode == "file") {
+        runFile(argc, argv);
+    }
     else {
-        cout << "Mode inconnu ! Utilise 'iso', 'canonical', 'all' ou 'aut'.\n";
+        cout << "Mode inconnu ! Utilise 'iso', 'canonical', 'all', 'aut' ou 'batch'.\n";
         return 1;
     }
 

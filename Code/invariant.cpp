@@ -32,3 +32,68 @@ vector<int> InvariantTriangleByCell(const Graph &G, const Partition &P){
 
     return triangle;
 }
+
+
+std::vector<int> InvariantTwoPathsByCell(const Graph& G, const Partition& P) {
+    const auto& cells = P.getCells();
+    int n = G.getN();
+    std::vector<int> cellOf(n, -1);
+    for (size_t c = 0; c < cells.size(); ++c) {
+        for (int v : cells[c].verts) {
+            cellOf[v] = static_cast<int>(c);
+        }
+    }
+    std::vector<int> neighborCellSum(n, 0);
+    for (int u = 0; u < n; ++u) {
+        int sum = 0;
+        for (int w : G.getNeighbors(u)) {
+            sum += cellOf[w];
+        }
+        neighborCellSum[u] = sum;
+    }
+    std::vector<int> result;
+    result.reserve(cells.size());
+    for (const auto& cell : cells) {
+        int total = 0;
+        for (int v : cell.verts) {
+            for (int u : G.getNeighbors(v)) {
+                total += neighborCellSum[u];
+            }
+        }
+        result.push_back(total);
+    }
+
+
+    return result;
+}
+
+
+std::vector<int> InvariantCellTriplesByCell(const Graph& G, const Partition& P) {
+    const auto& cells = P.getCells();
+    int n = G.getN();
+    auto tripleWeight = [&](int a, int b, int c) {
+        int w = 0;
+        for (int x = 0; x < n; ++x) {
+            if ((G.hasEdge(x, a) + G.hasEdge(x, b) + G.hasEdge(x, c)) % 2 == 1) {
+                ++w;
+            }
+        }
+        return w;
+    };
+
+std::vector<int> result(cells.size(), 0);
+for (size_t u = 0; u < cells.size(); ++u) {
+    const auto& verts = cells[u].verts;
+    int k = static_cast<int>(verts.size());
+    if (k < 3) continue;
+
+    for (int i = 0; i < k; ++i)
+        for (int j = i + 1; j < k; ++j)
+            for (int l = j + 1; l < k; ++l) {
+                int w = tripleWeight(verts[i], verts[j], verts[l]);
+                result[u] += w;
+            }
+}
+
+    return result;
+}
