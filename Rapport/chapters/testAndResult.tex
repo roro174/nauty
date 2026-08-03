@@ -1,11 +1,50 @@
 \chapter{Testing and results}
 
-
-Ce chapitre se concentre sur les tests effectués pour évaluer la bonne fonctionnalité de notre algorithme, ses performances sur différents types d'entrées, et ses différences avec le \Naut{} originel.
+This chapter focuses on the experiments conducted to evaluate the correctness of our algorithm, its performance on different types of input graphs, and its differences compared to the original \Naut{} implementation.
 
 The source code of our algorithm is available on \href{https://github.com/roro174/nauty.git}{GitHub}.
 
-\section{Input and Output formats}
+\section{Input and output formats}
 
-Avant de parler de nos tests, nous allons juste définir très brievement les formats d'entrée et de sortie de notre algorithme. 
-The graph encoding is not fixed; however, we adopt the same approach as nauty, namely representing input graphs using the graph6 format~\cite{mckay_graph6_formats}. This choice enables more efficient testing of our algorithm.
+Before presenting the experimental results, we briefly describe the input and output formats used by our implementation.
+
+There is no universally fixed encoding for graphs used in isomorphism testing; however, following the convention set by \Naut{}, our implementation uses
+the \emph{graph6} format~\cite{mckay_graph6_formats} to represent input graphs. This compact representation makes it easy to generate, store and exchange large graph datasets while remaining compatible with the tools commonly used in graph isomorphism research.
+
+The program supports four execution modes:
+
+\begin{itemize}
+    \item\textit{iso:}\label{mode:iso} compares two graphs and outputs whether they are isomorphic.
+    
+    \item\textit{canonical:}\label{mode:canonical} computes and prints the canonical form of the input graph in graph6 format.
+    
+    \item \textit{all:}\label{mode:all} computes the canonical form of the input graph and, for every
+    permutation explored, prints the resulting labelled graph. This mode is mainlyintended for debugging and validation.
+    \item \textit{aut:}\label{mode:aut} computes the canonical form of the graph together with its automorphism group.
+\end{itemize}
+
+Moreover, the program allows the user to specify the invariant to be used for the canonical labelling. The available invariants are:
+\begin{itemize}
+    \item \textit{triangle}:\label{mode:triangle} \hyperref[algo:invariant_triangle_by_cell]{InvariantTriangleByCell};
+    \item \textit{paths}:\label{mode:path} \hyperref[algo:invariant_two_paths_by_cell]{InvariantTwoPathsByCell};
+    \item \textit{triple}:\label{mode:triple} \hyperref[algo:invariant_cell_triples_by_cell]{InvariantCellTriplesByCell};
+\end{itemize}
+
+\section{Correctness testing}
+
+\section{Performance testing}
+
+\subsection{Test on graphs avec les 3 invariants}
+
+\subsection{Test sur invariants}
+
+\rodolphe{Ici pour voir lequel prunne le plus (avoir une quantité) pour comparer arbre avec toutes les branches et avec les branches prunned}
+
+\rodolphe{Et ici avec une proportion de $P_A, P_B, P_C$ pour voir lequel est le plus efficace}
+
+\rodolphe{Pour les 2 prochaines sections je testerai avec le ``meilleur'' invariant}
+\subsection{Test on graphs without prunning}
+
+\subsection{Test on graphs with prunning}
+
+\subsection{Comparison with \Naut{}}

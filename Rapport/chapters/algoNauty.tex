@@ -440,11 +440,11 @@ Here is the exhaustive list of invariant methods that we have implemented so far
   \vspace{0.5em}
   \noindent\fbox{%
     \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
-    \textit{Pseudo-code: Number of triangles per cell}
+    \textit{Pseudo-code: InvariantTriangleByCell}
   
     \vspace{0.5em}
   
-    \begin{algorithmic}[1]
+    \begin{algorithmic}[1]\label{algo:invariant_triangle_by_cell}
     \State\textbf{Data:} A graph $G$, a cell $C = \{v_1, \ldots, v_k\}$
     \State\hspace{1.5em} $N(u)$ denotes the ordered neighbor list of $u$ in $G$
     \State\textbf{Result:} The number of triangles contained in $C$
@@ -474,7 +474,7 @@ Here is the exhaustive list of invariant methods that we have implemented so far
 
 \vspace{0.5em}
 
-\begin{algorithmic}[1]
+\begin{algorithmic}[1]\label{algo:invariant_two_paths_by_cell}
     \State\textbf{Data:} A graph $G$, a cell $C = \{v_1, \ldots, v_k\}$
   \State\textbf{Result:} the invariant value of the cell $C$
   \State$\mathit{count} \gets 0$
@@ -503,7 +503,7 @@ in each cell, which can be prohibitive for large cells.
 \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
 \textit{pseudo-code of InvariantCellTriplesByCell}
 
-\begin{algorithmic}[1]
+\begin{algorithmic}[1]\label{algo:invariant_cell_triples_by_cell}
     \State\textbf{Data:} A graph $G$, a partition $\pi = (C_1,\ldots,C_k)$
     \State\textbf{Result:} the invariant value of each cell of $\pi$
     
