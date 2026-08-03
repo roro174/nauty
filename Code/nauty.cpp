@@ -145,9 +145,9 @@ void generalNauty(const Graph& G, Partition& currentPartition, Partition& Better
                    vector<vector<int>>& currentInvariant,
                    vector<vector<int>>* allPermutations,
                    PermGroup& group, vector<int>& baseVerts,
-                   int depth) {
+                   int depth, InvariantFunction invariant) {
 
-    currentInvariant.push_back(InvariantTriangleByCell(G, currentPartition));
+    currentInvariant.push_back(invariant(G, currentPartition));
 
     if (currentPartition.isDiscrete()) {
         handleLeaf(G, currentPartition, BetterPartition, bestInvariant,
@@ -176,13 +176,13 @@ for (int v : targetCell.verts) {
     baseVerts.push_back(v);
     generalNauty(G, copyPartition, BetterPartition, bestInvariant,
                  FirstLeaf, firstLeafInvariant, firstLeafFound,
-                 currentInvariant, allPermutations, group, baseVerts, depth + 1);
+                 currentInvariant, allPermutations, group, baseVerts, depth + 1, invariant);
     baseVerts.pop_back();
     currentInvariant.pop_back();
 }}
 }
 
-NautyResult preNauty(const Graph& mainGraph, bool storePerms) {
+NautyResult preNauty(const Graph& mainGraph,InvariantFunction invariant,  bool storePerms) {
     Partition P(mainGraph.size());
     vector<Partition::Cell> alpha = P.getCells();
     P.refineGraph(mainGraph, alpha);
@@ -202,7 +202,7 @@ NautyResult preNauty(const Graph& mainGraph, bool storePerms) {
 
     generalNauty(mainGraph, P, BestP, bestInv,
                  FirstLeaf, firstLeafInvariant, firstLeafFound,
-                 currInv, ptrPerms, group, baseVerts, 0);
+                 currInv, ptrPerms, group, baseVerts, 0, invariant);
 
     vector<int> perm = BestP.transformCellsToInt();
     Graph canonG = mainGraph.applyPermutation(perm);

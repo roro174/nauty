@@ -162,4 +162,18 @@ public:
      * @return: the graph in Graph6 format
      */
     std::string toGraph6() const;
+
+    /**
+     * @brief: Get the number of vertices in the graph
+     * @return: n 
+     */
+
+    int getN() const { return n; }
+
+
+    /**
+     * @brief: Get the adjacency list of the graph
+     * @return: a vector containing the adjacency list of the graph
+     */
+    std::vector<int> getAdjList() const { return adjList; }
 };

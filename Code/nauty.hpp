@@ -5,6 +5,8 @@
 #include "bsgs.hpp"
 #include <vector>
 
+using InvariantFunction = std::vector<int>(*)(const Graph&, const Partition&);
+
 /**
  * @brief Stores the result of the Nauty algorithm.
  */
@@ -21,4 +23,4 @@ struct NautyResult {
  * @return Result containing the canonical graph, explored permutations (if requested),
  *         and the automorphism group.
  */
-NautyResult preNauty(const Graph& mainGraph, bool storePerms = false);
+NautyResult preNauty(const Graph& mainGraph, InvariantFunction invariant, bool storePerms = false);

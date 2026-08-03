@@ -1,71 +1,115 @@
 #include "nauty.hpp"
+#include "invariant.hpp"
 #include <iostream>
 
+using namespace std;
+
+InvariantFunction getInvariant(int argc, char* argv[], int index){
+    if (argc < index + 1)
+        return InvariantTriangleByCell;
+
+    string inv = argv[index];
+
+    if (inv == "triangle")
+        return InvariantTriangleByCell;
+    if (inv == "paths")
+        return InvariantTwoPathsByCell;
+    if (inv == "triple")
+        return InvariantCellTriplesByCell;
+
+    cout << "Invariant inconnu, utilisation de 'triangle' par défaut.\n";
+    return InvariantTriangleByCell;
+}
+
+void runIso(int argc, char* argv[]) {
+    if (argc < 4) {
+        cout << "Usage: iso graph6 graph6 [triangle|paths|triple]\n";
+        return;
+    }
+
+    InvariantFunction inv = getInvariant(argc, argv, 4);
+
+    Graph g1(argv[2]);
+    Graph g2(argv[3]);
+
+    auto res1 = preNauty(g1, inv);
+    auto res2 = preNauty(g2, inv);
+
+    if (res1.canonicalGraph.toGraph6() == res2.canonicalGraph.toGraph6())
+        cout << "Isomorphes\n";
+    else
+        cout << "Non isomorphes\n";
+}
+
+void runCanonical(int argc, char* argv[], bool all) {
+    if (argc < 3) {
+        cout << "Usage: canonical graph6 [triangle|paths|triple]\n";
+        return;
+    }
+    InvariantFunction inv = getInvariant(argc, argv, 3);
+    Graph g(argv[2]);
+    auto result = preNauty(g, inv, all);
+    result.canonicalGraph.printGraph6();
+    if (!all)
+        return;
+    for (const auto& perm : result.allPermutations) {
+        Graph gPerm = g.applyPermutation(perm);
+        auto res = preNauty(gPerm, inv);
+        res.canonicalGraph.printGraph6();
+    }
+}
+
+void runAut(int argc, char* argv[]) {
+    if (argc < 3) {
+        cout << "Usage: aut graph6 [triangle|paths|triple]\n";
+        return;
+    }
+    InvariantFunction inv = getInvariant(argc, argv, 3);
+    Graph g(argv[2]);
+    auto result = preNauty(g, inv);
+    result.canonicalGraph.printGraph6();
+    result.automorphisms.print(cout);
+    auto group = result.automorphisms.enumerateGroup();
+    cout << "\nToutes les permutations (" << group.size() << ") :\n";
+    for (const auto& p : group) {
+        cout << "[";
+        for (size_t i = 0; i < p.size(); ++i) {
+            cout << p[i];
+            if (i + 1 < p.size())
+                cout << ",";
+        }
+        cout << "]\n";
+    }
+}
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         cout << "Usage:\n";
-        cout << "  iso graph6 graph6\n";
-        cout << "  canonical graph6\n";
-        cout << "  all graph6\n";
-        cout << "  aut graph6\n";
-        return 1;}
+        cout << "  iso graph6 graph6 [triangle|paths|triple]\n";
+        cout << "  canonical graph6 [triangle|paths|triple]\n";
+        cout << "  all graph6 [triangle|paths|triple]\n";
+        cout << "  aut graph6 [triangle|paths|triple]\n";
+        return 1;
+    }
+
     string mode = argv[1];
-    if (mode == "iso") { //only compare two graphs to see if they are isomorphes
-        if (argc < 4) {
-            cout << "Usage: iso graph6 graph6\n";
-            return 1;
-        }
-        string g1_str = argv[2];
-        string g2_str = argv[3];
-        auto res1 = preNauty(Graph(g1_str));
-        auto res2 = preNauty(Graph(g2_str));
-        if (res1.canonicalGraph.toGraph6() == res2.canonicalGraph.toGraph6()) cout << "Isomorphes" << endl; 
-        else cout << "Non isomorphes" << endl;
-    }
-    else if (mode == "canonical" || mode == "all") {// to see the canonical form of a graph, or all canonical forms of all permutations
-        if (argc < 3) {
-            cout << "Usage: canonical graph6\n";
-            return 1;
-        }
-        string g_str = argv[2];
-        Graph mainGraph(g_str);
-        bool storePerms = (mode == "all");
-        auto result = preNauty(mainGraph, storePerms);
-        result.canonicalGraph.printGraph6();
-        if (mode == "all") {//all permutations of the canonical form
-            for (const auto& perm : result.allPermutations) {
-                Graph gPerm = mainGraph.applyPermutation(perm);
-                auto res = preNauty(gPerm);
-                res.canonicalGraph.printGraph6();
-            }
-        }
-    }
-    else if (mode == "aut") {// to get the automorphisms of a graph
-        if (argc < 3) {
-            cout << "Usage: aut graph6\n";
-            return 1;
-        }
-        Graph mainGraph(argv[2]);
-        auto result = preNauty(mainGraph);
-        result.canonicalGraph.printGraph6();
-result.automorphisms.print(cout);
 
-auto group = result.automorphisms.enumerateGroup();
-
-cout << "\nToutes les permutations (" << group.size() << ") :\n";
-
-for (const auto& p : group) {
-    cout << "[";
-    for (size_t i = 0; i < p.size(); ++i) {
-        cout << p[i];
-        if (i + 1 < p.size()) cout << ",";
+    if (mode == "iso") {
+        runIso(argc, argv);
     }
-    cout << "]\n";
-}
+    else if (mode == "canonical") {
+        runCanonical(argc, argv, false);
     }
-
-    else cout << "Mode inconnu ! Utilise 'iso', 'canonical', 'all' ou 'aut'" << endl;
+    else if (mode == "all") {
+        runCanonical(argc, argv, true);
+    }
+    else if (mode == "aut") {
+        runAut(argc, argv);
+    }
+    else {
+        cout << "Mode inconnu ! Utilise 'iso', 'canonical', 'all' ou 'aut'.\n";
+        return 1;
+    }
 
     return 0;
 }
