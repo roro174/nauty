@@ -15,12 +15,11 @@ The program supports four execution modes:
 
 \begin{itemize}
     \item\textit{iso:}\label{mode:iso} compares two graphs and outputs whether they are isomorphic.
-    
     \item\textit{canonical:}\label{mode:canonical} computes and prints the canonical form of the input graph in graph6 format.
-    
     \item \textit{all:}\label{mode:all} computes the canonical form of the input graph and, for every
     permutation explored, prints the resulting labelled graph. This mode is mainlyintended for debugging and validation.
     \item \textit{aut:}\label{mode:aut} computes the canonical form of the graph together with its automorphism group.
+    \item \textit{file:}\label{mode:file} reads a list of graphs (in a graph6 encoding) from a file and computes the canonical form for each graph. This mode is useful for batch processing and performance testing on large datasets.
 \end{itemize}
 
 Moreover, the program allows the user to specify the invariant to be used for the canonical labelling. The available invariants are:
@@ -30,9 +29,17 @@ Moreover, the program allows the user to specify the invariant to be used for th
     \item \textit{triple}:\label{mode:triple} \hyperref[algo:invariant_cell_triples_by_cell]{InvariantCellTriplesByCell};
 \end{itemize}
 
+\rodolphe{Les tests vont se faire sur plusieurs datasets regroupée par sommets: 5,10,50,100,150,200}
+
+
 \section{Correctness testing}
 
 \section{Performance testing}
+
+Pour les prochains tests, nous allons utiliser différentes datasets de graphes aléatoires mais chaque graphe d'un dataset aura le même nombre de sommet que les autres. 
+
+Pour nos datasets, nous allons utiliser la librairie genrang de \Naut{} pour générer des graphes aléatoires. Chaque datasets contiendra 10000 graphes aléatoires. Mais pour être sur de ne pas avoir de problème durant l'éxecution de nos tests, nous ne generons qu'une seule fois les graphes au tout début pour avoir nos fichiers de graphes. Comme ça, nous pourrons les réutiliser pour tous nos tests et ne pas tester sur des graphes différents. Nous allons tester notre programme sur des datasets de graphes avec 5, 10, 50, 100, 150 et 200 sommets. Il se peut donc que plusieurs graphes d'un même dataset soient exactement les mêmes (surtout pour les petits datasets en sachant que pour un total de 5 sommets il n'y a que 34 graphes possibles dont 21 connexes). Mais ce n'est pas un problème pour nos tests, car nous voulons juste tester la performance de notre programme sur des graphes aléatoires.
+
 
 \subsection{Test on graphs avec les 3 invariants}
 
