@@ -1,44 +1,59 @@
-\chapter{Testing and results}
+\chapter{Testing and Results}
 
-This chapter focuses on the experiments conducted to evaluate the correctness of our algorithm, its performance on different types of input graphs, and its differences compared to the original \Naut{} implementation.
+This chapter presents the experiments conducted to validate the correctness of our implementation, evaluate its performance on different classes of input graphs, and compare its behaviour with the original \Naut{} implementation.
 
-The source code of our algorithm is available on \href{https://github.com/roro174/nauty.git}{GitHub}.
+The source code of our implementation is available on \href{https://github.com/roro174/nauty.git}{GitHub}.
 
 \section{Input and output formats}
 
-Before presenting the experimental results, we briefly describe the input and output formats used by our implementation.
+Before presenting the experimental results, we briefly describe the input and output formats supported by our implementation.
 
-There is no universally fixed encoding for graphs used in isomorphism testing; however, following the convention set by \Naut{}, our implementation uses
-the \emph{graph6} format~\cite{mckay_graph6_formats} to represent input graphs. This compact representation makes it easy to generate, store and exchange large graph datasets while remaining compatible with the tools commonly used in graph isomorphism research.
+Although there is no universally accepted graph encoding for graph isomorphism algorithms, our implementation follows the convention established by \Naut{} and uses the \emph{graph6} format~\cite{mckay_graph6_formats}. This compact representation is widely used in the graph isomorphism community and provides an efficient way to store, exchange, and generate large collections of graphs while remaining fully compatible with existing tools.
 
-The program supports four execution modes:
+The program supports five execution modes:
 
 \begin{itemize}
-    \item\textit{iso:}\label{mode:iso} compares two graphs and outputs whether they are isomorphic.
-    \item\textit{canonical:}\label{mode:canonical} computes and prints the canonical form of the input graph in graph6 format.
-    \item \textit{all:}\label{mode:all} computes the canonical form of the input graph and, for every
-    permutation explored, prints the resulting labelled graph. This mode is mainlyintended for debugging and validation.
-    \item \textit{aut:}\label{mode:aut} computes the canonical form of the graph together with its automorphism group.
-    \item \textit{file:}\label{mode:file} reads a list of graphs (in a graph6 encoding) from a file and computes the canonical form for each graph. This mode is useful for batch processing and performance testing on large datasets.
+    \item \textit{iso:}\label{mode:iso} compares two graphs and determines whether they are isomorphic.
+    
+    \item \textit{canonical:}\label{mode:canonical} computes and outputs the canonical form of the input graph in graph6 format.
+    
+    \item \textit{all:}\label{mode:all} computes the canonical form of the input graph and, for every leaf explored during the search, recomputes its canonical form independently to verify that all search paths produce the same canonical labelling. This mode is intended primarily for debugging and validation.
+    
+    \item \textit{aut:}\label{mode:aut} computes the canonical form of the input graph together with its automorphism group.
+    
+    \item \textit{file:}\label{mode:file} reads a collection of graphs encoded in graph6 format from a file and computes the canonical form of each graph. This mode is particularly useful for large-scale experiments and performance evaluation.
 \end{itemize}
 
-Moreover, the program allows the user to specify the invariant to be used for the canonical labelling. The available invariants are:
-\begin{itemize}
-    \item \textit{triangle}:\label{mode:triangle} \hyperref[algo:invariant_triangle_by_cell]{InvariantTriangleByCell};
-    \item \textit{paths}:\label{mode:path} \hyperref[algo:invariant_two_paths_by_cell]{InvariantTwoPathsByCell};
-    \item \textit{triple}:\label{mode:triple} \hyperref[algo:invariant_cell_triples_by_cell]{InvariantCellTriplesByCell};
-\end{itemize}
+The user can also choose the node invariant used during canonical labelling. The currently available invariants are \textit{triangle}, corresponding to \hyperref[algo:invariant_triangle_by_cell]{InvariantTriangleByCell}, \textit{paths}, corresponding to \hyperref[algo:invariant_two_paths_by_cell]{InvariantTwoPathsByCell}, and \textit{triple}, corresponding to \hyperref[algo:invariant_cell_triples_by_cell]{InvariantCellTriplesByCell}.
 
-\rodolphe{Les tests vont se faire sur plusieurs datasets regroupée par sommets: 5,10,50,100,150,200}
 
 
 \section{Correctness testing}
 
+Before evaluating the performance of our implementation, we first verified its correctness through a collection of unit and integration tests covering all major components of the algorithm.
+
+\paragraph{Unit tests.}
+Each core component of the implementation was tested independently to ensure that it produced the expected output. The refinement procedure was validated on manually constructed partitions for which the refined partitions were known in advance. Likewise, the target cell selection procedure was tested on several representative partitions to verify that it consistently selected the expected target cell. Finally, each node invariant was evaluated on a variety of partitions to ensure that the computed invariant matched the expected value.
+
+\paragraph{Canonical labelling.}
+The correctness of the complete canonical labelling algorithm was verified using the \textit{all} execution mode. In addition, the \textit{file} mode was used on collections of graphs to verify that every input graph was assigned the expected canonical form. As a representative example, the graph $K_{1,3}$ was used throughout the development to validate the behaviour of the search tree and to ensure that the computed canonical labelling agreed with the expected result.
+
+\paragraph{Pruning procedures.}
+Each pruning strategy was validated independently. For pruning rule $\mathcal{P}_A$, we verified that every node whose invariant was strictly worse than the best invariant found so far was correctly discarded. For pruning rule $\mathcal{P}_B$, we verified that every node whose invariant differed from that of the current reference node was correctly pruned. Finally, pruning rule $\mathcal{P}_C$ was validated using the search tree shown in Figure~\ref{fig:nauty-tree-k13-prunned}, where every branch predicted by the theory to be removable was successfully eliminated.
+
+\paragraph{Automorphism groups.}
+The correctness of the computed automorphism groups was verified by comparing our implementation against \Naut{}. Using the \textit{file} execution mode, we computed the automorphism group of each graph in a collection of test instances and compared the results with those produced by \Naut{}. For every graph, both algorithms produced automorphism groups of identical order, providing strong evidence for the correctness of our implementation.
+
+
 \section{Performance testing}
 
-Pour les prochains tests, nous allons utiliser différentes datasets de graphes aléatoires mais chaque graphe d'un dataset aura le même nombre de sommet que les autres. 
+The experiments presented in the remainder of this chapter are conducted on several datasets of random graphs. Within each dataset, all graphs have the same number of vertices.
 
-Pour nos datasets, nous allons utiliser la librairie genrang de \Naut{} pour générer des graphes aléatoires. Chaque datasets contiendra 10000 graphes aléatoires. Mais pour être sur de ne pas avoir de problème durant l'éxecution de nos tests, nous ne generons qu'une seule fois les graphes au tout début pour avoir nos fichiers de graphes. Comme ça, nous pourrons les réutiliser pour tous nos tests et ne pas tester sur des graphes différents. Nous allons tester notre programme sur des datasets de graphes avec 5, 10, 50, 100, 150 et 200 sommets. Il se peut donc que plusieurs graphes d'un même dataset soient exactement les mêmes (surtout pour les petits datasets en sachant que pour un total de 5 sommets il n'y a que 34 graphes possibles dont 21 connexes). Mais ce n'est pas un problème pour nos tests, car nous voulons juste tester la performance de notre programme sur des graphes aléatoires.
+The datasets were generated using the \textit{genrang}~\cite{mckay2024nug} utility provided with \Naut{}. Each dataset contains 10,000 randomly generated graphs. To ensure that all experiments are reproducible and are performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs. These datasets are also publicly available in our \href{https://github.com/roro174/nauty.git}{GitHub repository}.
+
+Experiments were carried out on datasets containing graphs with 5, 10, 50, 100, 150 and 200 vertices. Since the graphs are generated randomly, multiple graphs within the same dataset may belong to the same isomorphism class, especially for small numbers of vertices. For example, there exist only 34 non-isomorphic graphs on five vertices, meaning that a dataset containing 10,000 randomly generated graphs is likely to contain many isomorphic instances. This does not affect our evaluation, as the objective of these experiments is to assess the performance of the algorithm on randomly generated inputs rather than to evaluate it on a set of pairwise non-isomorphic graphs.
+
+
 
 
 \subsection{Test on graphs avec les 3 invariants}
