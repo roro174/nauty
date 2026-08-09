@@ -67,12 +67,35 @@
 \usepackage[sanserif]{complexity}
 \newclass\LOGSPACE{LOGSPACE}
 
+\usepackage{placeins}
 \usepackage{subcaption}
 \usepackage{parskip}
 \usepackage{lipsum}
 \usepackage{xspace}
 \usepackage{svg}
-\usepackage[margin=3cm,headheight=14pt]{geometry} 
+\usepackage[margin=3cm,headheight=14pt]{geometry}
+
+\usepackage{xcolor}
+\usepackage{amssymb}   % pour \blacktriangle, \blacklozenge
+
+% Couleurs — hex des couleurs nommées matplotlib que tu utilises
+\definecolor{cTriangle}{HTML}{D62728}   % tab:red
+\definecolor{cPaths}{HTML}{2CA02C}      % tab:green
+\definecolor{cTriple}{HTML}{1F77B4}     % tab:blue
+\definecolor{cNauty}{HTML}{BDB76B}      % darkkhaki
+
+% Un item de légende générique : couleur, symbole, étiquette
+\newcommand{\legenditem}[3]{{\color{#1}#2}~#3}
+
+\newcommand{\legendeInvariants}{%
+  \begin{center}
+  \Large
+  \legenditem{cTriangle}{$\blacktriangle$}{triangle}\quad
+  \legenditem{cPaths}{$\blacklozenge$}{paths}\quad
+  \legenditem{cTriple}{$\bullet$}{triple}\quad
+  \legenditem{cNauty}{$\boldsymbol{\times}$}{\Naut{}}
+  \end{center}
+}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator{\Aut}{Aut}

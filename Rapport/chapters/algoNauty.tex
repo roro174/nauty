@@ -215,10 +215,9 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
 
 
   \begin{enumerate}[label=\textit{$\phi$\arabic*.}]
-      \item if $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) < \phi(G,\pi_0, \sigma')$,\\
-      then for every leaf $\sigma_1 \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma)$ and leaf $\sigma_1' \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma')$ we have $\phi(G,\pi_0, \sigma_1) < \phi(G,\pi_0, \sigma_2)$.
+      \item if $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) < \phi(G,\pi_0, \sigma')$, then for every leaf $\sigma_1 \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma)$ and leaf $\sigma_1' \mathrel{\in}\mathcal{T} (G,\pi_0, \sigma')$ we have $\phi(G,\pi_0, \sigma_1) < \phi(G,\pi_0, \sigma_2)$.
       \item if $\pi= R (G,\pi_0, \sigma)$ and $\pi' = R (G,\pi_0, \sigma')$ are discrete,\\
-      then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \mathrel{\Leftrightarrow} G^\pi= G^{\pi'}$.
+then $\phi(G,\pi_0, \sigma) = \phi(G,\pi_0, \sigma') \mathrel{\Leftrightarrow} G^\pi= G^{\pi'}$.
       \item for any $g \mathrel{\in}S_n$, we have $\phi(G^g,\pi_0^g, \sigma^g) = \phi(G,\pi_0, \sigma)$.
   \end{enumerate}
 \end{definition}
@@ -232,7 +231,7 @@ Isolating $g$, we obtain:
 \[g = R{(G, \pi_0, \sigma)}^{-1} \cdot R(G, \pi_0, \sigma')\]
 If this permutation turns out to be an automorphism of $(G, \pi_0)$, it means that both leaves describe the same graph up to a relabelling of vertices, and are therefore equivalent.
 
-By \hyperref[cor: Corollary]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}(G,\pi_0)$, then all leaves of the form $\sigma^g$, where $g\in\Aut(G,\pi_0)$, are also leaves of $\mathcal{T}(G,\pi_0)$, and, due to the properties of $\phi$, they all share the same $\phi$-value, while no other leaf has this value. Consequently, for each leaf $\sigma$, we can say that:
+By \hyperref[cor: Corollary]{Corollary 2}, if $\sigma$ is a leaf of $\mathcal{T}(G,\pi_0)$, then all leaves of the form $\sigma^g$,\\ where $g\in\Aut(G,\pi_0)$, are also leaves of $\mathcal{T}(G,\pi_0)$, and, due to the properties of $\phi$, they all share the same $\phi$-value, while no other leaf has this value. Consequently, for each leaf $\sigma$, we can say that:
 
 
 \begin{align*}
@@ -585,12 +584,11 @@ $O(|C_i|^3 \cdot n)$. Since this is computed for every cell of $\pi$, and $\sum_
 
 To avoid generating unnecessary information in our search tree,which would result in an overly large tree, we aim to construct the most optimised tree possible. To achieve this, we can apply \textit{pruning} techniques to the tree: eliminating redundant branches so that only a fraction of the original tree needs to be generated. We can define two types of pruning strategies to optimize our construction:
 
-$\mathcal{P}_A (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) > \phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
+$\mathcal{P}_A(\sigma, \sigma')$: We remove $T(G, \pi_0, \sigma')$ whenever $\sigma, \sigma'$ are distinct nodes of $T(G, \pi_0)$ satisfying $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0,\sigma) > \phi(G,\pi_0,\sigma')$.
 
-$\mathcal{P}_B (\sigma, \sigma')$: Suppose $\sigma, \sigma'$ are distinct nodes of $T (G, \pi_0)$ with $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0, \sigma) \neq\phi(G,\pi_0, \sigma')$. Then, we will remove $T (G, \pi_0, \sigma')$.
+$\mathcal{P}_B(\sigma, \sigma')$: We remove $T(G, \pi_0, \sigma')$ whenever $\sigma, \sigma'$ are distinct nodes of $T(G, \pi_0)$ satisfying $|\sigma| = |\sigma'|$ and $\phi(G,\pi_0,\sigma) \neq \phi(G,\pi_0,\sigma')$.
 
-$\mathcal{P}_C(\sigma, g)$: Suppose $g \in \Aut(G,\pi_0)$ and suppose $\sigma < \sigma'$ are nodes of $T(G, \pi_0)$ such that $\sigma^g = \sigma'$. Then, we will remove $T(G, \pi_0, \sigma')$.
-
+$\mathcal{P}_C(\sigma, g)$: We remove $T(G, \pi_0, \sigma')$ whenever $g \in \Aut(G,\pi_0)$ and $\sigma < \sigma'$ are nodes of $T(G, \pi_0)$ such that $\sigma^g = \sigma'$.
 
 Informally, each pruning method serves a distinct purpose. The method $\mathcal{P}_A$ discards branches whose invariant cannot reach the maximal value: at each level of the tree, we keep track of the best invariant found so far, and any other node at the same level with a strictly worse invariant has its branch pruned. The method $\mathcal{P}_B$ is somewhat more subtle. Rather than comparing the current node to the best node found so far, it is compared to a reference node, taken as the node at the same level lying on the first path leading to the first leaf. If the two invariants differ, the current subtree is pruned. Here, the goal is not really to find the best invariant, but rather to uncover new automorphisms. Combining the two methods, a branch is pruned only when both $\mathcal{P}_A$'s and $\mathcal{P}_B$'s conditions are satisfied. 
 In other words, the current node is pruned if its invariant is strictly 
@@ -743,7 +741,7 @@ by applying the refinement function along the individualisation sequence
 $\sigma$. Whenever a newly reached leaf $\sigma'$ produces the same
 invariant as the first leaf $\sigma_0$ reached by the search, the permutation
 \[
-g = R(G,\pi_0,\sigma')\,R(G,\pi_0,\sigma_0)^{-1}
+g = R(G,\pi_0,\sigma')\,R(G,\pi_0,\sigma_0){^-1}
 \]
 is an automorphism of $G$, and is added to the currently known
 automorphism group.

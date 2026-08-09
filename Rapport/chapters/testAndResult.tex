@@ -46,77 +46,96 @@ The correctness of the computed automorphism groups was verified by comparing ou
 
 
 \section{Performance testing}
+All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs, random graphs $G(n, 1/2)$, bipartite graphs, cycles\footnote{A graph consisting of a single cycle with at least three vertices, where each vertex is connected to exactly two other vertices.}, regular graphs\footnote{A graph where every vertex has the exact same number of neighbors.}, and dense graphs\footnote{A graph where the number of edges is close to the maximum possible number of edges.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
 
-The experiments presented in the remainder of this chapter are conducted on several datasets of random graphs. Within each dataset, all graphs have the same number of vertices.
+The datasets were generated using \texttt{genrang}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs). Each dataset contains 1,000 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
 
-The datasets were generated using the \textit{genrang}~\cite{mckay2024nug} utility provided with \Naut{}. Each dataset contains 10,000 randomly generated graphs. To ensure that all experiments are reproducible and are performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs. These datasets are also publicly available in our \href{https://github.com/roro174/nauty.git}{GitHub repository}.
+Several experiments are then performed on these datasets. First, we measure and compare the running time of all our invariants across the different datasets, and against the default version of \Naut{}. A Wilcoxon test is used to statistically compare the invariants against one another. We also measure the pruning ratio achieved by each invariant on each graph family. Finally, we evaluate our version of \Naut{} on the same graphs with pruning disabled, in order to isolate the effect of the pruning rules themselves.
 
-Experiments were carried out on datasets containing graphs with 5, 10, 50, 100, 150 and 200 vertices. Since the graphs are generated randomly, multiple graphs within the same dataset may belong to the same isomorphism class, especially for small numbers of vertices. For example, there exist only 34 non-isomorphic graphs on five vertices, meaning that a dataset containing 10,000 randomly generated graphs is likely to contain many isomorphic instances. This does not affect our evaluation, as the objective of these experiments is to assess the performance of the algorithm on randomly generated inputs rather than to evaluate it on a set of pairwise non-isomorphic graphs.
+All running times are measured in wall-clock (real) time. Experiments were conducted on a Lenovo IdeaPad 3 15ITL6 laptop equipped with an 11th generation Intel Core i3--1115G4 processor (x86\_64 architecture) running at 3.00\,GHz, 7.6\,GiB of RAM, and Ubuntu 24.04.1 LTS (kernel version 6.8.0--51-generic). This machine was dedicated exclusively to the experiments, with no other process running concurrently, and no time limit was imposed on the executions.
+
+\paragraph{Legend.}
+Throughout the following experiments, the horizontal axis always denotes the number of vertices and the vertical axis the average execution time (in ms); each invariant is represented by a distinct symbol and colour. Since these correspondences are the same across all figures, we introduce them once below rather than repeating them under every graph.
+
+
+\legendeInvariants{}
 
 \subsection{Time performance}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
+        \caption*{Random graphs $G(n, 1/2)$}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
+        \caption*{Trees}
     \end{subfigure}
 \end{figure}
 
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
+        \caption*{Regular graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
+        \caption*{Bipartite graphs}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
+        \caption*{Dense Graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
+        \caption*{Sparse Graphs}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
-    \end{subfigure}
+    \includegraphics[width=0.48\textwidth]{imgs/test/test.png}
+    \caption*{Cycles}
 \end{figure}
 
-\subsubsection{Wilcoxon signed-rank test}
+
+\FloatBarrier\subsubsection{Wilcoxon signed-rank test}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{cccccccc}
+    \toprule
+    Vertices & Invariant & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
+    \midrule
+    10 & triangle & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
+    10 & paths & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
+    10 & triple & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
+    50 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    50 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    50 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    200 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    200 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    200 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    \bottomrule
+    \end{tabular}
+    \caption{Average pruning statistics.}
+    \end{table}
 
 \subsubsection{Discussion of the results}
 
@@ -250,69 +269,67 @@ Experiments were carried out on datasets containing graphs with 5, 10, 50, 100, 
                         \end{table}
                 
 
-\newpage
+\FloatBarrier\subsubsection{Discussion of the results}
+
+\lipsum[1-2]
+                        
 
 \subsection{Test on graphs without prunning}
 
 
-
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
+        \caption*{Random graphs $G(n, 1/2)$}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
+        \caption*{Trees}
     \end{subfigure}
 \end{figure}
 
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
+        \caption*{Regular graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
+        \caption*{Bipartite graphs}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
+        \caption*{Dense Graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
+        \caption*{Sparse Graphs}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
-        \caption{Classe graphe.}
-    \end{subfigure}
+    \includegraphics[width=0.48\textwidth]{imgs/test/test.png}
+    \caption*{Cycles}
 \end{figure}
+
+
+\FloatBarrier\subsubsection{Discussion of the results}
+
+\lipsum[1-2]
