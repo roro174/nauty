@@ -176,7 +176,7 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
     \end{proof}
   
   \begin{lemma}
-      Let $\sigma$ be a node of $ (G,\pi_0)$ and let $\pi= R (G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the   \hyperref[def:pointwise stabilizer]{point-wise stabilizer} of $\sigma$ in $\Aut(G,\pi_0)$.
+      Let $\sigma$ be a node of $ (G,\pi_0)$ and let $\pi= R (G, \pi_0, \sigma)$. Then $\Aut(G,\pi$) is the   \hyperref[def:pointwise stabiliser]{point-wise stabiliser} of $\sigma$ in $\Aut(G,\pi_0)$.
   \end{lemma}
 
 
@@ -185,13 +185,13 @@ To demonstrate the correctness of the algorithm, the pruning procedure that we w
   \begin{proof}
     We show both inclusions to establish the equality.
 
-    \textbf{Part 1} ($\text{Aut}(G, \pi) \subseteq$ point-wise stabilizer of $\sigma$):\\
+    \textbf{Part 1} ($\text{Aut}(G, \pi) \subseteq$ point-wise stabiliser of $\sigma$):\\
     Let $g \in \text{Aut}(G, \pi)$. By \hyperref[RefinementRule:singleton]{R2}, for each $v \in \sigma$, $\{v\}$ is a singleton
     cell of $\pi = R(G, \pi_0, \sigma)$. Since $g$ is an automorphism of $(G, \pi)$, it must
     map each cell of $\pi$ to a cell of $\pi$. A singleton $\{v\}$ can only be mapped to
     itself, hence $v^g = v$ for every $v \in \sigma$, so $g$ stabilises $\sigma$ point-wise.
     
-    \textbf{Part 2} (point-wise stabilizer of $\sigma$ $\subseteq \text{Aut}(G, \pi)$):\\
+    \textbf{Part 2} (point-wise stabiliser of $\sigma$ $\subseteq \text{Aut}(G, \pi)$):\\
     Let $g \in \text{Aut}(G, \pi_0)$ be such that $g$ stabilises $\sigma$ point-wise, that is
     $\sigma^g = \sigma$. We want to show that $g \in \text{Aut}(G, \pi)$ (so, $\pi^g = \pi$).
     By \hyperref[RefinementRule:equivariance]{R3} applied to $G$, $\pi_0$ and $\sigma$:
@@ -318,6 +318,8 @@ To construct our refinement function, we need two auxiliary functions: a functio
 
 
   \vspace{1em}
+
+  \newpage
   
   \begin{definition}[Individualisation]\label{def:individualised_function}
     Let $\pi \in \Pi$ and let $v \in V$ be a vertex belonging to a non-singleton cell of $\pi$.
@@ -410,7 +412,7 @@ In conclusion, the algorithm satisfies the required properties of a refinement f
 
 For the implementation of the \hyperref[def: target cell function]{target cell selector function} in the construction of the search tree, several strategies can be adopted. Choosing the right target cell at each step is important because it influences the shape and depth of the tree, and therefore the overall performance of the search.
 
-In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an orbit of the group that stabilises the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
+In the original version of \Naut, McKay recommended selecting the first smallest non-singleton cell, as it increases the chance that the selected cell is part of an \hyperref[def:orbit]{orbit} of the group that stabilises the current sequence~\cite{mckay1981practical}. However, later studies showed that in certain cases, it is better to simply select the first non-singleton cell, regardless of its size~\cite{kirk1985efficiency}.
 
 As a result, \Naut{} now supports two strategies for target cell selection that we can choose:
 
@@ -534,7 +536,7 @@ Here is the exhaustive list of invariant methods that we have implemented so far
 }%
 }
 
-The computation of this invariant is divided into two steps. First, for every vertex $u \in V$, we precompute the value $S(u)=\sum_{w \in N(u)} \mathrm{cellIndex}(w)$ by scanning the adjacency list of each vertex once. Since every edge is traversed at most twice, this preprocessing step requires $O(n+m)$ time, where $n$ is the number of vertices and $m$ is the number of edges.Once these values have been computed, the invariant of a cell $C$ is obtained by iterating over every vertex of the cell and summing the precomputed values of its neighbors. The running time for one cell is therefore $O\!\left(\sum_{v\in C}\deg(v)\right)$. Since the cells form a partition of the vertex set, each vertex is processed exactly once when computing the invariant for all cells, yielding an overall running time of $O(n+m)$.
+The computation of this invariant is divided into two steps. First, for every vertex $u \in V$, we precompute the value $S(u)=\sum_{w \in N(u)} \mathrm{cellIndex}(w)$ by scanning the adjacency list of each vertex once. Since every edge is traversed at most twice, this preprocessing step requires $O(n+m)$ time, where $n$ is the number of vertices and $m$ is the number of edges. Once these values have been computed, the invariant of a cell $C$ is obtained by iterating over every vertex of the cell and summing the precomputed values of its neighbors. The running time for one cell is therefore $O\!\left(\sum_{v\in C}\deg(v)\right)$. Since the cells form a partition of the vertex set, each vertex is processed exactly once when computing the invariant for all cells, yielding an overall running time of $O(n+m)$.
 
 \item\textit{triple by cell}:  It is also an invariant method adapted directly from the \Naut{} user's guide~\cite{mckay2024nug}. However, since no source code was available, we had to reconstruct the method from its description. The idea is to consider, for each cell, every triple ofvertices $\{u,v,w\}$ it contains. For each triple, we count the number of vertices $x$ of the graph that are adjacent to an odd number of the vertices of $\{u,v,w\}$ (that is, adjacent to exactly one or exactly three of them); this count is the weight of the triple, and it is added
 to the counter of each of the three vertices $u$, $v$ and $w$. The final invariant of the cell
@@ -649,39 +651,52 @@ Finally, the $\mathcal{P}_C$ strategy exploits the automorphisms that have alrea
 
 Implementing this strategy is considerably more challenging than implementing $\mathcal{P}_A$ or $\mathcal{P}_B$, and several approaches have been proposed over the years. In the earliest versions of \Naut{}, pruning relied solely on the automorphisms discovered during the search. More recent versions additionally provide an optional \textit{Random Schreier} method, which \Naut{} adopted in place of a deterministic alternative for its greater efficiency, and which constructs a randomised approximation of the automorphism group from the automorphisms already found.This often enables more aggressive pruning, although its effectiveness depends on the input graph; for some graph families it provides little or no improvement and may even introduce additional overhead.
 
-In this work, we implement the original approach, which relies only on the automorphisms discovered during the search. To represent and manipulate the automorphism group efficiently, we use the \textit{Schreier-Sims algorithm}, which constructs a base and strong generating set (BSGS) together with the associated stabilizer chain, allowing efficient orbit computations and pruning decisions.
+In this work, we implement the original approach, which relies only on the automorphisms discovered during the search. To represent and manipulate the automorphism group efficiently, we use the \textit{Schreier-Sims algorithm}, which constructs a base and strong generating set (BSGS) together with the associated \hyperref[def:stabiliser]{stabiliser} chain, allowing efficient orbit computations and pruning decisions.
 
 \subsubsection{Schreier-Sims Algorithm}
 
-\rodolphe{Améliorer compréhension}
-
-A permutation group $G \leq S_n$ given by a set of generators may contain an enormous number of elements, making it impractical to work with by listing them explicitly. The Schreier-Sims algorithm avoids this by building a compact representation of $G$, from
+A permutation group $G \leq S_n$ given by a set of generators\footnote{A \emph{generating set} of $G$ is a subset
+$S \subseteq G$ such that every element of $G$ can be written as a
+product of elements of $S$; we then write $G = \langle S \rangle$.} may contain an enormous number of elements, making it impractical to work with by listing them explicitly. The Schreier-Sims algorithm avoids this by building a compact representation of $G$, from
 which the order $|G|$, membership testing, and orbit computations can all
 be obtained efficiently.
 
 The idea is to shrink the group step by step. Starting from $G$, we choose
 a point $b_1$ and restrict our attention to the permutations of $G$ that
-happen to fix it: this smaller group is the \emph{stabilizer} of $b_1$. We
+happen to fix it: this smaller group is the \emph{stabiliser} of $b_1$. We
 then choose a second point $b_2$ and repeat the same reduction inside this
 smaller group, and so on, until only the identity permutation is left. The
-sequence of chosen points $b_1, \dots, b_k$ is called a \emph{base}.
+sequence of chosen points $b_1, \dots, b_k$ is called a \emph{base}. 
+Writing $G^{(0)} = G$ and, for $i \geq 1$,
+$G^{(i)} = \mathrm{Stabiliser}_{G^{(i-1)}}(b_i)$, this produces a descending
+chain of subgroups
+\[
+G = G^{(0)} \geq G^{(1)} \geq \cdots \geq G^{(k)} = \{\mathrm{id}\}.
+\]
+
+Informally, each group in the chain is smaller than the one before it,
+but its generators let us climb back up and reconstruct the group above
+it. 
 
 This reduction is made computationally cheap by two related notions. The
 \emph{orbit} of the current base point is the set of points it can be
 mapped to by the current group; it can be computed by a breadth-first
 search using only the group's generators. This same search yields a
-\emph{transversal}, that is, for every point in the orbit, a permutation of
-the current group mapping the base point to it. Combining the transversal
+\emph{transversal}, that is, for every point in the orbit, a permutation
+of the current group mapping the base point to it. Combining the transversal
 with the current generators, through the so-called \emph{Schreier
-generators}, produces a generating set for the next, smaller stabilizer, without ever enumerating the elements of the group
-itself.
+generators}, produces a generating set for the next, smaller stabiliser, without ever enumerating the elements of the group
+itself. These Schreier generators are constructed from the generators of the
+current group and the transversal, and they need not be among the original
+generators. Repeating this process at each level produces generators for the
+successive stabilisers.
 
-This process gives a base together with a generating set for each successive stabilizer. It is called a \emph{Base and Strong Generating
-Set} (BSGS). It also gives an immediate way to compute the order of $G$:
-by the orbit-stabilizer theorem, $|G|$ is simply the product of the orbit sizes obtained at each step,
+This process gives a base together with a generating set for each successive stabiliser. The generators obtained at the different levels form a \emph{strong generating set}, since they provide generators for the successive stabilisers in the chain. The base together with this strong generating set is called a \emph{Base and Strong Generating Set} (BSGS). It also gives an immediate way to compute the order $|G|$: by the orbit-stabiliser theorem~\cite{enwiki:1302556046}, $|G|$ is simply the product of the orbit sizes obtained at each step,
+
 \[
 |G| = \prod_{i=1}^{k} o_i,
 \]
+
 where $o_i$ is the size of the orbit of $b_i$ computed at step $i$.
 
 The polynomial-time nature of this construction was not established
@@ -707,29 +722,53 @@ $(b_1=1,b_2=2)$.
   \caption{Tree associated with the BSGS of $\mathrm{Aut}(K_{1,3})$ with base $(b_1=1,b_2=2)$.}
 \end{figure}
 
-We observe that each edge at level $i$ is labelled by an element
-$\sigma_p^{(i)}$ of the transversal associated with the orbit of
-$b_{i+1}$ under $G^{(i)}$. Each leaf corresponds to an element
-$g \in G$, obtained by composing the transversal representatives along the
-path from the root. The $3 \times 2 \times 1 = 6$ leaves therefore represent exactly the six elements of $\mathrm{Aut}(K_{1,3})$.
+We observe that each edge at level $i$ carries a transversal element $\sigma_p^{(i)}$ for the
+orbit of $b_{i+1}$ under $G^{(i)}$; a leaf is the element of $G$ obtained by
+composing these labels along its root-to-leaf path. Since the successive
+orbits have sizes $3$, $2$, $1$, the tree has $3 \times 2 \times 1 = 6$
+leaves. This is exactly the elements of $\mathrm{Aut}(K_{1,3})$.
+
 
 \subsubsection{Schreier-Sims for \Naut{}}
 
-Let $G$ be the input graph and $\pi_0$ its initial partition.
+Let $G$ be the input graph and $\pi_0$ its initial partition. Unlike
+the setting described above, where Schreier-Sims is applied to a group
+given by a known generating set, the automorphism group
+$\mathrm{Aut}(G,\pi_0)$ is not known in advance here: its generators
+are discovered incrementally, one by one, over the course of the search.
 
-\Naut{} performs a depth-first traversal of the search tree, and at each leaf it is possible to discover a new automorphism of the graph and add it to the currently known automorphism group. Whenever two distinct leaves $\sigma_0$ (the first leaf) and $\sigma'$ produce the same invariant, the permutation $g =R(G,\pi_0,\sigma')R{(G,\pi_0,\sigma)}^{-1}$ is an automorphism of $G$.
+\Naut{} performs a depth-first traversal of the search tree. Each leaf
+$\sigma$ corresponds to a permutation $R(G,\pi_0,\sigma)$, obtained
+by applying the refinement function along the individualisation sequence
+$\sigma$. Whenever a newly reached leaf $\sigma'$ produces the same
+invariant as the first leaf $\sigma_0$ reached by the search, the permutation
+\[
+g = R(G,\pi_0,\sigma')\,R(G,\pi_0,\sigma_0)^{-1}
+\]
+is an automorphism of $G$, and is added to the currently known
+automorphism group.
 
-These automorphisms, discovered one by one during the depth-first traversal, form the generators from which the group structure is built. It is therefore not necessary to know $\mathrm{Aut}(G,\pi_0)$ in advance: the generators emerge dynamically during the search, and the group structure is updated incrementally as new automorphisms are discovered.
+These discovered automorphisms are the generators from which the group
+structure is built. The automorphism $g$ is then sifted through the
+existing stabiliser chain, correcting its action on each base point
+successively. It is either absorbed by an existing level, in which case
+it provides no new information, or it is identified as a new strong
+generator and enriches the chain.
 
-The automorphism $g$ is then sifted through the existing stabilizer chain,
-correcting its action on each base point successively. It is either absorbed by an existing level, in which case it provides no new information, or it is identified as a new strong generator and enriches the chain.
-
-Each automorphism discovered at a leaf is propagated to the ancestor nodes
-for which it remains relevant. The accumulated group information is then used when selecting the next vertex to individualize. Once a target cell has been chosen, its vertices are partitioned into orbits under the currently known automorphism group. Two vertices belonging to the same orbit necessarily lead to isomorphic subtrees, since they are related by an automorphism already known to the algorithm. Consequently, it is sufficient to explore a single representative of each orbit, while all other vertices can be pruned without exploration.
+Each automorphism discovered at a leaf is propagated to the ancestor
+nodes for which it remains relevant. The accumulated group information
+is then used when selecting the next vertex to individualise. Once a
+target cell has been chosen, its vertices are partitioned into orbits
+under the currently known automorphism group. Two vertices belonging to
+the same orbit necessarily lead to isomorphic subtrees, since they are
+related by an automorphism already known to the algorithm. Consequently,
+it is sufficient to explore a single representative of each orbit, while
+all other vertices can be pruned without exploration.
 
 This is a direct application of the pruning operation $\mathcal{P}_C$.
 
-To get a concrete idea of what this looks like in code, here is a simplified pseudo-code of the Schreier-Sims method for \Naut{}.
+To get a concrete idea of what this looks like in code, here is a
+simplified pseudo-code of the Schreier-Sims method for \Naut{}.
 
 \noindent\fbox{%
   \parbox{\linewidth-2\fboxsep-2\fboxrule}{%
@@ -757,10 +796,12 @@ To get a concrete idea of what this looks like in code, here is a simplified pse
       \EndIf{}
       \State{} add $g$ to the strong generators at level $i$
       \State\Call{GrowOrbit}{$i$} \Comment{updates the orbit and transversal at level $i$}
-      \State\Call{CloseStabilizer}{$i$} \Comment{Schreier generators, recurses if needed}
+      \State\Call{Closestabiliser}{$i$} \Comment{Schreier generators, recurses if needed}
   \EndProcedure\end{algorithmic}
   }%
   }
+
+ \newpage
 
   \subsubsection{Random Schreier method}
 
