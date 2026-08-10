@@ -68,13 +68,13 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Random graphs $G(n, 1/2)$}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Trees}
     \end{subfigure}
 \end{figure}
@@ -84,13 +84,13 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Regular graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Bipartite graphs}
     \end{subfigure}
 \end{figure}
@@ -99,45 +99,54 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Dense Graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Sparse Graphs}
     \end{subfigure}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.48\textwidth]{imgs/test/test.png}
+    \includegraphics[width=0.48\textwidth]{imgs/test/random.pdf}
     \caption*{Hypercube graphs}
 \end{figure}
 
 
 \FloatBarrier\subsubsection{Wilcoxon signed-rank test}
 
+
 \begin{table}[ht]
     \centering
-    \begin{tabular}{cccccccc}
+    \begin{threeparttable}
+    \caption{Average pruning statistics.}
+    \begin{tabular}{ccccccc}
     \toprule
-    Vertices & Invariant & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
+    Vertices & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
     \midrule
-    10 & triangle & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    10 & paths & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    10 & triple & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    50 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    50 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    50 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    200 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    200 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    200 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    \multirow{3}{*}{10}  & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
+                          & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
+                          & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-7}
+    \multirow{3}{*}{50}  & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+    \cmidrule(lr){1-7}
+    \multirow{3}{*}{200} & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
+                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
     \bottomrule
     \end{tabular}
-    \caption{Average pruning statistics.}
-    \end{table}
+    \begin{tablenotes}
+    \small
+    \item Within each block of three rows, results are given in order for the \textit{triangle}, \textit{paths}, and \textit{triple} invariants.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
 
 \subsubsection{Discussion of the results}
 
@@ -145,26 +154,101 @@ Throughout the following experiments, the horizontal axis always denotes the num
 
 \subsection{Pruning performance}
 
-\begin{table}[ht]
+\begin{table}[h]
     \centering
-    \begin{tabular}{cccccccc}
-    \toprule
-    Vertices & Invariant & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
-    \midrule
-    10 & triangle & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    10 & paths & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    10 & triple & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    50 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    50 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    50 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    200 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    200 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    200 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \bottomrule
-    \end{tabular}
-    \caption{Average pruning statistics.}
-    \end{table}
-
+    \setlength{\tabcolsep}{3pt}
+    \begin{subtable}[t]{0.48\textwidth}
+        \centering
+        \begin{tabular}{c|cc|ccc}
+        \toprule
+        Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
+        \midrule
+        \multirow{3}{*}{10} & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
+         & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
+         & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{20} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{50} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{100} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{200} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{400} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{500} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{800} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \cmidrule(lr){1-6}
+        \multirow{3}{*}{1000} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+         & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+        \bottomrule
+        \end{tabular}
+        \caption*{Random graphs $G(n, 1/2)$}
+    \end{subtable}
+    \hfill
+    \begin{subtable}[t]{0.48\textwidth}
+        \centering
+        \begin{tabular}{c|cc|ccc}
+            \toprule
+            Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
+            \midrule
+            \multirow{3}{*}{10} & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
+             & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
+             & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{20} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{50} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{100} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{200} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{400} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{500} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{800} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \cmidrule(lr){1-6}
+            \multirow{3}{*}{1000} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
+            \bottomrule
+            \end{tabular}
+        \caption*{Random graphs $G(n, 1/2)$}
+    \end{subtable}
+\end{table}
     \begin{table}[ht]
         \centering
         \begin{tabular}{cccccccc}
@@ -283,13 +367,13 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Random graphs $G(n, 1/2)$}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Trees}
     \end{subfigure}
 \end{figure}
@@ -299,13 +383,13 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Regular graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Bipartite graphs}
     \end{subfigure}
 \end{figure}
@@ -314,20 +398,20 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Dense Graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/test.png}
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
         \caption*{Sparse Graphs}
     \end{subfigure}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.48\textwidth]{imgs/test/test.png}
+    \includegraphics[width=0.48\textwidth]{imgs/test/random.pdf}
     \caption*{Cycles}
 \end{figure}
 
