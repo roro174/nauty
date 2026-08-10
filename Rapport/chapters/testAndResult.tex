@@ -44,11 +44,12 @@ Each pruning strategy was validated independently. For pruning rule $\mathcal{P}
 \paragraph{Automorphism groups.}
 The correctness of the computed automorphism groups was verified by comparing our implementation against \Naut{}. Using the \textit{file} execution mode, we computed the automorphism group of each graph in a collection of test instances and compared the results with those produced by \Naut{}. For every graph, both algorithms produced automorphism groups of identical order, providing strong evidence for the correctness of our implementation.
 
+\newpage
 
 \section{Performance testing}
-All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs, random graphs $G(n, 1/2)$, bipartite graphs, cycles\footnote{A graph consisting of a single cycle with at least three vertices, where each vertex is connected to exactly two other vertices.}, regular graphs\footnote{A graph where every vertex has the exact same number of neighbors.}, and dense graphs\footnote{A graph where the number of edges is close to the maximum possible number of edges.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
+All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $G(n, 1/2)$, bipartite graphs, cycles\footnote{A graph consisting of a single cycle with at least three vertices, where each vertex is connected to exactly two other vertices.}, regular graphs\footnote{A graph where every vertex has the exact same number of neighbors.}, dense graphs\footnote{A graph where the number of edges is close to the maximum possible number of edges.}, and hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by a binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
 
-The datasets were generated using \texttt{genrang}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs). Each dataset contains 1,000 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
+The datasets were generated using \texttt{genrang}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs (a fixed degree of 3 was used across all sizes), and \texttt{-e} for a fixed edge count). Each dataset contains 1,000 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs are an exception to this range: since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was instead generated once using \texttt{genspecialg} (option \texttt{-Q}) and then relabeled 1,000 times using \texttt{ranlabg} to obtain 1,000 distinct labelled instances per dimension. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
 
 Several experiments are then performed on these datasets. First, we measure and compare the running time of all our invariants across the different datasets, and against the default version of \Naut{}. A Wilcoxon test is used to statistically compare the invariants against one another. We also measure the pruning ratio achieved by each invariant on each graph family. Finally, we evaluate our version of \Naut{} on the same graphs with pruning disabled, in order to isolate the effect of the pruning rules themselves.
 
@@ -59,6 +60,7 @@ Throughout the following experiments, the horizontal axis always denotes the num
 
 
 \legendeInvariants{}
+
 
 \subsection{Time performance}
 
@@ -111,7 +113,7 @@ Throughout the following experiments, the horizontal axis always denotes the num
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.48\textwidth]{imgs/test/test.png}
-    \caption*{Cycles}
+    \caption*{Hypercube graphs}
 \end{figure}
 
 
