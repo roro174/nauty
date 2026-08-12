@@ -49,7 +49,7 @@ The correctness of the computed automorphism groups was verified by comparing ou
 \section{Performance testing}
 All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $G(n, 1/2)$, bipartite graphs, cycles\footnote{A graph consisting of a single cycle with at least three vertices, where each vertex is connected to exactly two other vertices.}, regular graphs\footnote{A graph where every vertex has the exact same number of neighbors.}, dense graphs\footnote{A graph where the number of edges is close to the maximum possible number of edges.}, and hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by a binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
 
-The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs (a fixed degree of 3 was used across all sizes), and \texttt{-e} for a fixed edge count). Each dataset contains 1,000 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs are an exception to this range: since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was instead generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabeled 1,000 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 1,000 distinct labelled instances per dimension. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
+The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs (a fixed degree of 3 was used across all sizes), and \texttt{-e} for a fixed edge count). Each dataset contains 100 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs are an exception to this range: since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was instead generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabeled 1,000 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 1,000 distinct labelled instances per dimension. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
 
 Several experiments are then performed on these datasets. First, we measure and compare the running time of all our invariants across the different datasets, and against the default version of \Naut{}. A Wilcoxon test is used to statistically compare the invariants against one another. We also measure the pruning ratio achieved by each invariant on each graph family. Finally, we evaluate our version of \Naut{} on the same graphs with pruning disabled, in order to isolate the effect of the pruning rules themselves.
 
@@ -61,8 +61,9 @@ Throughout the following experiments, the horizontal axis always denotes the num
 
 \legendeInvariants{}
 
-
 \subsection{Time performance}
+
+\subsubsection{Without prunning}
 
 \begin{figure}[ht]
     \centering
@@ -113,6 +114,66 @@ Throughout the following experiments, the horizontal axis always denotes the num
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.48\textwidth]{imgs/test/random.pdf}
+    \caption*{Cycles}
+\end{figure}
+
+
+\FloatBarrier\subsubsection{Discussion of the results}
+
+
+
+
+\subsubsection{With prunning}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \caption*{Random graphs $G(n, 1/2)$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \caption*{Trees}
+    \end{subfigure}
+\end{figure}
+
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \caption*{Regular graphs}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/bipartite.pdf}
+        \caption*{Bipartite graphs}
+    \end{subfigure}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/dense.pdf}
+        \caption*{Dense Graphs}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \caption*{Sparse Graphs}
+    \end{subfigure}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.48\textwidth]{imgs/test/hypercube.pdf}
     \caption*{Hypercube graphs}
 \end{figure}
 
@@ -150,7 +211,11 @@ Throughout the following experiments, the horizontal axis always denotes the num
 
 \subsubsection{Discussion of the results}
 
-\lipsum[1-2]
+La première chose ici que nous pouvons observer c'est qu'il est très très compliqué de battre l'implémentation originale de \Naut{} sur tous les classes de graphes. Comme énoncé, l'implémentation originale de \Naut{} est extrêmement optimisée et a été développée et testée pendant de nombreuses années. Il est donc naturel que notre implémentation, bien que correcte et fonctionnelle, ne parvienne pas à surpasser \Naut{} en termes de performance sur toutes les classes de graphes. Ça reste tout de même intéressant de voir la différence entre nos 2 implémentations. On remarque surtout que l'implémentation originale de \Naut{} reste beaucoup plus performante sur les graphes sparse, trees et les graphes réguliers car on remarque vraiment une énorme différence dans les temps moyens d'éxecutions.  
+
+Ensuite, si on se concentre sur notre implémentation et qu'on compare les 3 invariants, nous pouvons voir que pour une première partie de classe de graphes, les invariants reste assez proche les uns des autres, mais pour les trees, les graphes sparse et les graphes réguliers, on remarque que l'invariant \textit{triple} est beaucoup plus coutant que les 2 autres. Il y a une vraie différence dans leur temps d'execution. Ce qui montre que les 2 autres invariants restent mieux ``par défaut'' pour ces classes de graphes.
+
+Le Wilcoxon test ne fais que confirmer ces propos. 
 
 \subsection{Pruning performance}
 
@@ -269,46 +334,100 @@ Throughout the following experiments, the horizontal axis always denotes the num
         \caption{Average pruning statistics.}
         \end{table}
 
-        \begin{table}[ht]
-            \centering
-            \begin{tabular}{cccccccc}
-            \toprule
-            Vertices & Invariant & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
-            \midrule
-            10 & triangle & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-            10 & paths & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-            10 & triple & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-            50 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-            50 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-            50 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-            200 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-            200 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-            200 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \bottomrule
-            \end{tabular}
-            \caption{Average pruning statistics.}
-            \end{table}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{cccccc}
+    \toprule
+    Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
+    \midrule
+    \multirow{3}{*}{10} & 3.9 & 2.1 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.9 & 2.1 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.9 & 2.1 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{20} & 1.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
+        & 1.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
+        & 1.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{50} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+        & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+        & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{100} & 3.4 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.4 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.4 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{200} & 3.4 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.4 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.4 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{400} & 2.8 & 1.8 & 0.00\% & 0.00\% & 100.00\% \\
+        & 2.8 & 1.8 & 0.00\% & 0.00\% & 100.00\% \\
+        & 2.8 & 1.8 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{500} & 3.3 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.3 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.3 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{800} & 2.9 & 1.8 & 0.00\% & 0.00\% & 100.00\% \\
+        & 2.9 & 1.8 & 0.00\% & 0.00\% & 100.00\% \\
+        & 2.9 & 1.8 & 0.00\% & 0.00\% & 100.00\% \\
+    \cmidrule(lr){1-6}
+    \multirow{3}{*}{1000} & 3.2 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.2 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+        & 3.2 & 2.0 & 0.00\% & 0.00\% & 100.00\% \\
+    \bottomrule
+    \end{tabular}
+    \caption{Bipartite}
+    \end{table}
+            
     
 
-            \begin{table}[ht]
-                \centering
-                \begin{tabular}{cccccccc}
-                \toprule
-                Vertices & Invariant & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
-                \midrule
-                10 & triangle & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                10 & paths & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                10 & triple & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                50 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                50 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                50 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                200 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                200 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                200 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                \bottomrule
-                \end{tabular}
-                \caption{Average pruning statistics.}
-                \end{table}
+\begin{table}[h]
+\centering
+\begin{tabular}{cccccc}
+\toprule
+Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
+\midrule
+\multirow{3}{*}{10} & 22.7 & 6.0 & 0.41\% & 0.41\% & 99.18\% \\
+    & 22.9 & 6.1 & 0.00\% & 0.00\% & 100.00\% \\
+    & 22.9 & 6.1 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{20} & 16.1 & 4.7 & 0.00\% & 0.00\% & 100.00\% \\
+    & 16.1 & 4.7 & 0.00\% & 0.00\% & 100.00\% \\
+    & 16.1 & 4.7 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{50} & 1.2 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
+    & 1.2 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
+    & 1.2 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{100} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{200} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{400} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{500} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{800} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{1000} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\bottomrule
+\end{tabular}
+\caption{Dense graphs}
+\end{table}
+
         
 
                 
@@ -334,88 +453,61 @@ Throughout the following experiments, the horizontal axis always denotes the num
             
 
                     
-                    \begin{table}[ht]
-                        \centering
-                        \begin{tabular}{cccccccc}
-                        \toprule
-                        Vertices & Invariant & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
-                        \midrule
-                        10 & triangle & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                        10 & paths & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                        10 & triple & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                        50 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                        50 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                        50 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                        200 & triangle & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                        200 & paths & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                        200 & triple & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                        \bottomrule
-                        \end{tabular}
-                        \caption{Average pruning statistics.}
-                        \end{table}
+\begin{table}[h]
+\centering
+\begin{tabular}{cccccc}
+\toprule
+Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
+\midrule
+\multirow{3}{*}{2} & 3.0 & 2.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 3.0 & 2.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 3.0 & 2.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{4} & 6.6 & 3.3 & 0.00\% & 0.00\% & 100.00\% \\
+    & 6.6 & 3.3 & 0.00\% & 0.00\% & 100.00\% \\
+    & 6.6 & 3.3 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{8} & 11.7 & 4.6 & 0.00\% & 0.00\% & 100.00\% \\
+    & 11.7 & 4.6 & 0.00\% & 0.00\% & 100.00\% \\
+    & 11.7 & 4.6 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{16} & 17.0 & 5.5 & 0.00\% & 0.00\% & 100.00\% \\
+    & 17.0 & 5.5 & 0.00\% & 0.00\% & 100.00\% \\
+    & 17.0 & 5.5 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{32} & 23.5 & 6.5 & 0.00\% & 0.00\% & 100.00\% \\
+    & 23.5 & 6.5 & 0.00\% & 0.00\% & 100.00\% \\
+    & 23.5 & 6.5 & 0.00\% & 0.00\% & 100.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{64} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{128} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{256} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{512} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\cmidrule(lr){1-6}
+\multirow{3}{*}{1024} & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+    & 1.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+\bottomrule
+\end{tabular}
+\caption*{Hypercube}
+\end{table}
+                        
                 
 
 \FloatBarrier\subsubsection{Discussion of the results}
 
-\lipsum[1-2]
+Avec ces différentes classes de graphes, beaucoup de caractéristiques sautent aux yeux. Tout d'abord, on peut remarquer que les graphes aléatoires $G(n, 1/2)$, les graphes bipartites, les hypercube et les graphes denses ont un nombre de noeuds et de feuilles visités relativement faible. La plupart des graphes ont un nombre de noeuds et de feuilles visités égal à 1, ce qui signifie que l'algorithme a trouvé la solution optimale dès la fonction de refinement initial. Ce qui n'est pas le meilleur moyen de tester nos prunning mais démontre bien pour les graphes aléatoires $G(n, 1/2)$, almost all graphs can be canonically labelled in linear time by a simple refinement procedure as cited in the state of the art~\cite{babai1980random}. Pour les autres graphes, cela vient du fait qu'ils sont très structurés et que la fonction de refinement est très efficace pour trouver la solution optimale. 
+
+Cependant, là où on peut vraiment voir l'efficacité du prunning se trouve dans les autres catégories de graphes. Tout d'abord, le point le plus crucial que nous pouvons observer est que le prunning $\mathcal{P}_C$ est le plus efficace pour tous les graphes. Il est quasi à 100 pourcent pour tous les graphes qui ont subi du prunning. Ça peut s'expliquer par plusieurs raisons. La première est que nos méthodes invariants ne sont peut-être pas très bien adaptées pour les graphes que nous avons testés. En effet, les invariants que nous avons choisis sont très simples et ne sont pas très discriminants. Donc lors des comparaisons d'invariants par node, on arrive à trouver des noeuds qui ont le même invariant et donc on ne peut pas pruner. La deuxième raison est le groupe d'automorphisme est énorme, ce qui permet de faire une énorme quantité de prunning par automorphism. et comme notre prunning par automorphisme se passe avant le prunning par invariants, cela fait que le prunning par invariants est très peu efficace comparé au prunning par automorphisme. 
                         
-
-\subsection{Test on graphs without prunning}
-
-
-\begin{figure}[ht]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Random graphs $G(n, 1/2)$}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Trees}
-    \end{subfigure}
-\end{figure}
-
-
-\begin{figure}[ht]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Regular graphs}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Bipartite graphs}
-    \end{subfigure}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Dense Graphs}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Sparse Graphs}
-    \end{subfigure}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.48\textwidth]{imgs/test/random.pdf}
-    \caption*{Cycles}
-\end{figure}
-
-
-\FloatBarrier\subsubsection{Discussion of the results}
-
-\lipsum[1-2]
