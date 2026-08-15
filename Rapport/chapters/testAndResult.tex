@@ -47,85 +47,90 @@ The correctness of the computed automorphism groups was verified by comparing ou
 \newpage
 
 \section{Performance testing}
-All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $G(n, 1/2)$, bipartite graphs, cycles\footnote{A graph consisting of a single cycle with at least three vertices, where each vertex is connected to exactly two other vertices.}, regular graphs\footnote{A graph where every vertex has the exact same number of neighbors.}, dense graphs\footnote{A graph where the number of edges is close to the maximum possible number of edges.}, and hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by a binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
+All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $\mathcal{G}(n, 1/2)$, bipartite graphs with equally sized vertex sets, paley graphs\footnote{} and hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by a binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
 
-The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs (a fixed degree of 3 was used across all sizes), and \texttt{-e} for a fixed edge count). Each dataset contains 100 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs are an exception to this range: since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was instead generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabeled 1,000 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 1,000 distinct labelled instances per dimension. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
+The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs (a fixed degree of 3 was used across all sizes), and \texttt{-e} for a fixed edge count). Each dataset contains 100 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs and Paley graphs are exceptions to this range, for different reasons. Since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabeled 100 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 100 distinct labelled instances per dimension. Paley graphs are subject to a similar constraint, since $P_q$ is only defined for $q$ a prime power with $q \equiv 1 \pmod 4$; consequently, instead of the full range used for the other families, 10 valid values of $q$ between 10 and 1,000 were selected. As with $Q_d$, each $P_q$ is unique up to isomorphism for its order, so it was likewise generated once using \texttt{genspecialg} (option \texttt{-Y})~\cite{mckay2024nug} and then relabeled 100 times using \texttt{ranlabg}. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
 
 Several experiments are then performed on these datasets. First, we measure and compare the running time of all our invariants across the different datasets, and against the default version of \Naut{}. A Wilcoxon test is used to statistically compare the invariants against one another. We also measure the pruning ratio achieved by each invariant on each graph family. Finally, we evaluate our version of \Naut{} on the same graphs with pruning disabled, in order to isolate the effect of the pruning rules themselves.
 
-All running times are measured in wall-clock (real) time. Experiments were conducted on a Lenovo IdeaPad 3 15ITL6 laptop equipped with an 11th generation Intel Core i3--1115G4 processor (x86\_64 architecture) running at 3.00\,GHz, 7.6\,GiB of RAM, and Ubuntu 24.04.1 LTS (kernel version 6.8.0--51-generic). This machine was dedicated exclusively to the experiments, with no other process running concurrently, and no time limit was imposed on the executions.
+All running times are measured in wall-clock (real) time. Experiments were conducted on a Lenovo IdeaPad 3 15ITL6 laptop equipped with an 11th generation Intel Core i3--1115G4 processor (x86\_64 architecture) running at 3.00\,GHz, 7.6\,GiB of RAM, and Ubuntu 24.04.1 LTS (kernel version 6.8.0--51-generic). This machine was dedicated exclusively to the experiments, with no other process running concurrently. A per-graph time limit of 3 minutes was also introduced: whenever a graph exceeds this limit, testing is halted for the invariant under which it was running, and no further graphs of that size or larger are tested for that invariant. This threshold was set to 3 minutes because the goal here is not to probe the absolute limits of our implementation, but rather to observe how far its performance extends as the number of vertices grows, and to compare invariants on that basis.
+
+
+\subsection{Time performance}
+
+We begin by presenting the performance results of our implementation on the different graph classes without pruning. This will allow us to see how far we can go, in terms of graph size, for each class of graphs. We then compare these results with those of the original \Naut{} implementation, as well as with our own implementation with pruning enabled.
 
 \paragraph{Legend.}
-Throughout the following experiments, the horizontal axis always denotes the number of vertices and the vertical axis the average execution time (in ms); each invariant is represented by a distinct symbol and colour. Since these correspondences are the same across all figures, we introduce them once below rather than repeating them under every graph.
+Throughout the following experiments, the horizontal axis always denotes the number of vertices and the vertical axis the average execution time (in ms); each invariant is represented by a distinct symbol and colour. Since these correspondences are the same across all figures, we introduce them once below rather than repeating them under every graph. Additionally, the 3-minute time limit is represented by a red dashed horizontal line on all plots.
 
 
 \legendeInvariants{}
 
-\subsection{Time performance}
-
 \subsubsection{Without prunning}
 
-\begin{figure}[ht]
+
+
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/randomWP.pdf}
         \caption*{Random graphs $G(n, 1/2)$}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/sparseWP.pdf}
         \caption*{Sparse Graphs}
     \end{subfigure}
 \end{figure}
 
 
-\begin{figure}[ht]
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Regular graphs}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/hypercubeWP.pdf}
+        \caption*{Hypercube graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Srongly regular}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/paleyWP.pdf}
+        \caption*{Paley graphs}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/bipartiteWP.pdf}
         \caption*{Bipartite graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/treesWP.pdf}
         \caption*{trees}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.48\textwidth]{imgs/test/random.pdf}
-    \caption*{hypercube graphs}
-\end{figure}
+\FloatBarrier\subsubsection{Analysis of the results}
+
+Even though the invariants are not used for pruning here, they are still used to select our canonical labelling. We can observe that for certain graph classes, such as bipartite graphs and random graphs, the three invariants behave, on average, in a similar way. This already gives us a hint as to what is happening under the hood: as noted in the state-of-the-art chapter, almost all graphs in $\mathcal{G}(n, 1/2)$ can be canonically labelled in linear time using a simple refinement procedure~\cite{babai1980random}, meaning the invariant itself contributes little beyond what refinement already achieves. This is therefore an expected result. The same behaviour is observed for bipartite graphs, suggesting that the refinement function is highly effective for this class as well.
+
+For trees, Paley graphs, and hypercubes, the three invariants behave similarly overall, despite a slight difference for the \texttt{triple} invariant. We observe that around 100--200 vertices, the algorithm becomes prohibitively expensive. This is most likely explained by the number of branches that need to be explored during individualization becoming too large to handle. Pruning is therefore essential for these classes of graphs, as it allows us to go beyond this limit.
+
+For sparse graphs, it becomes impossible to go beyond 50 vertices: this class requires far too much time to process. This can be explained by the fact that sparse graphs are very poorly connected, which limits what the refinement function can achieve in terms of splitting cells: since most vertices have few or no neighbours, there is little structural information available to separate them, so they remain grouped in the same cell, simply waiting to be individualized.
+
+In conclusion, the results obtained without pruning are consistent with the theoretical expectations for each graph class. They highlight the importance of pruning in enabling the algorithm to handle larger graphs and more complex structures effectively. Regarding the distinction between the invariants, despite an already slight difference for the \texttt{triple} invariant, it is difficult to draw definitive conclusions about their relative performance without pruning. A more thorough analysis with pruning enabled will be necessary to fully assess the effectiveness of each invariant in the context of search-space reduction.
 
 
-\FloatBarrier\subsubsection{Discussion of the results}
-
-
-
-
+\newpage
 \subsubsection{With prunning}
 
-\begin{figure}[ht]
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
@@ -141,7 +146,7 @@ Throughout the following experiments, the horizontal axis always denotes the num
 \end{figure}
 
 
-\begin{figure}[ht]
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
@@ -151,12 +156,12 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Strongly regular}
+        \includegraphics[width=\linewidth]{imgs/test/paley.pdf}
+        \caption*{Paley graphs}
     \end{subfigure}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
@@ -171,337 +176,389 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \end{subfigure}
 \end{figure}
 
+\newpage
+
+\subsubsection{Analysis of the results}
+
+One of the first things we can observe is that the original \Naut{} implementation remains substantially faster than ours across all graph classes. As noted in previous chapters, the original \Naut{} implementation is extremely optimized and has been developed and tested over many years. It is therefore unsurprising that our implementation, while correct and functional, does not manage to outperform \Naut{} in terms of performance on any graph class. It is nonetheless interesting to examine the gap between the two implementations. In particular, the gap is most pronounced for sparse and Paley graphs. For sparse graphs, our implementation quickly reaches the 3-minute limit, whereas the original \Naut{} implementation remains highly efficient throughout. For Paley graphs, only one of the three invariants actually reaches the time limit; nonetheless, execution times remain considerably higher than \Naut{}'s across the board, showing that the gap holds even where the limit is not hit. For the remaining classes, we observe a gap of $10^{2}$ to $10^{3}$ times more execution time for our implementation.
+
+Focusing on our own implementation, we observe that, aside from bipartite graphs and random graphs in $\mathcal{G}(n, 1/2)$, there is no substantial difference in execution time between the runs with and without pruning. This confirms that, for these classes, essentially everything happens within the refinement function. For the remaining classes, pruning allows us to reach considerably higher vertex counts than without it. For most of them we can reach 1,000 vertices without hitting the time limit, with the exception of sparse graphs, which only reach 800 vertices. This nonetheless shows that pruning is highly effective at reducing the search space and improving the algorithm's performance, allowing larger and more complex graphs to be handled.
+
+Regarding the different invariants, we observe a very large difference between the three methods: \texttt{triple} takes considerably more time than the other two, since it is extremely costly to compute, making it a poor default choice for the implementation. We can therefore state that the other two invariants remain the best choices to use by default. However, aside from \texttt{triple}, which underperforms on almost every class, the remaining two invariants do not behave very differently from one another on these graph classes: neither one consistently outperforms the other. This may suggest that none of the invariants are particularly well suited to these classes, despite still achieving reasonable execution times overall.
+
+To compare our invariants further, we use a statistical test to evaluate differences in execution time between them: the Wilcoxon signed-rank test, which is appropriate for comparing two paired samples and determining whether a significant difference exists between their distributions. It is particularly useful when the data do not follow a normal distribution, which is often the case for algorithm execution times.
+
+
 
 \FloatBarrier\subsubsection{Wilcoxon signed-rank test}
 
 
-\begin{table}[ht]
-    \centering
-    \begin{threeparttable}
-    \caption{Average pruning statistics.}
-    \begin{tabular}{ccccccc}
-    \toprule
-    Vertices & Nodes & Leaves & Pruned & $P_A$ & $P_B$ & $P_C$ \\
-    \midrule
-    \multirow{3}{*}{10}  & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                          & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-                          & 1.4 & 1.2 & 0.0 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-7}
-    \multirow{3}{*}{50}  & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-7}
-    \multirow{3}{*}{200} & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-                          & 1.0 & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \bottomrule
-    \end{tabular}
-    \begin{tablenotes}
-    \small
-    \item Within each block of three rows, results are given in order for the \textit{triangle}, \textit{paths}, and \textit{triple} invariants.
-    \end{tablenotes}
-    \end{threeparttable}
-\end{table}
-
-\subsubsection{Discussion of the results}
-
-La première chose ici que nous pouvons observer c'est qu'il est très très compliqué de battre l'implémentation originale de \Naut{} sur tous les classes de graphes. Comme énoncé, l'implémentation originale de \Naut{} est extrêmement optimisée et a été développée et testée pendant de nombreuses années. Il est donc naturel que notre implémentation, bien que correcte et fonctionnelle, ne parvienne pas à surpasser \Naut{} en termes de performance sur toutes les classes de graphes. Ça reste tout de même intéressant de voir la différence entre nos 2 implémentations. On remarque surtout que l'implémentation originale de \Naut{} reste beaucoup plus performante sur les graphes sparse, trees et les graphes réguliers car on remarque vraiment une énorme différence dans les temps moyens d'éxecutions.  
-
-Ensuite, si on se concentre sur notre implémentation et qu'on compare les 3 invariants, nous pouvons voir que pour une première partie de classe de graphes, les invariants reste assez proche les uns des autres, mais pour les trees, les graphes sparse et les graphes réguliers, on remarque que l'invariant \textit{triple} est beaucoup plus coutant que les 2 autres. Il y a une vraie différence dans leur temps d'execution. Ce qui montre que les 2 autres invariants restent mieux ``par défaut'' pour ces classes de graphes.
-
-Le Wilcoxon test ne fais que confirmer ces propos. 
+\newpage
 
 \subsection{Pruning performance}
 
-\begin{table}[h]
-    \centering
-    \setlength{\tabcolsep}{3pt}
-    \begin{subtable}[t]{0.48\textwidth}
-        \centering
-        \begin{tabular}{cccccc}
+Now that we have compared the invariants in terms of runtime, we turn to their pruning performance on each invariant and each file. To visualize the effect of pruning, we compare the number of nodes traversed without pruning to the number traversed with pruning, and do the same for the leaves — counted separately, and therefore excluded from the node count. In addition, we report $\mathcal{P}_C$, the average number of prunings per file. $\mathcal{P}_A$ and $\mathcal{P}_B$ are omitted, as they were always equal to $0$; we return to this point in the analysis of the results.
+
+\paragraph{Legend.} In each table, $n$ is the number of vertices of the graphs. The columns N1 $\rightarrow$ N2 give the number of nodes without and with pruning, respectively, while L1 $\rightarrow$ L2 give the same information for the leaves. The last three columns are per-graph averages, obtained by dividing the total count by the number of graphs in the file. Each cell is split into three rows, corresponding respectively to the \texttt{Triangle}, \texttt{Paths}, and \texttt{Triple} invariants. Finally, the symbol $\mathrm{TO}$ marks a time-out, in one of two situations: alone, it means the computation was skipped entirely, because a smaller size within the same family had already timed out; written as $(\mathrm{TO})$ next to the corresponding value, it denotes partial data collected before the 3-minute limit introduced earlier was reached.
+
+\begin{table}[h] \centering
+    \begin{tabular}{c|c|c|c}
+        \toprule
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+        \midrule
+
+        \multirow{3}{*}{10}
+            & $0.80 \rightarrow 0.8$ & $1.80 \rightarrow 1.7$ & 0.10 \\
+            & $0.80 \rightarrow 0.8$ & $1.80 \rightarrow 1.7$ & 0.10 \\
+            & $0.80 \rightarrow 0.8$ & $1.80 \rightarrow 1.7$ & 0.10 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{20}
+            & $4.40 \rightarrow 3.5$ & $5.90 \rightarrow 3.0$ & 2.00 \\
+            & $4.40 \rightarrow 3.5$ & $5.90 \rightarrow 3.0$ & 2.00 \\
+            & $4.40 \rightarrow 3.5$ & $5.90 \rightarrow 3.0$ & 2.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{50}
+            & $196577.30(\mathrm{TO}) \rightarrow 46.1$ & $273668.60(\mathrm{TO}) \rightarrow 10.0$ & 133.50 \\
+            & $239091.30(\mathrm{TO}) \rightarrow 46.1$ & $332856.90(\mathrm{TO}) \rightarrow 10.0$ & 133.50 \\
+            & $269598.70(\mathrm{TO}) \rightarrow 46.1$ & $375330.60(\mathrm{TO}) \rightarrow 10.0$ & 133.50 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{100}
+            & $\mathrm{TO} \rightarrow 171.6$ & $\mathrm{TO} \rightarrow 18.8$ & 809.50 \\
+            & $\mathrm{TO} \rightarrow 171.6$ & $\mathrm{TO} \rightarrow 18.8$ & 809.50 \\
+            & $\mathrm{TO} \rightarrow 171.6$ & $\mathrm{TO} \rightarrow 18.8$ & 809.50 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{200}
+            & $\mathrm{TO} \rightarrow 842.0$ & $\mathrm{TO} \rightarrow 41.3$ & 9364.50 \\
+            & $\mathrm{TO} \rightarrow 842.0$ & $\mathrm{TO} \rightarrow 41.3$ & 9364.50 \\
+            & $\mathrm{TO} \rightarrow 842.0$ & $\mathrm{TO} \rightarrow 41.3$ & 9364.50 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{400}
+            & $\mathrm{TO} \rightarrow 3272.5$ & $\mathrm{TO} \rightarrow 81.4$ & 72971.20 \\
+            & $\mathrm{TO} \rightarrow 3272.5$ & $\mathrm{TO} \rightarrow 81.4$ & 72971.20 \\
+            & $\mathrm{TO} \rightarrow 2689.5$ & $\mathrm{TO} \rightarrow 73.8$ & 57693.40 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{500}
+            & $\mathrm{TO} \rightarrow 4376.1$ & $\mathrm{TO} \rightarrow 94.3$ & 109857.80 \\
+            & $\mathrm{TO} \rightarrow 4376.1$ & $\mathrm{TO} \rightarrow 94.3$ & 109857.80 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{800}
+            & $\mathrm{TO} \rightarrow 3915.7$ & $\mathrm{TO} \rightarrow 88.2(\mathrm{TO})$ & 110010.70($\mathrm{TO}$) \\
+            & $\mathrm{TO} \rightarrow 3925.2$ & $\mathrm{TO} \rightarrow 88.3(\mathrm{TO})$ & 110608.00($\mathrm{TO}$) \\
+
+        \bottomrule
+    \end{tabular}
+    \caption*{Sparse graphs}\end{table}
+
+
+  \begin{table}[h] \centering
+        \begin{tabular}{c|c|c|c}
             \toprule
-            Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
+            $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
             \midrule
-            \multirow{3}{*}{10} & 0.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
-             & 0.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
-             & 0.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{20} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{50} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{100} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{200} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{400} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{500} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{800} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{1000} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-             & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
+
+            \multirow{3}{*}{10}
+                & $1.90 \rightarrow 1.8$ & $2.90 \rightarrow 2.3$ & 0.50 \\
+                & $1.90 \rightarrow 1.8$ & $2.90 \rightarrow 2.3$ & 0.50 \\
+                & $1.90 \rightarrow 1.8$ & $2.90 \rightarrow 2.3$ & 0.50 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{20}
+                & $2.70 \rightarrow 2.5$ & $3.70 \rightarrow 2.6$ & 0.90 \\
+                & $2.70 \rightarrow 2.5$ & $3.70 \rightarrow 2.6$ & 0.90 \\
+                & $2.70 \rightarrow 2.5$ & $3.70 \rightarrow 2.6$ & 0.90 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{50}
+                & $62.80 \rightarrow 15.0$ & $71.80 \rightarrow 5.6$ & 12.30 \\
+                & $62.80 \rightarrow 15.0$ & $71.80 \rightarrow 5.6$ & 12.30 \\
+                & $62.80 \rightarrow 15.0$ & $71.80 \rightarrow 5.6$ & 12.30 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{100}
+                & $2184.20 \rightarrow 25.5$ & $2933.60 \rightarrow 7.3$ & 27.60 \\
+                & $2184.20 \rightarrow 25.5$ & $2933.60 \rightarrow 7.3$ & 27.60 \\
+                & $2184.20 \rightarrow 25.5$ & $2933.60 \rightarrow 7.3$ & 27.60 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{200}
+                & $115980.80(\mathrm{TO}) \rightarrow 123.1$ & $141783.10(\mathrm{TO}) \rightarrow 15.9$ & 130.40 \\
+                & $137157.20(\mathrm{TO}) \rightarrow 123.1$ & $167966.60(\mathrm{TO}) \rightarrow 15.9$ & 130.40 \\
+                & $159054.40(\mathrm{TO}) \rightarrow 123.1$ & $195238.50(\mathrm{TO}) \rightarrow 15.9$ & 130.40 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{400}
+                & $\mathrm{TO} \rightarrow 474.2$ & $\mathrm{TO} \rightarrow 30.9$ & 547.80 \\
+                & $\mathrm{TO} \rightarrow 474.2$ & $\mathrm{TO} \rightarrow 30.9$ & 547.80 \\
+                & $\mathrm{TO} \rightarrow 474.2$ & $\mathrm{TO} \rightarrow 30.9$ & 547.80 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{500}
+                & $\mathrm{TO} \rightarrow 680.3$ & $\mathrm{TO} \rightarrow 37.1$ & 772.30 \\
+                & $\mathrm{TO} \rightarrow 680.3$ & $\mathrm{TO} \rightarrow 37.1$ & 772.30 \\
+                & $\mathrm{TO} \rightarrow 680.3$ & $\mathrm{TO} \rightarrow 37.1$ & 772.30 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{800}
+                & $\mathrm{TO} \rightarrow 1673.2$ & $\mathrm{TO} \rightarrow 57.9$ & 2007.40 \\
+                & $\mathrm{TO} \rightarrow 1673.2$ & $\mathrm{TO} \rightarrow 57.9$ & 2007.40 \\
+                & $\mathrm{TO} \rightarrow 1673.2$ & $\mathrm{TO} \rightarrow 57.9$ & 2007.40 \\
+
+            \cmidrule(lr){1-4}
+
+            \multirow{3}{*}{1000}
+                & $\mathrm{TO} \rightarrow 2475.7$ & $\mathrm{TO} \rightarrow 70.5$ & 2875.80 \\
+                & $\mathrm{TO} \rightarrow 2475.7$ & $\mathrm{TO} \rightarrow 70.5$ & 2875.80 \\
+                & $\mathrm{TO} \rightarrow 2475.7$ & $\mathrm{TO} \rightarrow 70.5$ & 2875.80 \\
+
             \bottomrule
-            \end{tabular}
-        \caption*{Random graphs $G(n, 1/2)$}
-    \end{subtable}
-    \hfill
-    \begin{subtable}[t]{0.48\textwidth}
-        \centering
-        \begin{tabular}{c|cc|ccc}
-            \toprule
-            Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
-            \midrule
-            \multirow{3}{*}{10} & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
-             & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
-             & 1.5 & 1.2 & 0\% & 0\% & 100\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{20} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{50} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{100} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{200} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{400} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{500} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{800} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \cmidrule(lr){1-6}
-            \multirow{3}{*}{1000} & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-             & 1.0 & 1.0 & 0\% & 0\% & 0\% \\
-            \bottomrule
-            \end{tabular}
-        \caption*{Random graphs $G(n, 1/2)$}
-    \end{subtable}
-\end{table}
+        \end{tabular}
+        \caption*{Trees}\end{table}
 
 
-\begin{table}[h]
-    \centering
-    \begin{tabular}{cccccc}
-    \toprule
-    Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
-    \midrule
-    \multirow{3}{*}{10} & 0.8 & 1.7 & 0.00\% & 0.00\% & 100.00\% \\
-     & 0.8 & 1.7 & 0.00\% & 0.00\% & 100.00\% \\
-     & 0.8 & 1.7 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{20} & 3.5 & 3.0 & 0.00\% & 0.00\% & 100.00\% \\
-     & 3.5 & 3.0 & 0.00\% & 0.00\% & 100.00\% \\
-     & 3.5 & 3.0 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{50} & 46.1 & 10.0 & 0.00\% & 0.00\% & 100.00\% \\
-     & 46.1 & 10.0 & 0.00\% & 0.00\% & 100.00\% \\
-     & 46.1 & 10.0 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{100} & 171.6 & 18.8 & 0.00\% & 0.00\% & 100.00\% \\
-     & 171.6 & 18.8 & 0.00\% & 0.00\% & 100.00\% \\
-     & 171.6 & 18.8 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{200} & 842.0 & 41.3 & 0.00\% & 0.00\% & 100.00\% \\
-     & 842.0 & 41.3 & 0.00\% & 0.00\% & 100.00\% \\
-     & 842.0 & 41.3 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{400} & 3272.5 & 81.4 & 0.00\% & 0.00\% & 100.00\% \\
-     & 3272.5 & 81.4 & 0.00\% & 0.00\% & 100.00\% \\
-     & 2684.4 & 73.7 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{2}{*}{500} & 4376.1 & 94.3 & 0.00\% & 0.00\% & 100.00\% \\
-     & 4376.1 & 94.3 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{2}{*}{800} & 3941.5 & 88.5 & 0.00\% & 0.00\% & 100.00\% \\
-     & 3994.0 & 89.1 & 0.00\% & 0.00\% & 100.00\% \\
-    \bottomrule
-    \end{tabular}
-    \caption{sparse graphs}
-    \end{table}
-    
-
-
-\begin{table}[h]
-    \centering
-    \begin{tabular}{cccccc}
-    \toprule
-    Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
-    \midrule
-    \multirow{3}{*}{2} & 1.0 & 2.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 1.0 & 2.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 1.0 & 2.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{4} & 3.3 & 3.3 & 0.00\% & 0.00\% & 100.00\% \\
-     & 3.3 & 3.3 & 0.00\% & 0.00\% & 100.00\% \\
-     & 3.3 & 3.3 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{8} & 7.6 & 4.8 & 0.00\% & 0.00\% & 100.00\% \\
-     & 7.6 & 4.8 & 0.00\% & 0.00\% & 100.00\% \\
-     & 7.6 & 4.8 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{16} & 11.2 & 5.4 & 0.00\% & 0.00\% & 100.00\% \\
-     & 11.2 & 5.4 & 0.00\% & 0.00\% & 100.00\% \\
-     & 11.2 & 5.4 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{32} & 17.0 & 6.5 & 0.00\% & 0.00\% & 100.00\% \\
-     & 17.0 & 6.5 & 0.00\% & 0.00\% & 100.00\% \\
-     & 17.0 & 6.5 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{64} & 24.0 & 7.6 & 0.00\% & 0.00\% & 100.00\% \\
-     & 24.0 & 7.6 & 0.00\% & 0.00\% & 100.00\% \\
-     & 24.0 & 7.6 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{128} & 31.0 & 8.5 & 0.00\% & 0.00\% & 100.00\% \\
-     & 31.0 & 8.5 & 0.00\% & 0.00\% & 100.00\% \\
-     & 31.0 & 8.5 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{256} & 40.9 & 9.7 & 0.00\% & 0.00\% & 100.00\% \\
-     & 40.9 & 9.7 & 0.00\% & 0.00\% & 100.00\% \\
-     & 40.9 & 9.7 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{512} & 48.2 & 10.4 & 0.00\% & 0.00\% & 100.00\% \\
-     & 48.2 & 10.4 & 0.00\% & 0.00\% & 100.00\% \\
-     & 1.0 & 0.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{2}{*}{1024} & 59.5 & 11.5 & 0.00\% & 0.00\% & 100.00\% \\
-     & 59.5 & 11.5 & 0.00\% & 0.00\% & 100.00\% \\
-    \bottomrule
-    \end{tabular}
-    \caption{Hypercube graphs}
-    \end{table}
-    
-
-\begin{table}[h]
-    \centering
-    \begin{tabular}{cccccc}
-    \toprule
-    Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
-    \midrule
-    \multirow{3}{*}{10} & 1.7 & 2.1 & 0.00\% & 0.00\% & 100.00\% \\
-     & 1.7 & 2.1 & 0.00\% & 0.00\% & 100.00\% \\
-     & 1.7 & 2.1 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{20} & 0.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
-     & 0.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
-     & 0.1 & 1.1 & 0.00\% & 0.00\% & 100.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{50} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{100} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{200} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{400} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{500} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{800} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \cmidrule(lr){1-6}
-    \multirow{3}{*}{1000} & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-     & 0.0 & 1.0 & 0.00\% & 0.00\% & 0.00\% \\
-    \bottomrule
-    \end{tabular}
-    \caption{Bipartite graphs}
-    \end{table}
-    
-
-
-
-\begin{table}[h]
-\centering
-\begin{tabular}{cccccc}
-\toprule
-Vertices & Nodes & Leaves & $P_A$ & $P_B$ & $P_C$ \\
-\midrule
-\multirow{3}{*}{10} & 1.8 & 2.3 & 0.00\% & 0.00\% & 100.00\% \\
-    & 1.8 & 2.3 & 0.00\% & 0.00\% & 100.00\% \\
-    & 1.8 & 2.3 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{20} & 2.5 & 2.6 & 0.00\% & 0.00\% & 100.00\% \\
-    & 2.5 & 2.6 & 0.00\% & 0.00\% & 100.00\% \\
-    & 2.5 & 2.6 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{50} & 15.0 & 5.6 & 0.00\% & 0.00\% & 100.00\% \\
-    & 15.0 & 5.6 & 0.00\% & 0.00\% & 100.00\% \\
-    & 15.0 & 5.6 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{100} & 25.5 & 7.3 & 0.00\% & 0.00\% & 100.00\% \\
-    & 25.5 & 7.3 & 0.00\% & 0.00\% & 100.00\% \\
-    & 25.5 & 7.3 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{200} & 123.1 & 15.9 & 0.00\% & 0.00\% & 100.00\% \\
-    & 123.1 & 15.9 & 0.00\% & 0.00\% & 100.00\% \\
-    & 123.1 & 15.9 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{400} & 474.2 & 30.9 & 0.00\% & 0.00\% & 100.00\% \\
-    & 474.2 & 30.9 & 0.00\% & 0.00\% & 100.00\% \\
-    & 474.2 & 30.9 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{500} & 680.3 & 37.1 & 0.00\% & 0.00\% & 100.00\% \\
-    & 680.3 & 37.1 & 0.00\% & 0.00\% & 100.00\% \\
-    & 680.3 & 37.1 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{800} & 1673.2 & 57.9 & 0.00\% & 0.00\% & 100.00\% \\
-    & 1673.2 & 57.9 & 0.00\% & 0.00\% & 100.00\% \\
-    & 1673.2 & 57.9 & 0.00\% & 0.00\% & 100.00\% \\
-\cmidrule(lr){1-6}
-\multirow{3}{*}{1000} & 2475.7 & 70.5 & 0.00\% & 0.00\% & 100.00\% \\
-    & 2475.7 & 70.5 & 0.00\% & 0.00\% & 100.00\% \\
-    & 2475.7 & 70.5 & 0.00\% & 0.00\% & 100.00\% \\
-\bottomrule
-\end{tabular}
-\caption{trees}
-\end{table}
+        \begin{table}[h!]
+            \centering
+            \setlength{\tabcolsep}{2pt}
         
-          
+            \begin{subtable}[t]{0.48\textwidth}
+                \centering
+                \begin{tabular}{c|c|c|c}
+                    \toprule
+                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+                    \midrule
+        
+                    \multirow{3}{*}{10}
+                        & $0.15 \rightarrow 0.1$ & $1.15 \rightarrow 1.1$ & 0.02 \\
+                        & $0.15 \rightarrow 0.1$ & $1.15 \rightarrow 1.1$ & 0.02 \\
+                        & $0.15 \rightarrow 0.1$ & $1.15 \rightarrow 1.1$ & 0.02 \\
+        
+                    \cmidrule(lr){1-4}
+        
+                    \multirow{3}{*}{20}
+                        & $0 \rightarrow 0$ & $1 \rightarrow 1$ & 0 \\
+                        & $0 \rightarrow 0$ & $1 \rightarrow 1$ & 0 \\
+                        & $0 \rightarrow 0$ & $1 \rightarrow 1$ & 0 \\
+        
+                    \cmidrule(lr){1-4}
+        
+                    50--1000 & $0 \rightarrow 0$ & $1 \rightarrow 1$ & 0 \\
+                    \bottomrule
+                \end{tabular}
+                \caption*{Random graphs $G(n, 1/2)$}
+            \end{subtable}
+            \hfill
+            %
+            \begin{subtable}[t]{0.48\textwidth}
+                \centering
+                \begin{tabular}{c|c|c|c}
+                    \toprule
+                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+                    \midrule
+        
+                    \multirow{3}{*}{10}
+                        & $2.07 \rightarrow 1.7$ & $3.17 \rightarrow 2.1$ & 0.70 \\
+                        & $2.07 \rightarrow 1.7$ & $3.17 \rightarrow 2.1$ & 0.70 \\
+                        & $2.07 \rightarrow 1.7$ & $3.17 \rightarrow 2.1$ & 0.70 \\
+        
+                    \cmidrule(lr){1-4}
+        
+                    \multirow{3}{*}{20}
+                        & $0.08 \rightarrow 0.1$ & $1.08 \rightarrow 1.1$ & 0.01 \\
+                        & $0.08 \rightarrow 0.1$ & $1.08 \rightarrow 1.1$ & 0.01 \\
+                        & $0.08 \rightarrow 0.1$ & $1.08 \rightarrow 1.1$ & 0.01 \\
+        
+                    \cmidrule(lr){1-4}
+        
+                    50--1000 & $0 \rightarrow 0$ & $1 \rightarrow 1$ & 0 \\
+                    \bottomrule
+                \end{tabular}
+                \caption*{Bipartite graphs}
+            \end{subtable}
+        \end{table}
 
-\FloatBarrier\subsubsection{Discussion of the results}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c|c}
+        \toprule
+        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+        \midrule
 
-Avec ces différentes classes de graphes, beaucoup de caractéristiques sautent aux yeux. Tout d'abord, on peut remarquer que les graphes aléatoires $G(n, 1/2)$, les graphes bipartites, les hypercube et les graphes denses ont un nombre de noeuds et de feuilles visités relativement faible. La plupart des graphes ont un nombre de noeuds et de feuilles visités égal à 1, ce qui signifie que l'algorithme a trouvé la solution optimale dès la fonction de refinement initial. Ce qui n'est pas le meilleur moyen de tester nos prunning mais démontre bien pour les graphes aléatoires $G(n, 1/2)$, almost all graphs can be canonically labelled in linear time by a simple refinement procedure as cited in the state of the art~\cite{babai1980random}. Pour les autres graphes, cela vient du fait qu'ils sont très structurés et que la fonction de refinement est très efficace pour trouver la solution optimale. 
+        \multirow{3}{*}{2}
+            & $1.00 \rightarrow 1.0$ & $2.00 \rightarrow 2.0$ & 0 \\
+            & $1.00 \rightarrow 1.0$ & $2.00 \rightarrow 2.0$ & 0 \\
+            & $1.00 \rightarrow 1.0$ & $2.00 \rightarrow 2.0$ & 0 \\
 
-Cependant, là où on peut vraiment voir l'efficacité du prunning se trouve dans les autres catégories de graphes. Tout d'abord, le point le plus crucial que nous pouvons observer est que le prunning $\mathcal{P}_C$ est le plus efficace pour tous les graphes. Il est quasi à 100 pourcent pour tous les graphes qui ont subi du prunning. Ça peut s'expliquer par plusieurs raisons. La première est que nos méthodes invariants ne sont peut-être pas très bien adaptées pour les graphes que nous avons testés. En effet, les invariants que nous avons choisis sont très simples et ne sont pas très discriminants. Donc lors des comparaisons d'invariants par node, on arrive à trouver des noeuds qui ont le même invariant et donc on ne peut pas pruner. La deuxième raison est le groupe d'automorphisme est énorme, ce qui permet de faire une énorme quantité de prunning par automorphism. et comme notre prunning par automorphisme se passe avant le prunning par invariants, cela fait que le prunning par invariants est très peu efficace comparé au prunning par automorphisme. 
-                        
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{4}
+            & $5.00 \rightarrow 3.3$ & $8.00 \rightarrow 3.3$ & 3.00 \\
+            & $5.00 \rightarrow 3.3$ & $8.00 \rightarrow 3.3$ & 3.00 \\
+            & $5.00 \rightarrow 3.3$ & $8.00 \rightarrow 3.3$ & 3.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{8}
+            & $33.00 \rightarrow 7.6$ & $48.00 \rightarrow 4.8$ & 12.60 \\
+            & $33.00 \rightarrow 7.6$ & $48.00 \rightarrow 4.8$ & 12.60 \\
+            & $33.00 \rightarrow 7.6$ & $48.00 \rightarrow 4.8$ & 12.60 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{16}
+            & $273.00 \rightarrow 11.2$ & $384.00 \rightarrow 5.4$ & 29.00 \\
+            & $273.00 \rightarrow 11.2$ & $384.00 \rightarrow 5.4$ & 29.00 \\
+            & $273.00 \rightarrow 11.2$ & $384.00 \rightarrow 5.4$ & 29.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{32}
+            & $2753.00 \rightarrow 17.0$ & $3840.00 \rightarrow 6.5$ & 60.50 \\
+            & $2753.00 \rightarrow 17.0$ & $3840.00 \rightarrow 6.5$ & 60.50 \\
+            & $2753.00 \rightarrow 17.0$ & $3840.00 \rightarrow 6.5$ & 60.50 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{64}
+            & $33089.00 \rightarrow 24.0$ & $46080.00 \rightarrow 7.6$ & 115.40 \\
+            & $33089.00 \rightarrow 24.0$ & $46080.00 \rightarrow 7.6$ & 115.40 \\
+            & $33089.00 \rightarrow 24.0$ & $46080.00 \rightarrow 7.6$ & 115.40 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{128}
+            & $12806.20(\mathrm{TO}) \rightarrow 31.0$ & $17822.90(\mathrm{TO}) \rightarrow 8.5$ & 207.00 \\
+            & $12893.00(\mathrm{TO}) \rightarrow 31.0$ & $17943.60(\mathrm{TO}) \rightarrow 8.5$ & 207.00 \\
+            & $12895.50(\mathrm{TO}) \rightarrow 31.0$ & $17946.90(\mathrm{TO}) \rightarrow 8.5$ & 207.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{256}
+            & $\mathrm{TO} \rightarrow 40.9$ & $\mathrm{TO} \rightarrow 9.7$ & 377.90 \\
+            & $\mathrm{TO} \rightarrow 40.9$ & $\mathrm{TO} \rightarrow 9.7$ & 377.90 \\
+            & $\mathrm{TO} \rightarrow 40.9$ & $\mathrm{TO} \rightarrow 9.7$ & 377.90 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{512}
+            & $\mathrm{TO} \rightarrow 48.2$ & $\mathrm{TO} \rightarrow 10.4$ & 672.00 \\
+            & $\mathrm{TO} \rightarrow 48.2$ & $\mathrm{TO} \rightarrow 10.4$ & 672.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{1024}
+            & $\mathrm{TO} \rightarrow 59.5$ & $\mathrm{TO} \rightarrow 11.5$ & 1245.00 \\
+            & $\mathrm{TO} \rightarrow 59.5$ & $\mathrm{TO} \rightarrow 11.5$ & 1245.00 \\
+
+        \bottomrule
+    \end{tabular}
+    \caption*{Hypercube graphs}
+\end{table}
+
+\FloatBarrier{}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c|c}
+        \toprule
+        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+        \midrule
+
+        \multirow{3}{*}{13}
+            & $14.00 \rightarrow 3.0$ & $78.00 \rightarrow 3.7$ & 19.30 \\
+            & $14.00 \rightarrow 3.0$ & $78.00 \rightarrow 3.7$ & 19.30 \\
+            & $14.00 \rightarrow 3.0$ & $78.00 \rightarrow 3.7$ & 19.30 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{97}
+            & $98.00 \rightarrow 3.0$ & $4656.00 \rightarrow 3.9$ & 187.10 \\
+            & $98.00 \rightarrow 3.0$ & $4656.00 \rightarrow 3.9$ & 187.10 \\
+            & $98.00 \rightarrow 3.0$ & $4656.00 \rightarrow 3.9$ & 187.10 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{229}
+            & $23.40(\mathrm{TO}) \rightarrow 3.0$ & $2384.00(\mathrm{TO}) \rightarrow 4.0$ & 451.00 \\
+            & $24.00(\mathrm{TO}) \rightarrow 3.0$ & $2431.80(\mathrm{TO}) \rightarrow 4.0$ & 451.00 \\
+            & $17.00(\mathrm{TO}) \rightarrow 3.0$ & $1660.00(\mathrm{TO}) \rightarrow 4.0$ & 451.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{3}{*}{313}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 4.0$ & 619.00 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 4.0$ & 619.00 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 4.0$ & 619.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{401}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.6$ & 795.40 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.6$ & 795.40 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{521}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.7$ & 1035.30 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.7$ & 1035.30 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{641}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.7$ & 1275.30 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.7$ & 1275.30 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{769}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 4.0$ & 1531.00 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 4.0$ & 1531.00 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{881}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.7$ & 1755.30 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.7$ & 1755.30 \\
+
+        \cmidrule(lr){1-4}
+
+        \multirow{2}{*}{997}
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.8$ & 1987.20 \\
+            & $\mathrm{TO} \rightarrow 3.0$ & $\mathrm{TO} \rightarrow 3.8$ & 1987.20 \\
+
+        \bottomrule
+    \end{tabular}
+    \caption*{Paley graphs}
+\end{table}
+       
+
+\subsubsection{Analysis of the results}
+
+These tables provide a considerable amount of information to analyze. First, we observe that bipartite graphs and random graphs in $\mathcal{G}(n, 1/2)$ have a number of nodes very close to $0$ and a number of leaves very close to $1$. This is directly related to what was discussed earlier: for these two classes, only the refinement function is really at play. This is not an ideal setting to evaluate our pruning, but it does confirm that these classes rely almost entirely on refinement, and that improving performance on them would mainly come from optimizing this function.
+
+The efficiency of pruning is best observed on the remaining graph classes. The most notable finding is that pruning $\mathcal{P}_C$ is by far the most effective of the three, since $\mathcal{P}_A$ and $\mathcal{P}_B$ are, as mentioned earlier, always equal to $0$, which is why they were omitted from the tables. This can be explained by two factors. First, our invariants may not be well suited to the graph classes tested: being fairly simple and not very discriminating, they frequently assign the same value to different nodes, which prevents $\mathcal{P}_A$ and $\mathcal{P}_B$ from acting. Second, the automorphism group of these graphs is typically very large, giving $\mathcal{P}_C$ a large amount of pruning to perform; since our implementation applies $\mathcal{P}_C$ before the other two methods, any pruning opportunity by automorphism is taken immediately, leaving little room for $\mathcal{P}_A$ or $\mathcal{P}_B$ to act. Automorphism-based pruning therefore appears to be the most decisive method in our implementation. A natural improvement would be to design more discriminating invariants, and possibly reorder the pruning methods to give $\mathcal{P}_A$ and $\mathcal{P}_B$ more opportunities to act.
+
+Even though some pruning methods do not apply here, the difference between the number of nodes and leaves traversed with and without pruning remains considerable, and is especially pronounced across all graph classes other than bipartite and $\mathcal{G}(n, 1/2)$ random graphs. This confirms, at the level of the search tree itself, the strong pruning power already suggested by our runtime measurements.
+
+Regarding the three invariants, the number of nodes and leaves visited with pruning is essentially the same across all of them. This is a direct consequence of $\mathcal{P}_A$ and $\mathcal{P}_B$ never being active, which leaves no room for any of the three to distinguish itself through pruning. This connects directly to our runtime results, which showed that the \texttt{triple} invariant is considerably slower than the other two: since pruning offers no compensating advantage, this confirms that \texttt{triple} underperforms in our implementation. This is somewhat at odds with the \Naut{} user guide, which describes \texttt{triple} as comparatively strong for pruning on strongly regular graphs, and therefore on Paley graphs~\cite{mckay2024nug}. This discrepancy likely stems from a difference between our implementation and the one described by \Naut{}: since we only had access to a description of the invariant, without a concrete pseudo-code, some implementation choices were inevitably left to us.
+
+Overall, our implementation shows substantial pruning potential, which proves extremely valuable given the very large number of nodes in our search tree. This highlights the importance of using sufficiently discriminating invariants, in order to fully exploit pruning when computing the canonical labelling.
