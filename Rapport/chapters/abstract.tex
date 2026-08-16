@@ -1,13 +1,8 @@
-\vfill
+\begin{abstract}
+    The graph isomorphism problem is a well known problem in graph theory. Canonical labelling stands out as one of the most successful practical approaches to this problem: by assigning every graph a unique form, the equivalence question of whether two graphs are isomorphic is reduced to the simpler question of whether their canonical forms are equal. This thesis presents a from-scratch C++ reimplementation of \Naut{}, Brendan McKay's canonical labelling algorithm, closely following McKay and Piperno's \emph{Practical Graph Isomorphism II}~\cite{mckay2014practical}.
 
-\begin{center}
-{\LARGE\bfseries Abstract}
+    We detail the construction of the search tree underlying \Naut{} and implement McKay's pruning strategies, based on node invariants and automorphisms, which discard redundant branches of the search tree to avoid unnecessary exploration. The correctness of the implementation is first established through a comprehensive suite of unit tests on a diverse set of graphs. It is then benchmarked against the official \Naut{} toolchain across several graph families: trees, sparse graphs, random graphs $\mathcal{G}(n,1/2)$, bipartite graphs, Paley graphs, and hypercubes. As expected, our implementation does not outperform McKay's highly optimised reference implementation, but the comparison nonetheless yields meaningful insight into the cost of each design choice.
 
-\vspace{1cm}
 
-\begin{minipage}{0.8\textwidth}
-\lipsum[1-2]
-\end{minipage}
-\end{center}
-
-\vfill
+    We further compare our three vertex invariants and the three pruning strategies against one another to identify which contribute most to performance. Automorphism-based pruning emerges as the most effective strategy across all tested graph families, a finding confirmed by the direct comparison of the number of nodes visited with and without pruning enabled. A marked difference also emerges among the invariants themselves, with one of the three performing considerably worse than the others across all tested graph families.
+\end{abstract}

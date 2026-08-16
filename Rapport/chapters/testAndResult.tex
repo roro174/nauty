@@ -1,4 +1,4 @@
-\chapter{Testing and Results}
+\chapter{Experimental evaluation}
 
 This chapter presents the experiments conducted to validate the correctness of our implementation, evaluate its performance on different classes of input graphs, and compare its behaviour with the original \Naut{} implementation.
 
@@ -13,22 +13,22 @@ Although there is no universally accepted graph encoding for graph isomorphism a
 The program supports five execution modes:
 
 \begin{itemize}
-    \item \textit{iso:}\label{mode:iso} compares two graphs and determines whether they are isomorphic.
+    \item \texttt{iso:}\label{mode:iso} compares two graphs and determines whether they are isomorphic.
     
-    \item \textit{canonical:}\label{mode:canonical} computes and outputs the canonical form of the input graph in graph6 format.
+    \item \texttt{canonical:}\label{mode:canonical} computes and outputs the canonical form of the input graph in graph6 format.
     
-    \item \textit{all:}\label{mode:all} computes the canonical form of the input graph and, for every leaf explored during the search, recomputes its canonical form independently to verify that all search paths produce the same canonical labelling. This mode is intended primarily for debugging and validation.
+    \item \texttt{all:}\label{mode:all} computes the canonical form of the input graph and, for every leaf explored during the search, recomputes its canonical form independently to verify that all search paths produce the same canonical labelling. This mode is intended primarily for debugging and validation.
     
-    \item \textit{aut:}\label{mode:aut} computes the canonical form of the input graph together with its automorphism group.
+    \item \texttt{aut:}\label{mode:aut} computes the canonical form of the input graph together with its automorphism group.
     
-    \item \textit{file:}\label{mode:file} reads a collection of graphs encoded in graph6 format from a file and computes the canonical form of each graph. This mode is particularly useful for large-scale experiments and performance evaluation.
+    \item \texttt{file:}\label{mode:file} reads a collection of graphs encoded in graph6 format from a file and computes the canonical form of each graph. This mode is particularly useful for large-scale experiments and performance evaluation.
 \end{itemize}
 
-The user can also choose the node invariant used during canonical labelling. The currently available invariants are \textit{triangle}, corresponding to \hyperref[algo:invariant_triangle_by_cell]{InvariantTriangleByCell}, \textit{paths}, corresponding to \hyperref[algo:invariant_two_paths_by_cell]{InvariantTwoPathsByCell}, and \textit{triple}, corresponding to \hyperref[algo:invariant_cell_triples_by_cell]{InvariantCellTriplesByCell}.
+The user can also choose the node invariant used during canonical labelling. The currently available invariants are \texttt{triangle}, corresponding to \hyperref[algo:invariant_triangle_by_cell]{InvariantTriangleByCell}, \texttt{paths}, corresponding to \hyperref[algo:invariant_two_paths_by_cell]{InvariantTwoPathsByCell}, and \texttt{triple}, corresponding to \hyperref[algo:invariant_cell_triples_by_cell]{InvariantTripleByCell}.
 
 
 
-\section{Correctness testing}
+\section{Correctness verification}
 
 Before evaluating the performance of our implementation, we first verified its correctness through a collection of unit and integration tests covering all major components of the algorithm.
 
@@ -46,14 +46,14 @@ The correctness of the computed automorphism groups was verified by comparing ou
 
 \newpage
 
-\section{Performance testing}
-All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $\mathcal{G}(n, 1/2)$, bipartite graphs with equally sized vertex sets, paley graphs\footnote{} and hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by a binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.}. It will allowing us to observe the behavior of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
+\section{Performance evaluation}
+All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $\mathcal{G}(n, 1/2)$, bipartite graphs with equally sized vertex sets, hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.} and strongly regular graphs\footnote{For three positive integers $x$, $y$, and $z$, a strongly regular graph is a graph in which every vertex has exactly $x$ neighbours, every pair of adjacent vertices has exactly $y$ common neighbours, and every pair of non-adjacent vertices has exactly $z$ common neighbours.} (for which we used Paley graphs\footnote{Denoted $P_q$; see the page of Eric W. Weisstein for further information~\cite{WeissteinPaleyGraph}.}). It will allowing us to observe the behaviour of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
 
-The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees, \texttt{-r} for regular graphs (a fixed degree of 3 was used across all sizes), and \texttt{-e} for a fixed edge count). Each dataset contains 100 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs and Paley graphs are exceptions to this range, for different reasons. Since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabeled 100 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 100 distinct labelled instances per dimension. Paley graphs are subject to a similar constraint, since $P_q$ is only defined for $q$ a prime power with $q \equiv 1 \pmod 4$; consequently, instead of the full range used for the other families, 10 valid values of $q$ between 10 and 1,000 were selected. As with $Q_d$, each $P_q$ is unique up to isomorphism for its order, so it was likewise generated once using \texttt{genspecialg} (option \texttt{-Y})~\cite{mckay2024nug} and then relabeled 100 times using \texttt{ranlabg}. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
+The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees and \texttt{-e} for a fixed edge count ($n$ for our sparse graphs, where $n$ represents the number of vertices)). Each dataset contains 100 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs and Paley graphs are exceptions to this range, for different reasons. Since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabelled 100 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 100 distinct labelled instances per dimension. Paley graphs are subject to a similar constraint, since $P_q$ is only defined for $q$ a prime power with $q \equiv 1 \pmod 4$; consequently, instead of the full range used for the other families, 10 valid values of $q$ between 10 and 1,000 were selected. As with $Q_d$, each $P_q$ is unique up to isomorphism for its order, so it was likewise generated once using \texttt{genspecialg} (option \texttt{-Y})~\cite{mckay2024nug} and then relabelled 100 times using \texttt{ranlabg}. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
 
-Several experiments are then performed on these datasets. First, we measure and compare the running time of all our invariants across the different datasets, and against the default version of \Naut{}. A Wilcoxon test is used to statistically compare the invariants against one another. We also measure the pruning ratio achieved by each invariant on each graph family. Finally, we evaluate our version of \Naut{} on the same graphs with pruning disabled, in order to isolate the effect of the pruning rules themselves.
+Several experiments are then performed on these datasets. First, we measure and compare the running time of all our invariants across the different datasets, and against the default version of \Naut{} (still version 2.9.3). Then, we measure the pruning ratio achieved by each invariant on each graph family. Finally, we evaluate our version of \Naut{} on the same graphs with pruning disabled, in order to isolate the effect of the pruning rules themselves.
 
-All running times are measured in wall-clock (real) time. Experiments were conducted on a Lenovo IdeaPad 3 15ITL6 laptop equipped with an 11th generation Intel Core i3--1115G4 processor (x86\_64 architecture) running at 3.00\,GHz, 7.6\,GiB of RAM, and Ubuntu 24.04.1 LTS (kernel version 6.8.0--51-generic). This machine was dedicated exclusively to the experiments, with no other process running concurrently. A per-graph time limit of 3 minutes was also introduced: whenever a graph exceeds this limit, testing is halted for the invariant under which it was running, and no further graphs of that size or larger are tested for that invariant. This threshold was set to 3 minutes because the goal here is not to probe the absolute limits of our implementation, but rather to observe how far its performance extends as the number of vertices grows, and to compare invariants on that basis.
+All running times are measured in wall-clock (real) time. Experiments were conducted on a Lenovo IdeaPad 3 15ITL6 laptop equipped with an 11th generation Intel Core i3--1115G4 processor (x86\_64 architecture) running at 3.00\,GHz, 7.6\,GiB of RAM, and Ubuntu 24.04.1 LTS (kernel version 6.8.0--51-generic). This machine was dedicated exclusively to the experiments. A per-graph time limit of 3 minutes was also introduced: whenever a graph exceeds this limit, testing is halted for the invariant under which it was running, and no further graphs of that size or larger are tested for that invariant. This threshold was set to 3 minutes because the goal here is not to probe the absolute limits of our implementation, but rather to observe how far its performance extends as the number of vertices grows, and to compare invariants on that basis.
 
 
 \subsection{Time performance}
@@ -74,17 +74,32 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/randomWP.pdf}
-        \caption*{Random graphs $G(n, 1/2)$}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/sparseWP.pdf}
+        \caption*{Sparse graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/sparseWP.pdf}
-        \caption*{Sparse Graphs}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/treesWP.pdf}
+        \caption*{Trees}
     \end{subfigure}
 \end{figure}
 
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/randomWP.pdf}
+        \caption*{random graphs $\mathcal{G}(n, 1/2)$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/bipartiteWP.pdf}
+        \caption*{Bipartite graphs}
+    \end{subfigure}
+\end{figure}
 
 \begin{figure}[h!]
     \centering
@@ -96,33 +111,18 @@ Throughout the following experiments, the horizontal axis always denotes the num
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/paleyWP.pdf}
+        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/PaleyWP.pdf}
         \caption*{Paley graphs}
-    \end{subfigure}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/bipartiteWP.pdf}
-        \caption*{Bipartite graphs}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/WithoutPrunning/treesWP.pdf}
-        \caption*{trees}
     \end{subfigure}
 \end{figure}
 
 \FloatBarrier\subsubsection{Analysis of the results}
 
-Even though the invariants are not used for pruning here, they are still used to select our canonical labelling. We can observe that for certain graph classes, such as bipartite graphs and random graphs, the three invariants behave, on average, in a similar way. This already gives us a hint as to what is happening under the hood: as noted in the state-of-the-art chapter, almost all graphs in $\mathcal{G}(n, 1/2)$ can be canonically labelled in linear time using a simple refinement procedure~\cite{babai1980random}, meaning the invariant itself contributes little beyond what refinement already achieves. This is therefore an expected result. The same behaviour is observed for bipartite graphs, suggesting that the refinement function is highly effective for this class as well.
+Even though the invariants are not used for pruning here, they are still used to select our canonical labelling. We can observe that for certain graph classes, such as bipartite graphs and random graphs, the three invariants behave, on average, in a similar way. This already gives us a hint as to what is happening under the hood: as noted in the ``state of the art'' chapter, almost all random graphs $\mathcal{G}(n, 1/2)$ can be canonically labelled in linear time using a simple refinement procedure~\cite{babai1980random}, meaning the invariant itself contributes little beyond what refinement already achieves. This is therefore an expected result. The same behaviour is observed for bipartite graphs, suggesting that the refinement function is highly effective for this class as well.
 
-For trees, Paley graphs, and hypercubes, the three invariants behave similarly overall, despite a slight difference for the \texttt{triple} invariant. We observe that around 100--200 vertices, the algorithm becomes prohibitively expensive. This is most likely explained by the number of branches that need to be explored during individualization becoming too large to handle. Pruning is therefore essential for these classes of graphs, as it allows us to go beyond this limit.
+For trees, Paley graphs, and hypercubes, the three invariants behave similarly overall, despite a slight difference for the \texttt{triple} invariant. We observe that around 100--200 vertices, the algorithm becomes prohibitively expensive. This is most likely explained by the number of branches generated by individualisation becoming too large to handle. Pruning is therefore essential for these classes of graphs, as it allows us to go beyond this limit.
 
-For sparse graphs, it becomes impossible to go beyond 50 vertices: this class requires far too much time to process. This can be explained by the fact that sparse graphs are very poorly connected, which limits what the refinement function can achieve in terms of splitting cells: since most vertices have few or no neighbours, there is little structural information available to separate them, so they remain grouped in the same cell, simply waiting to be individualized.
+For sparse graphs, it becomes impossible to go beyond 50 vertices: this class requires far too much time to process. This can be explained by the fact that sparse graphs are very poorly connected, which limits what the refinement function can achieve in terms of splitting cells: since most vertices have few or no neighbours, there is little structural information available to separate them, so they remain grouped in the same cell, simply waiting to be individualised.
 
 In conclusion, the results obtained without pruning are consistent with the theoretical expectations for each graph class. They highlight the importance of pruning in enabling the algorithm to handle larger graphs and more complex structures effectively. Regarding the distinction between the invariants, despite an already slight difference for the \texttt{triple} invariant, it is difficult to draw definitive conclusions about their relative performance without pruning. A more thorough analysis with pruning enabled will be necessary to fully assess the effectiveness of each invariant in the context of search-space reduction.
 
@@ -134,45 +134,45 @@ In conclusion, the results obtained without pruning are consistent with the theo
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
-        \caption*{Random graphs $G(n, 1/2)$}
+        \includegraphics[width=\linewidth]{imgs/test/sparse.pdf}
+        \caption*{Sparse graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/sparse.pdf}
-        \caption*{sparse graphs}
+        \includegraphics[width=\linewidth]{imgs/test/trees.pdf}
+        \caption*{Trees}
     \end{subfigure}
 \end{figure}
 
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \caption*{random graphs $\mathcal{G}(n, 1/2)$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/test/bipartite.pdf}
+        \caption*{Bipartite graphs}
+    \end{subfigure}
+\end{figure}
 
 \begin{figure}[h!]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{imgs/test/hypercube.pdf}
-        \caption*{hypercube graphs}
+        \caption*{Hypercube graphs}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/test/paley.pdf}
+        \includegraphics[width=\linewidth]{imgs/test/Paley.pdf}
         \caption*{Paley graphs}
-    \end{subfigure}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/bipartite.pdf}
-        \caption*{Bipartite graphs}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{imgs/test/trees.pdf}
-        \caption*{trees}
     \end{subfigure}
 \end{figure}
 
@@ -180,31 +180,32 @@ In conclusion, the results obtained without pruning are consistent with the theo
 
 \subsubsection{Analysis of the results}
 
-One of the first things we can observe is that the original \Naut{} implementation remains substantially faster than ours across all graph classes. As noted in previous chapters, the original \Naut{} implementation is extremely optimized and has been developed and tested over many years. It is therefore unsurprising that our implementation, while correct and functional, does not manage to outperform \Naut{} in terms of performance on any graph class. It is nonetheless interesting to examine the gap between the two implementations. In particular, the gap is most pronounced for sparse and Paley graphs. For sparse graphs, our implementation quickly reaches the 3-minute limit, whereas the original \Naut{} implementation remains highly efficient throughout. For Paley graphs, only one of the three invariants actually reaches the time limit; nonetheless, execution times remain considerably higher than \Naut{}'s across the board, showing that the gap holds even where the limit is not hit. For the remaining classes, we observe a gap of $10^{2}$ to $10^{3}$ times more execution time for our implementation.
+One of the first things we can observe is that the original \Naut{} implementation remains substantially faster than ours across all graph classes. As noted in previous chapters, the original \Naut{} implementation is extremely optimised and has been developed and tested over many years. It is therefore unsurprising that our implementation, while correct and functional, does not manage to outperform \Naut{} in terms of performance on any graph class. It is nonetheless interesting to examine the gap between the two implementations. In particular, the gap is most pronounced for sparse and Paley graphs. For sparse graphs, our implementation quickly reaches the 3-minute limit, whereas the original \Naut{} implementation remains highly efficient throughout. For Paley graphs, only one of the three invariants actually reaches the time limit; nonetheless, execution times remain considerably higher than \Naut{}'s across the board, showing that the gap holds even where the limit is not hit. For the remaining classes, we observe a gap of $10^{2}$ to $10^{3}$ times more execution time for our implementation.
 
-Focusing on our own implementation, we observe that, aside from bipartite graphs and random graphs in $\mathcal{G}(n, 1/2)$, there is no substantial difference in execution time between the runs with and without pruning. This confirms that, for these classes, essentially everything happens within the refinement function. For the remaining classes, pruning allows us to reach considerably higher vertex counts than without it. For most of them we can reach 1,000 vertices without hitting the time limit, with the exception of sparse graphs, which only reach 800 vertices. This nonetheless shows that pruning is highly effective at reducing the search space and improving the algorithm's performance, allowing larger and more complex graphs to be handled.
+Focusing on our own implementation, we observe that, for bipartite graphs and random graphs $\mathcal{G}(n, 1/2)$, there is no substantial difference in execution time between the runs with and without pruning. This confirms that, for these classes, essentially everything happens within the refinement function. For the remaining classes, pruning allows us to reach considerably higher vertex counts than without it. For most of them we can reach 1,000 vertices without hitting the time limit, with the exception of sparse graphs, which only reach 800 vertices. This nonetheless shows that pruning is highly effective at reducing the search space and improving the algorithm's performance, allowing larger and more complex graphs to be handled.
 
 Regarding the different invariants, we observe a very large difference between the three methods: \texttt{triple} takes considerably more time than the other two, since it is extremely costly to compute, making it a poor default choice for the implementation. We can therefore state that the other two invariants remain the best choices to use by default. However, aside from \texttt{triple}, which underperforms on almost every class, the remaining two invariants do not behave very differently from one another on these graph classes: neither one consistently outperforms the other. This may suggest that none of the invariants are particularly well suited to these classes, despite still achieving reasonable execution times overall.
-
-To compare our invariants further, we use a statistical test to evaluate differences in execution time between them: the Wilcoxon signed-rank test, which is appropriate for comparing two paired samples and determining whether a significant difference exists between their distributions. It is particularly useful when the data do not follow a normal distribution, which is often the case for algorithm execution times.
-
-
-
-\FloatBarrier\subsubsection{Wilcoxon signed-rank test}
 
 
 \newpage
 
 \subsection{Pruning performance}
 
-Now that we have compared the invariants in terms of runtime, we turn to their pruning performance on each invariant and each file. To visualize the effect of pruning, we compare the number of nodes traversed without pruning to the number traversed with pruning, and do the same for the leaves — counted separately, and therefore excluded from the node count. In addition, we report $\mathcal{P}_C$, the average number of prunings per file. $\mathcal{P}_A$ and $\mathcal{P}_B$ are omitted, as they were always equal to $0$; we return to this point in the analysis of the results.
+Now that we have compared the invariants in terms of runtime, we turn to their pruning performance on each invariant and each file. To visualise the effect of pruning, we compare the number of nodes traversed without pruning to the number traversed with pruning, and do the same for the leaves (counted separately, and therefore excluded from the node count). In addition, we report $\mathcal{P}_C$, the average number of prunings by automorphism. $\mathcal{P}_A$ and $\mathcal{P}_B$ are omitted, as they were always equal to $0$; we return to this point in the analysis of the results.
 
-\paragraph{Legend.} In each table, $n$ is the number of vertices of the graphs. The columns N1 $\rightarrow$ N2 give the number of nodes without and with pruning, respectively, while L1 $\rightarrow$ L2 give the same information for the leaves. The last three columns are per-graph averages, obtained by dividing the total count by the number of graphs in the file. Each cell is split into three rows, corresponding respectively to the \texttt{Triangle}, \texttt{Paths}, and \texttt{Triple} invariants. Finally, the symbol $\mathrm{TO}$ marks a time-out, in one of two situations: alone, it means the computation was skipped entirely, because a smaller size within the same family had already timed out; written as $(\mathrm{TO})$ next to the corresponding value, it denotes partial data collected before the 3-minute limit introduced earlier was reached.
+\paragraph{Legend.} In each table, $n$ is the number of vertices. Columns
+N1 $\rightarrow$ N2 and L1 $\rightarrow$ L2 give the average number of nodes and leaves
+traversed without and with pruning, and we report $\mathcal{P}_C$ in the last column. All
+quantities are per-graph averages (total over the file divided by the number of graphs). Each cell is split into three rows,
+corresponding respectively to the \texttt{triangle}, \texttt{paths}, and \texttt{triple}
+invariants. $\mathrm{TO}$ marks a time-out: alone, it means the computation was skipped because
+a smaller instance in the same family had already timed out; as $(\mathrm{TO})$ next to a
+value, it denotes partial data collected before the 3-minute limit was reached.
 
 \begin{table}[h] \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
         \midrule
 
         \multirow{3}{*}{10}
@@ -267,7 +268,7 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
   \begin{table}[h] \centering
         \begin{tabular}{c|c|c|c}
             \toprule
-            $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+            $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
             \midrule
 
             \multirow{3}{*}{10}
@@ -344,7 +345,7 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
                 \centering
                 \begin{tabular}{c|c|c|c}
                     \toprule
-                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
                     \midrule
         
                     \multirow{3}{*}{10}
@@ -364,7 +365,7 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
                     50--1000 & $0 \rightarrow 0$ & $1 \rightarrow 1$ & 0 \\
                     \bottomrule
                 \end{tabular}
-                \caption*{Random graphs $G(n, 1/2)$}
+                \caption*{Random graphs $\mathcal{G}(n, 1/2)$}
             \end{subtable}
             \hfill
             %
@@ -372,7 +373,7 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
                 \centering
                 \begin{tabular}{c|c|c|c}
                     \toprule
-                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
                     \midrule
         
                     \multirow{3}{*}{10}
@@ -383,9 +384,9 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
                     \cmidrule(lr){1-4}
         
                     \multirow{3}{*}{20}
-                        & $0.08 \rightarrow 0.1$ & $1.08 \rightarrow 1.1$ & 0.01 \\
-                        & $0.08 \rightarrow 0.1$ & $1.08 \rightarrow 1.1$ & 0.01 \\
-                        & $0.08 \rightarrow 0.1$ & $1.08 \rightarrow 1.1$ & 0.01 \\
+                        & $0.08 \rightarrow 0.08$ & $1.08 \rightarrow 1.06$ & 0.01 \\
+                        & $0.08 \rightarrow 0.08$ & $1.08 \rightarrow 1.06$ & 0.01 \\
+                        & $0.08 \rightarrow 0.08$ & $1.08 \rightarrow 1.06$ & 0.01 \\
         
                     \cmidrule(lr){1-4}
         
@@ -400,7 +401,7 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
         \midrule
 
         \multirow{3}{*}{2}
@@ -480,7 +481,7 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $P_C$ \\
+        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
         \midrule
 
         \multirow{3}{*}{13}
@@ -553,12 +554,21 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
 
 \subsubsection{Analysis of the results}
 
-These tables provide a considerable amount of information to analyze. First, we observe that bipartite graphs and random graphs in $\mathcal{G}(n, 1/2)$ have a number of nodes very close to $0$ and a number of leaves very close to $1$. This is directly related to what was discussed earlier: for these two classes, only the refinement function is really at play. This is not an ideal setting to evaluate our pruning, but it does confirm that these classes rely almost entirely on refinement, and that improving performance on them would mainly come from optimizing this function.
+These tables provide a considerable amount of information to analyse. First, we observe that bipartite graphs and random graphs $\mathcal{G}(n, 1/2)$ have a number of nodes very close to $0$ and a number of leaves very close to $1$. This is directly related to what was discussed earlier: for these two classes, only the refinement function is really at play. This is not an ideal setting to evaluate our pruning, but it does confirm that these classes rely almost entirely on refinement, and that improving performance on them would mainly come from optimising this function.
 
-The efficiency of pruning is best observed on the remaining graph classes. The most notable finding is that pruning $\mathcal{P}_C$ is by far the most effective of the three, since $\mathcal{P}_A$ and $\mathcal{P}_B$ are, as mentioned earlier, always equal to $0$, which is why they were omitted from the tables. This can be explained by two factors. First, our invariants may not be well suited to the graph classes tested: being fairly simple and not very discriminating, they frequently assign the same value to different nodes, which prevents $\mathcal{P}_A$ and $\mathcal{P}_B$ from acting. Second, the automorphism group of these graphs is typically very large, giving $\mathcal{P}_C$ a large amount of pruning to perform; since our implementation applies $\mathcal{P}_C$ before the other two methods, any pruning opportunity by automorphism is taken immediately, leaving little room for $\mathcal{P}_A$ or $\mathcal{P}_B$ to act. Automorphism-based pruning therefore appears to be the most decisive method in our implementation. A natural improvement would be to design more discriminating invariants, and possibly reorder the pruning methods to give $\mathcal{P}_A$ and $\mathcal{P}_B$ more opportunities to act.
+The efficiency of pruning is best observed on the remaining graph classes. The most notable finding is that pruning $\mathcal{P}_C$ is by far the most effective of the three methods. As mentioned earlier, $\mathcal{P}_A$ and $\mathcal{P}_B$ are always equal to $0$ on these instances, which is why they have been omitted from the tables.
+
+Several factors may explain this behaviour. A first possible factor is that our invariants may not be particularly well suited to the graph classes considered: being relatively simple, they may frequently assign the same value to different nodes, thereby preventing $\mathcal{P}_A$ and $\mathcal{P}_B$ from identifying pruning opportunities. This explanation should, however, be treated with some caution. Since our implementation applies $\mathcal{P}_C$ before the other two pruning methods, any branch that could be pruned by $\mathcal{P}_C$ is discarded before $\mathcal{P}_A$ and $\mathcal{P}_B$ are even evaluated on it. As a result, we never observe what $\mathcal{P}_A$ and $\mathcal{P}_B$ would have done on these branches, and our experimental setup does not allow us to determine, in isolation, whether they are genuinely ill-suited to these classes or whether they are simply never given the opportunity to act.
+
+A further, and perhaps particularly relevant explanation is that the automorphism groups of these graphs are often very large. This alone provides $\mathcal{P}_C$ with considerably more pruning opportunities than $\mathcal{P}_A$ and $\mathcal{P}_B$ could plausibly exploit, independently of any ordering effect in our implementation.
+
+More intuitively, suppose that two branches are symmetric. If exploring the first branch eventually leads to an automorphism witnessing the equivalence between two choices, then exploring the symmetric branch would essentially reproduce the same structural situation. Consequently, unless the invariant is able to distinguish between these equivalent choices, it cannot be used to prune the second branch. This effect becomes particularly pronounced when the search tree contains many branches that are related by automorphisms: the invariant-based pruning methods have little opportunity to distinguish between them, whereas $\mathcal{P}_C$ can exploit the symmetry directly.
+
+This provides a natural explanation for why automorphism-based pruning appears to be the most decisive pruning method in our implementation.
+
 
 Even though some pruning methods do not apply here, the difference between the number of nodes and leaves traversed with and without pruning remains considerable, and is especially pronounced across all graph classes other than bipartite and $\mathcal{G}(n, 1/2)$ random graphs. This confirms, at the level of the search tree itself, the strong pruning power already suggested by our runtime measurements.
 
 Regarding the three invariants, the number of nodes and leaves visited with pruning is essentially the same across all of them. This is a direct consequence of $\mathcal{P}_A$ and $\mathcal{P}_B$ never being active, which leaves no room for any of the three to distinguish itself through pruning. This connects directly to our runtime results, which showed that the \texttt{triple} invariant is considerably slower than the other two: since pruning offers no compensating advantage, this confirms that \texttt{triple} underperforms in our implementation. This is somewhat at odds with the \Naut{} user guide, which describes \texttt{triple} as comparatively strong for pruning on strongly regular graphs, and therefore on Paley graphs~\cite{mckay2024nug}. This discrepancy likely stems from a difference between our implementation and the one described by \Naut{}: since we only had access to a description of the invariant, without a concrete pseudo-code, some implementation choices were inevitably left to us.
 
-Overall, our implementation shows substantial pruning potential, which proves extremely valuable given the very large number of nodes in our search tree. This highlights the importance of using sufficiently discriminating invariants, in order to fully exploit pruning when computing the canonical labelling.
+Overall, our implementation shows substantial pruning potential, which proves extremely valuable given the very large number of nodes in our search tree. This suggests that using more discriminating invariants could further improve pruning performance. It should be noted, however, that the graph classes considered here exhibit a particularly high degree of symmetry, which inherently limits what invariant-based pruning alone can achieve: by construction, two nodes of the search tree related by an automorphism must receive the same invariant value. Designing better invariants may therefore help to some extent, but on such highly symmetric classes, $\mathcal{P}_C$ is likely to remain an essential complement to invariant-based pruning, regardless of how discriminating the invariants used are.

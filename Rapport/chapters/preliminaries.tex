@@ -6,13 +6,6 @@ This chapter introduces all the definitions necessary to understand this documen
 \begin{definition}[informal]
 An \emph{isomorphism} is a bijective mapping between two structures that preserves the relationships between their elements. If a mapping sends an element $x$ of one structure to an element $y$ of another structure, we write $x \mapsto y$.
 
-\begin{figure}[ht]
-    \centering
-    \resizebox{\textwidth}{!}{%
-    \input{figTex/ex_isomorphisme.tex}%
-    }
-    \caption{Example of isomorphism between two \hyperref[def:graph]{graphs} $G_1$ and $G_2$}
-  \end{figure}
 
 
 An \emph{automorphism} is an isomorphism from a set to itself.
@@ -22,8 +15,7 @@ An \emph{automorphism} is an isomorphism from a set to itself.
 
     A \emph{group} is a set with a binary operation that satisfies the following constraints: the operation is associative, it has an identity element, and every element of the set has an inverse. For example, $(\mathbb{R}, +)$ is a group: it consists of the set of real numbers with addition as the binary operation. It has as identity element $0$; every element has an inverse element (each number with its opposite); and it is associative: for all numbers $a, b, c$ in $\mathbb{R}$, $a + (b + c) = (a+b) + c$.
     
-    Let $X$ be a finite set. The \emph{symmetric group} on $X$, denoted $S_n$ when $|X|=n$, is 
-    the group of all \emph{permutations} of $X$, i.e.\ all bijections from $X$ to itself, with function composition as the group operation.
+    Let $X$ be a finite set. The \emph{symmetric group} on $X$ is the group of all \emph{permutations} of $X$, i.e.\ all bijections from $X$ to itself, with function composition as the group operation. In particular, when $X=\{1,\ldots,n\}$, this group is denoted by $S_n$.
     
     Let $(G, *)$ be a group with identity element $e$, and let $X$ be a non-empty set. A \emph{group action} of $G$ on $X$ is a map
     \[
@@ -76,6 +68,8 @@ An \emph{automorphism} is an isomorphism from a set to itself.
 
 For further details on the following concepts, refer to Reinhard Diestel’s book on graph theory~\cite{diestel2025}.
 
+\vspace{0.4em}
+
 \begin{definition}\label{def:graph}
 A \emph{graph} is a pair $G = (V, E)$ of sets satisfying $E \subseteq \binom {V}{2}$; thus, the elements of $E$ are 2-element subsets of $V$. The elements of $V$ are the \emph{vertices} of the graph $G$, the elements of $E$ are its \emph{edges}.
 
@@ -90,6 +84,16 @@ is a connected subgraph of $T$ (that is itself a tree). We write $T' \subseteq T
 to denote that $T'$ is a subtree of $T$.
 \end{definition}
 
+
+\begin{figure}[h!]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \input{figTex/ex_isomorphisme.tex}%
+    }
+    \caption{Example of isomorphism between two graphs $G_1$ and $G_2$.}
+  \end{figure}
+
+
 \vspace{1em}
 
 \begin{definition}\label{def:class of graphs}
@@ -100,12 +104,12 @@ We let \emph{$\mathcal{G}_n$} be the set of all graphs on $n$ vertices (without 
 
 \begin{definition}\label{def:$K1_3$}
 
-The \emph{star graph} $K_{1,3}$ is a tree with one internal node and three leaves. It is also known as the \emph{claw graph}. The internal node is called the \emph{center} of the star graph. For most of our examples, we will use this graph.
+The \emph{star graph} $K_{1,3}$ is a tree with one internal node and three leaves. It is also known as the \emph{claw graph}. The internal node is called the \emph{centre} of the star graph. For most of our examples, we will use this graph.
 
 \begin{figure}[ht]
     \centering
         \input{figTex/K1_3.tex}
-    \caption{The star graph $K_{1,3}$ with its center and leaves.}
+    \caption{The star graph $K_{1,3}$ with its centre and leaves.}
 \end{figure}
 \end{definition}
 \subsection{Definitions specific to isomorphisms}
@@ -178,10 +182,8 @@ such that for all  $G \mathrel{\in}\mathcal{G},  \pi\mathrel{\in}\Pi$ and  $g \m
 \end{definition}
 
 
-Informally, the canonical form $C(G,\pi)$ of a coloured graph is an isomorphic representative 
-of the graph that depends only on its isomorphism class. In other words, $C$ maps any two 
-coloured graphs related by a relabelling to exactly the same output. Consequently, two 
-coloured graphs are isomorphic if and only if they have the same canonical form.
+Informally, the canonical form $C(G,\pi)$ of a coloured graph is a unique representative of the isomorphism class of $(G,\pi)$. In other words, $C$ maps any two 
+coloured graphs related by a relabelling to exactly the same output. Consequently, two coloured graphs are isomorphic if and only if they have the same canonical form.
 
 \section{Complexity theory definitions}
 
@@ -231,7 +233,7 @@ $\LOGSPACE$ (or \L) is the complexity class of decision problems that can be sol
 \begin{definition}
 An \emph{oracle} for a language $B$ is an external device that is capable of reporting whether any string $w$ is a member of $B$. An oracle Turing machine is a modified Turing machine that has the additional capability of querying an oracle. We write $M^B$ to describe an oracle Turing machine that has an oracle for language $B$.
 
-The \emph{Polynomial-Time Hierarchy} (\PH) is a hierarchy of complexity classes that generalizes the classes \NP{} and \coNP. Formally, the base level of the hierarchy is defined as:
+The \emph{Polynomial-Time Hierarchy} (\PH) is a hierarchy of complexity classes that generalises the classes \NP{} and \coNP. Formally, the base level of the hierarchy is defined as:
 \[
 \Delta_0^{\P} \coloneqq \Sigma_0^{\P} \coloneqq \Pi_0^{\P} \coloneqq \P,
 \]

@@ -33,8 +33,8 @@ void Graph::buildFromGraph6(const string& graph6) {
     }
 
     std::string bitString;
-    for (size_t index = 1 ; index < graph6.size(); index++)
-        bitString += std::bitset<6>(graph6[index] - 63).to_string();
+    for (size_t i = index ; i < graph6.size(); i++)
+        bitString += std::bitset<6>(graph6[i] - 63).to_string();
 
     bitString = bitString.substr(0, n * (n - 1) / 2);
 
