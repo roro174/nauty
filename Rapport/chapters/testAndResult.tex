@@ -47,7 +47,7 @@ The correctness of the computed automorphism groups was verified by comparing ou
 \newpage
 
 \section{Performance evaluation}
-All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $\mathcal{G}(n, 1/2)$, bipartite graphs with equally sized vertex sets, hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.} and strongly regular graphs\footnote{For three positive integers $x$, $y$, and $z$, a strongly regular graph is a graph in which every vertex has exactly $x$ neighbours, every pair of adjacent vertices has exactly $y$ common neighbours, and every pair of non-adjacent vertices has exactly $z$ common neighbours.} (for which we used Paley graphs\footnote{Denoted $P_q$; see the page of Eric W. Weisstein for further information~\cite{WeissteinPaleyGraph}.}). It will allowing us to observe the behaviour of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
+All the tests presented in the remainder of this chapter are carried out on several families of graphs: trees, sparse graphs\footnote{A graph where the number of edges is on the order of the number of vertices, placing it near the threshold for the emergence of a giant connected component.}, random graphs $\mathcal{G}(n, 1/2)$, bipartite graphs with equally sized vertex sets, hypercube graphs\footnote{A graph denoted $Q_d$ whose vertices are represented by binary strings of length $d$, with an edge between two vertices whenever they differ in exactly one bit.} and strongly regular graphs\footnote{For positive integers $v$, $x$, $y$, and $z$, a strongly regular graph, denoted by $\operatorname{srg}(v,x,y,z)$, is a graph on $v$ vertices in which every vertex has exactly $x$ neighbours, every pair of adjacent vertices has exactly $y$ common neighbours, and every pair of non-adjacent vertices has exactly $z$ common neighbours.} (for which we used Paley graphs\footnote{Denoted $P_q$; see the webpage of Eric W. Weisstein for further information~\cite{WeissteinPaleyGraph}.}). It will allowing us to observe the behaviour of the invariants across a wide range of structures. For each graph family, several datasets are used, with all graphs within a given dataset sharing the same number of vertices.
 
 The datasets were generated using \texttt{genrang}~\cite{mckay2024nug}, the random graph generation utility included with \Naut{} (version 2.9.3), using family-specific options (e.g.\texttt{-P} for edge probability, \texttt{-t} for random trees and \texttt{-e} for a fixed edge count ($n$ for our sparse graphs, where $n$ represents the number of vertices)). Each dataset contains 100 randomly generated graphs from the same graph class, with graph sizes ranging from 10 to 1,000 vertices. Hypercube graphs and Paley graphs are exceptions to this range, for different reasons. Since $Q_d$ has exactly $2^d$ vertices, this family is instead tested for dimensions $d = 1$ to $10$, corresponding to graph sizes of $2, 4, 8, \ldots, 1024$ vertices. As $Q_d$ is unique up to isomorphism for a given dimension, it was generated once using \texttt{genspecialg} (option \texttt{-Q})~\cite{mckay2024nug} and then relabelled 100 times using \texttt{ranlabg}~\cite{mckay2024nug} to obtain 100 distinct labelled instances per dimension. Paley graphs are subject to a similar constraint, since $P_q$ is only defined for $q$ a prime power with $q \equiv 1 \pmod 4$; consequently, instead of the full range used for the other families, 10 valid values of $q$ between 10 and 1,000 were selected. As with $Q_d$, each $P_q$ is unique up to isomorphism for its order, so it was likewise generated once using \texttt{genspecialg} (option \texttt{-Y})~\cite{mckay2024nug} and then relabelled 100 times using \texttt{ranlabg}. To ensure that all experiments are reproducible and performed on exactly the same inputs, the datasets were generated only once prior to the experiments and stored as graph6 files. Consequently, every benchmark reported in this chapter is performed on the same collection of graphs.
 
@@ -195,12 +195,8 @@ Now that we have compared the invariants in terms of runtime, we turn to their p
 
 \paragraph{Legend.} In each table, $n$ is the number of vertices. Columns
 N1 $\rightarrow$ N2 and L1 $\rightarrow$ L2 give the average number of nodes and leaves
-traversed without and with pruning, and we report $\mathcal{P}_C$ in the last column. All
-quantities are per-graph averages (total over the file divided by the number of graphs). Each cell is split into three rows,
-corresponding respectively to the \texttt{triangle}, \texttt{paths}, and \texttt{triple}
-invariants. $\mathrm{TO}$ marks a time-out: alone, it means the computation was skipped because
-a smaller instance in the same family had already timed out; as $(\mathrm{TO})$ next to a
-value, it denotes partial data collected before the 3-minute limit was reached.
+traversed, respectively, without pruning (N1, L1) and with pruning (N2, L2); tthe arrow marks this transition from the unpruned to the pruned count, and we report $\mathcal{P}_C$ in the last column. All quantities are per-graph averages (total over the file divided by the number of graphs). Each cell is split into three rows, corresponding respectively to the \texttt{triangle}, \texttt{paths}, and \texttt{triple} invariants. $\mathrm{TO}$ marks a time-out: alone, it means the computation was skipped because a smaller instance in the same family had already timed out; as $(\mathrm{TO})$ next to a value, it denotes partial data collected before the 3-minute limit was reached. Cells in the table do not always contain three complete rows, as some invariants may have reached the time-out, and we did not consider it necessary to add zero values to the tables. If the removal of a row causes the order of the invariants within a table cell to change, we add a bar to the row that no
+longer contains any information.
 
 \begin{table}[h] \centering
     \begin{tabular}{c|c|c|c}
@@ -229,7 +225,7 @@ value, it denotes partial data collected before the 3-minute limit was reached.
 
         \cmidrule(lr){1-4}
 
-        \multirow{3}{*}{100}
+        \multirow{3}{*}{100} 
             & $\mathrm{TO} \rightarrow 171.6$ & $\mathrm{TO} \rightarrow 18.8$ & 809.50 \\
             & $\mathrm{TO} \rightarrow 171.6$ & $\mathrm{TO} \rightarrow 18.8$ & 809.50 \\
             & $\mathrm{TO} \rightarrow 171.6$ & $\mathrm{TO} \rightarrow 18.8$ & 809.50 \\
@@ -401,7 +397,7 @@ value, it denotes partial data collected before the 3-minute limit was reached.
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
         \midrule
 
         \multirow{3}{*}{2}
@@ -481,7 +477,7 @@ value, it denotes partial data collected before the 3-minute limit was reached.
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        V. & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
         \midrule
 
         \multirow{3}{*}{13}
@@ -558,9 +554,9 @@ These tables provide a considerable amount of information to analyse. First, we 
 
 The efficiency of pruning is best observed on the remaining graph classes. The most notable finding is that pruning $\mathcal{P}_C$ is by far the most effective of the three methods. As mentioned earlier, $\mathcal{P}_A$ and $\mathcal{P}_B$ are always equal to $0$ on these instances, which is why they have been omitted from the tables.
 
-Several factors may explain this behaviour. A first possible factor is that our invariants may not be particularly well suited to the graph classes considered: being relatively simple, they may frequently assign the same value to different nodes, thereby preventing $\mathcal{P}_A$ and $\mathcal{P}_B$ from identifying pruning opportunities. This explanation should, however, be treated with some caution. Since our implementation applies $\mathcal{P}_C$ before the other two pruning methods, any branch that could be pruned by $\mathcal{P}_C$ is discarded before $\mathcal{P}_A$ and $\mathcal{P}_B$ are even evaluated on it. As a result, we never observe what $\mathcal{P}_A$ and $\mathcal{P}_B$ would have done on these branches, and our experimental setup does not allow us to determine, in isolation, whether they are genuinely ill-suited to these classes or whether they are simply never given the opportunity to act.
+Several factors may explain this behaviour. First, our invariants may not be particularly well suited to the graph classes we chose: being relatively simple, they may frequently assign the same value to different nodes, thereby preventing $\mathcal{P}_A$ and $\mathcal{P}_B$ from identifying pruning opportunities. Moreover, our approach does not closely resemble McKay's original method in \Naut{}: as explained in the previous chapter, \Naut{} constructs its node invariant from information obtained during the refinement process, whereas our invariants are based primarily on properties of the resulting coloured graph. We assumed that our three different methods would provide sufficient discriminative power to achieve pruning comparable to that obtained by \Naut{}. This was not the case, since in the end, the only pruning that actually triggers is automorphism pruning. This would explain why our invariant methods all appear equivalent, as they ultimately provide little discriminative benefit in our setting. A possible improvement would therefore be to modify our pruning methods to make greater use of the information produced during the refinement process, following the approach used by \Naut{}.
 
-A further, and perhaps particularly relevant explanation is that the automorphism groups of these graphs are often very large. This alone provides $\mathcal{P}_C$ with considerably more pruning opportunities than $\mathcal{P}_A$ and $\mathcal{P}_B$ could plausibly exploit, independently of any ordering effect in our implementation.
+Another explanation is that the automorphism groups of these graphs are often very large. One might object that $\mathcal{P}_C$ only appears dominant because it is evaluated first in our implementation. However, the sheer size of these automorphism groups alone provides $\mathcal{P}_C$ with considerably more pruning opportunities than $\mathcal{P}_A$ and $\mathcal{P}_B$ could plausibly exploit, independently of any ordering effect.
 
 More intuitively, suppose that two branches are symmetric. If exploring the first branch eventually leads to an automorphism witnessing the equivalence between two choices, then exploring the symmetric branch would essentially reproduce the same structural situation. Consequently, unless the invariant is able to distinguish between these equivalent choices, it cannot be used to prune the second branch. This effect becomes particularly pronounced when the search tree contains many branches that are related by automorphisms: the invariant-based pruning methods have little opportunity to distinguish between them, whereas $\mathcal{P}_C$ can exploit the symmetry directly.
 
