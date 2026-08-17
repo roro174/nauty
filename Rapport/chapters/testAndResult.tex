@@ -187,21 +187,21 @@ Focusing on our own implementation, we observe that, for bipartite graphs and ra
 Regarding the different invariants, we observe a very large difference between the three methods: \texttt{triple} takes considerably more time than the other two, since it is extremely costly to compute, making it a poor default choice for the implementation. We can therefore state that the other two invariants remain the best choices to use by default. However, aside from \texttt{triple}, which underperforms on almost every class, the remaining two invariants do not behave very differently from one another on these graph classes: neither one consistently outperforms the other. This may suggest that none of the invariants are particularly well suited to these classes, despite still achieving reasonable execution times overall.
 
 
-\newpage
-
 \subsection{Pruning performance}
 
-Now that we have compared the invariants in terms of runtime, we turn to their pruning performance on each invariant and each file. To visualise the effect of pruning, we compare the number of nodes traversed without pruning to the number traversed with pruning, and do the same for the leaves (counted separately, and therefore excluded from the node count). In addition, we report $\mathcal{P}_C$, the average number of prunings by automorphism. $\mathcal{P}_A$ and $\mathcal{P}_B$ are omitted, as they were always equal to $0$; we return to this point in the analysis of the results.
+Now that we have compared the invariants in terms of runtime, we turn to their pruning performance on each invariant and each file. To visualise the effect of pruning, we compare the number of nodes traversed without pruning to the number traversed with pruning, and do the same for the leaves (counted separately, and therefore excluded from the node count). In addition, we report the average number of prunings performed by $\mathcal{P}_C$, our automorphism-based pruning strategy. $\mathcal{P}_A$ and $\mathcal{P}_B$ are omitted, as they were never triggered; we return to this point in the analysis of the results.
+\newpage
 
-\paragraph{Legend.} In each table, $n$ is the number of vertices. Columns
-N1 $\rightarrow$ N2 and L1 $\rightarrow$ L2 give the average number of nodes and leaves
-traversed, respectively, without pruning (N1, L1) and with pruning (N2, L2); tthe arrow marks this transition from the unpruned to the pruned count, and we report $\mathcal{P}_C$ in the last column. All quantities are per-graph averages (total over the file divided by the number of graphs). Each cell is split into three rows, corresponding respectively to the \texttt{triangle}, \texttt{paths}, and \texttt{triple} invariants. $\mathrm{TO}$ marks a time-out: alone, it means the computation was skipped because a smaller instance in the same family had already timed out; as $(\mathrm{TO})$ next to a value, it denotes partial data collected before the 3-minute limit was reached. Cells in the table do not always contain three complete rows, as some invariants may have reached the time-out, and we did not consider it necessary to add zero values to the tables. If the removal of a row causes the order of the invariants within a table cell to change, we add a bar to the row that no
+\paragraph{Legend.} In each table, $n$ is the number of vertices. The columns
+N1 $\rightarrow$ N2 and L1 $\rightarrow$ L2 report the average number of nodes and leaves
+traversed before and after pruning, respectively. Here, N1 and L1 refer to the
+unpruned search, while N2 and L2 refer to the pruned search; the arrow marks this transition from the unpruned to the pruned count. The last column, $\mathcal{N}_C$, gives the average number of prunings performed by $\mathcal{P}_C$. All quantities are per-graph averages (total over the file divided by the number of graphs). Each cell is split into three rows, corresponding respectively to the \texttt{triangle}, \texttt{paths}, and \texttt{triple} invariants. $\mathrm{TO}$ marks a time-out: alone, it means the computation was skipped because a smaller instance in the same family had already timed out; as $(\mathrm{TO})$ next to a value, it denotes partial data collected before the 3-minute limit was reached. Cells in the table do not always contain three complete rows, as some invariants may have reached the time-out, and we did not consider it necessary to add zero values to the tables. If the removal of a row causes the order of the invariants within a table cell to change, we add a bar to the row that no
 longer contains any information.
 
 \begin{table}[h] \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{N}_C$ \\
         \midrule
 
         \multirow{3}{*}{10}
@@ -242,7 +242,7 @@ longer contains any information.
         \multirow{3}{*}{400}
             & $\mathrm{TO} \rightarrow 3272.5$ & $\mathrm{TO} \rightarrow 81.4$ & 72971.20 \\
             & $\mathrm{TO} \rightarrow 3272.5$ & $\mathrm{TO} \rightarrow 81.4$ & 72971.20 \\
-            & $\mathrm{TO} \rightarrow 2689.5$ & $\mathrm{TO} \rightarrow 73.8$ & 57693.40 \\
+            & $\mathrm{TO} \rightarrow 2689.5(\mathrm{TO})$ & $\mathrm{TO} \rightarrow 73.8(\mathrm{TO})$ & 57693.40$(\mathrm{TO})$ \\
 
         \cmidrule(lr){1-4}
 
@@ -253,8 +253,8 @@ longer contains any information.
         \cmidrule(lr){1-4}
 
         \multirow{2}{*}{800}
-            & $\mathrm{TO} \rightarrow 3915.7$ & $\mathrm{TO} \rightarrow 88.2(\mathrm{TO})$ & 110010.70($\mathrm{TO}$) \\
-            & $\mathrm{TO} \rightarrow 3925.2$ & $\mathrm{TO} \rightarrow 88.3(\mathrm{TO})$ & 110608.00($\mathrm{TO}$) \\
+            & $\mathrm{TO} \rightarrow 3915.7(\mathrm{TO})$ & $\mathrm{TO} \rightarrow 88.2(\mathrm{TO})$ & 110010.70($\mathrm{TO}$) \\
+            & $\mathrm{TO} \rightarrow 3925.2(\mathrm{TO})$ & $\mathrm{TO} \rightarrow 88.3(\mathrm{TO})$ & 110608.00($\mathrm{TO}$) \\
 
         \bottomrule
     \end{tabular}
@@ -264,7 +264,7 @@ longer contains any information.
   \begin{table}[h] \centering
         \begin{tabular}{c|c|c|c}
             \toprule
-            $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+            $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{N}_C$ \\
             \midrule
 
             \multirow{3}{*}{10}
@@ -341,7 +341,7 @@ longer contains any information.
                 \centering
                 \begin{tabular}{c|c|c|c}
                     \toprule
-                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{N}_C$ \\
                     \midrule
         
                     \multirow{3}{*}{10}
@@ -369,7 +369,7 @@ longer contains any information.
                 \centering
                 \begin{tabular}{c|c|c|c}
                     \toprule
-                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+                    $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{N}_C$ \\
                     \midrule
         
                     \multirow{3}{*}{10}
@@ -397,7 +397,7 @@ longer contains any information.
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{N}_C$ \\
         \midrule
 
         \multirow{3}{*}{2}
@@ -477,7 +477,7 @@ longer contains any information.
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
-        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{P}_C$ \\
+        $n$ & N1 $\rightarrow$ N2 & L1 $\rightarrow$ L2 & $\mathcal{N}_C$ \\
         \midrule
 
         \multirow{3}{*}{13}
@@ -552,19 +552,16 @@ longer contains any information.
 
 These tables provide a considerable amount of information to analyse. First, we observe that bipartite graphs and random graphs $\mathcal{G}(n, 1/2)$ have a number of nodes very close to $0$ and a number of leaves very close to $1$. This is directly related to what was discussed earlier: for these two classes, only the refinement function is really at play. This is not an ideal setting to evaluate our pruning, but it does confirm that these classes rely almost entirely on refinement, and that improving performance on them would mainly come from optimising this function.
 
-The efficiency of pruning is best observed on the remaining graph classes. The most notable finding is that pruning $\mathcal{P}_C$ is by far the most effective of the three methods. As mentioned earlier, $\mathcal{P}_A$ and $\mathcal{P}_B$ are always equal to $0$ on these instances, which is why they have been omitted from the tables.
+The efficiency of pruning is best observed on the remaining graph classes. The most notable finding is that pruning $\mathcal{P}_C$ is by far the most effective of the three methods. As mentioned earlier, $\mathcal{P}_A$ and $\mathcal{P}_B$ were never triggered, which is why they have been omitted from the tables. Several factors may explain this behaviour. First, our invariants may not be particularly well suited to the graph classes we chose: being relatively simple, they may frequently assign the same value to different nodes, thereby preventing $\mathcal{P}_A$ and $\mathcal{P}_B$ from identifying pruning opportunities. Moreover, our approach does not closely resemble McKay's original method in \Naut{}: as explained in the previous chapter, \Naut{} constructs its node invariant from information obtained during the refinement process, whereas our invariants are based primarily on properties of the resulting coloured graph. We assumed that our three different methods would provide sufficient discriminative power to achieve pruning comparable to that obtained by \Naut{}. This was not the case, since in the end, the only pruning that actually triggers is automorphism pruning. This would explain why our invariant methods all appear equivalent, as they ultimately provide little discriminative benefit in our setting. A possible improvement would therefore be to modify our pruning methods to make greater use of the information produced during the refinement process, following the approach used by \Naut{}.
 
-Several factors may explain this behaviour. First, our invariants may not be particularly well suited to the graph classes we chose: being relatively simple, they may frequently assign the same value to different nodes, thereby preventing $\mathcal{P}_A$ and $\mathcal{P}_B$ from identifying pruning opportunities. Moreover, our approach does not closely resemble McKay's original method in \Naut{}: as explained in the previous chapter, \Naut{} constructs its node invariant from information obtained during the refinement process, whereas our invariants are based primarily on properties of the resulting coloured graph. We assumed that our three different methods would provide sufficient discriminative power to achieve pruning comparable to that obtained by \Naut{}. This was not the case, since in the end, the only pruning that actually triggers is automorphism pruning. This would explain why our invariant methods all appear equivalent, as they ultimately provide little discriminative benefit in our setting. A possible improvement would therefore be to modify our pruning methods to make greater use of the information produced during the refinement process, following the approach used by \Naut{}.
+A further factor is the ordering of the pruning rules in our implementation: since $\mathcal{P}_C$ is evaluated before $\mathcal{P}_A$ and $\mathcal{P}_B$, a branch it discards is never considered by the subsequent rules, so part of its apparent dominance may result from its position in the pruning order rather than from its intrinsic effectiveness.
 
-Another explanation is that the automorphism groups of these graphs are often very large. One might object that $\mathcal{P}_C$ only appears dominant because it is evaluated first in our implementation. However, the sheer size of these automorphism groups alone provides $\mathcal{P}_C$ with considerably more pruning opportunities than $\mathcal{P}_A$ and $\mathcal{P}_B$ could plausibly exploit, independently of any ordering effect.
-
-More intuitively, suppose that two branches are symmetric. If exploring the first branch eventually leads to an automorphism witnessing the equivalence between two choices, then exploring the symmetric branch would essentially reproduce the same structural situation. Consequently, unless the invariant is able to distinguish between these equivalent choices, it cannot be used to prune the second branch. This effect becomes particularly pronounced when the search tree contains many branches that are related by automorphisms: the invariant-based pruning methods have little opportunity to distinguish between them, whereas $\mathcal{P}_C$ can exploit the symmetry directly.
+Another possible explanation is that the automorphism groups of these graphs are often very large, giving $\mathcal{P}_C$ considerably more pruning opportunities than $\mathcal{P}_A$ and $\mathcal{P}_B$ could plausibly exploit, independently of any ordering effect. More intuitively, suppose that two branches are symmetric. If exploring the first branch eventually leads to an automorphism witnessing the equivalence between two choices, then exploring the symmetric branch would essentially reproduce the same structural situation, and unless the invariant is able to distinguish between these equivalent choices, it cannot be used to prune the second branch. This effect becomes particularly pronounced when the search tree contains many branches related by automorphisms: the invariant-based pruning methods have little opportunity to distinguish between them, whereas $\mathcal{P}_C$ can exploit the symmetry directly.
 
 This provides a natural explanation for why automorphism-based pruning appears to be the most decisive pruning method in our implementation.
 
+Even though some pruning methods do not apply here, the difference between the number of nodes and leaves traversed with and without pruning remains considerable, especially outside the bipartite and $\mathcal{G}(n, 1/2)$ classes. This confirms, at the level of the search tree itself, the strong pruning power already suggested by our runtime measurements.
 
-Even though some pruning methods do not apply here, the difference between the number of nodes and leaves traversed with and without pruning remains considerable, and is especially pronounced across all graph classes other than bipartite and $\mathcal{G}(n, 1/2)$ random graphs. This confirms, at the level of the search tree itself, the strong pruning power already suggested by our runtime measurements.
+Regarding the three invariants, the number of nodes and leaves visited with pruning is essentially the same across all of them, a direct consequence of $\mathcal{P}_A$ and $\mathcal{P}_B$ never being active. This connects to our runtime results, which showed that the \texttt{triple} invariant is considerably slower than the other two: since pruning offers no compensating advantage, this confirms that \texttt{triple} underperforms in our implementation.
 
-Regarding the three invariants, the number of nodes and leaves visited with pruning is essentially the same across all of them. This is a direct consequence of $\mathcal{P}_A$ and $\mathcal{P}_B$ never being active, which leaves no room for any of the three to distinguish itself through pruning. This connects directly to our runtime results, which showed that the \texttt{triple} invariant is considerably slower than the other two: since pruning offers no compensating advantage, this confirms that \texttt{triple} underperforms in our implementation. This is somewhat at odds with the \Naut{} user guide, which describes \texttt{triple} as comparatively strong for pruning on strongly regular graphs, and therefore on Paley graphs~\cite{mckay2024nug}. This discrepancy likely stems from a difference between our implementation and the one described by \Naut{}: since we only had access to a description of the invariant, without a concrete pseudo-code, some implementation choices were inevitably left to us.
-
-Overall, our implementation shows substantial pruning potential, which proves extremely valuable given the very large number of nodes in our search tree. This suggests that using more discriminating invariants could further improve pruning performance. It should be noted, however, that the graph classes considered here exhibit a particularly high degree of symmetry, which inherently limits what invariant-based pruning alone can achieve: by construction, two nodes of the search tree related by an automorphism must receive the same invariant value. Designing better invariants may therefore help to some extent, but on such highly symmetric classes, $\mathcal{P}_C$ is likely to remain an essential complement to invariant-based pruning, regardless of how discriminating the invariants used are.
+Overall, our implementation shows substantial pruning potential, which proves extremely valuable given the very large number of nodes in our search tree. This suggests that using more discriminating invariants could further improve pruning performance. It should be noted, however, that some of the graph classes considered here exhibit a particularly high degree of symmetry, which inherently limits what invariant-based pruning alone can achieve: by construction, two nodes of the search tree related by an automorphism must receive the same invariant value. Designing better invariants may therefore help to some extent, but on such highly symmetric classes, $\mathcal{P}_C$ is likely to remain an essential complement to invariant-based pruning, regardless of how discriminating the invariants used are.

@@ -35,7 +35,7 @@ To correctly construct this tree and find our canonical form, we will need sever
 \begin{figure}[ht]
   \centering
   \input{figTex/fig_search_tree.tex}
-  \caption{\textit{search tree} construction in \Naut{}.}\label{fig:search-tree}
+  \caption{\textit{Search tree} construction in \Naut{}.}\label{fig:search-tree}
 \end{figure}
 
 These three functions are the fundamental components required to construct our search tree and find our canonical form. Before defining them formally, we will informally explain how they work and how they interact with each other to build our search tree.
@@ -265,6 +265,7 @@ graph $(G, \pi_0)$. Here, we allow ourselves to use the refinement function itse
 
 Now that we have all the theoretical tools in hand, we can begin discussing the implementation of the algorithm. Our implementation is based on the definitions of the algorithm, but it is not a direct or simplistic reproduction of its source code.
 
+\newpage
 \subsubsection{Implementation of the refinement function}
 
 
@@ -312,7 +313,7 @@ To construct our refinement function, we need two auxiliary functions: a functio
   \begin{figure}[ht]
     \centering
     \input{figTex/fig_refinement.tex}
-    \caption{Fragmentation of cell $X$ with respect to $W$}\label{fig:refinement}
+    \caption{Fragmentation of cell $X$ with respect to $W$.}\label{fig:refinement}
   \end{figure}
 
 
@@ -365,7 +366,7 @@ To construct our refinement function, we need two auxiliary functions: a functio
     We prove each property separately.
   
     \textbf{Property \hyperref[RefinementRule:finer]{(R1)}}:
-    By definition, the refinement function R is obtained by repeatedly applying the individualisation operator I, with the refinement procedure F applied on top of the partition produced by I. The operator $I$ only splits an existing cell into two cells, one of which is the singleton containing the individualised vertex, provided that the partition is not already discrete. Therefore, $I$ can only refine the current partition. The refinement function $F$ is designed to produce an equitable partition from the current partition. It can either split existing cells or leave them unchanged, but it never merges cells. Consequently, for every
+    By definition, the refinement function $R$ is obtained by repeatedly applying the individualisation operator $I$, with the refinement procedure $F$ applied on top of the partition produced by $I$. The operator $I$ only splits an existing cell into two cells, one of which is the singleton containing the individualised vertex, provided that the partition is not already discrete. Therefore, $I$ can only refine the current partition. The refinement function $F$ is designed to produce an equitable partition from the current partition. It can either split existing cells or leave them unchanged, but it never merges cells. Consequently, for every
     $G \in \mathcal{G}$, $\pi_0 \in \Pi$, and $\sigma \in V^*$, we have
     \[
       R(G,\pi_0,\sigma) \preccurlyeq \pi_0,
@@ -442,7 +443,7 @@ $|X| = \min_{Y \in \pi,\ |Y| > 1} |Y|$}
 
 \subsubsection{Intermediate search tree construction}
 
-All the functions required to define the search tree have now been implemented. The following example illustrates the construction of the search tree for the graph $K_{1,3}$ using target-cell selection and equitable refinement.
+All the functions required to define the search tree have now been implemented. The following example illustrates the construction of the search tree for the graph $K_{1,3}$ using target-cell selection and equitable refinement. In the tree, individualised vertices are represented by double circles and the encircled set in each partition denotes the current target cell.
 
 \vspace{2em}
 
@@ -451,8 +452,8 @@ All the functions required to define the search tree have now been implemented. 
   \resizebox{\linewidth}{!}{%
   \input{figTex/nauty_tree.tex}
   }
-
-\caption{Individualised vertices are represented by double circles. The encircled set in each partition denotes the current target cell.}\label{fig:nauty-tree-k13}
+  
+\caption{Search tree for $K_{1,3}$.}\label{fig:nauty-tree-k13}
 
 \end{figure}
 
@@ -463,8 +464,7 @@ Once the search tree construction is in place, the next step is to define the \h
 
 \begin{enumerate}
   \item For each node $\sigma$, there is a colouring $R(G,\pi_0, \sigma)$. We can use its properties to extract the number and size of the cells, as well as combinatorial properties of the coloured graph.
-  \item We can use the intermediate states of the colouring computation from the parent node (in the refinement algorithm), such as the position and size of the cells produced during the refinement procedure, and various edge counts determined during the computation. If $f(\sigma)$ is a function of this information (computed during the calculation of $R(G,\pi_0, \sigma)$ and from the resulting coloured graph) then the vector $(f([\sigma]_0), f([\sigma]_1), \ldots, f(\sigma))$, with lexicographic ordering, satisfies the characteristics required for a node invariant.
-  In \Naut, the information obtained during refinement is encoded in an integer value $f(\sigma)$.
+  \item We can use intermediate states of the refinement algorithm as a node is processed, such as the position and size of the cells produced during the refinement procedure, and various edge counts determined during the computation. If $f(\sigma)$ is a function of this information (computed during the calculation of $R(G,\pi_0, \sigma)$ and from the resulting coloured graph) then the vector $(f([\sigma]_0), f([\sigma]_1), \ldots, f(\sigma))$, with lexicographic ordering, satisfies the characteristics required for a node invariant. In \Naut, the value of $f(\sigma)$ is an integer.
 \end{enumerate}
 
 Another potential method is based on the concept of the \textit{quotient graph}\footnote{Informally, the \emph{quotient graph} $Q(G,\pi)$ of a coloured graph $(G,\pi)$ is the graph whose vertices are the cells of $\pi$. Two cells $X_i$ and $X_j$ are joined by an edge whenever some vertex in $X_i$ is adjacent (in $G$) to some vertex in $X_j$. The quotient graph may also contain self-loops when $i=j$.} $Q(G,\pi)$, assuming that the colouring $\pi$ of graph $G$ is equitable. All vertices of $Q(G,\pi)$ are cells of $\pi$, and they include information about the size and number of the cell. For any two cells $C_1, C_2 \mathrel{\in}\pi$, possibly equal, the corresponding vertices in $Q(G,\pi)$ are connected by an edge labelled with the number of edges in $G$ between $C_1$ and $C_2$.
@@ -483,7 +483,7 @@ Here is the exhaustive list of invariant methods that we have implemented so far
   \vspace{0.5em}
   \noindent\fbox{%
     \parbox{\linewidth- 2\fboxsep- 2\fboxrule}{%
-    \textit{Pseudo-code: InvariantTrianglePerCell}
+    \textit{Pseudo-code of InvariantTrianglePerCell}
   
     \vspace{0.5em}
   
