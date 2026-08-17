@@ -1,6 +1,6 @@
-# Custom Nauty Implementation — Canonical Labelling & Graph Isomorphism
+# Canonical Labelling and Graph Isomorphism: A C++ Reimplementation of Nauty
 
-A C++ implementation of the Nauty algorithm (canonical labelling and automorphism group computation), developed as part of a master's thesis on graph isomorphism and canonical labelling.
+A C++ reimplementation of the Nauty algorithm (canonical labelling and automorphism group computation), developed as part of a master's thesis on graph isomorphism and canonical labelling.
 
 ## Requirements
 
@@ -69,11 +69,11 @@ Reads a file containing one graph6 string per line, computes the canonical form 
 
 The optional `invariant` argument, common to every mode, selects the vertex invariant used for partition refinement:
 
-| Value      | Function                          | nauty equivalent |
-|------------|-------------------------------------|-------------------|
-| `triangle` | `InvariantTriangleByCell` (default) | —                 |
-| `paths`    | `InvariantTwoPathsByCell`           | `twopaths`        |
-| `triple`   | `InvariantCellTriplesByCell`        | `celltrips`       |
+| Value      | Function                          |
+|------------|-------------------------------------|
+| `triangle` | `InvariantTriangleByCell` (default) |
+| `paths`    | `InvariantTwoPathsByCell`           |
+| `triple`   | `InvariantCellTriplesByCell`        |
 
 If the argument is omitted or not recognized, `triangle` is used by default.
 
