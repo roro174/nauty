@@ -41,13 +41,13 @@ Computes the canonical form of both graphs (given in graph6 format) and prints `
 
 Computes and prints (in graph6 format) the canonical form of the given graph.
 
-### `all` — Canonical form + orbit check
+### `all` — Canonical form + all permutations 
 
 ```bash
 ./bin/main all <graph6> [invariant]
 ```
 
-Same as `canonical`, but also prints the canonical form obtained by applying each permutation to the original graph.
+Same as `canonical`, but additionally takes every permutation found for the original graph, applies each one to it, and reruns canonical labelling on the resulting graph. To verify that the same canonical form is obtained every time.
 
 ### `aut` — Automorphism group
 
