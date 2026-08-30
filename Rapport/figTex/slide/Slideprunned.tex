@@ -27,12 +27,33 @@
   }
 }
 
+% ---------- Classes de couleur pour le raffinement ----------
+% classRoot   : sommet 0 (distingué dès le 1er raffinement)
+% classGroup  : sommets encore dans la même classe (non distingués)
+% classFirst  : sommet choisi à la 1re individualisation de la branche
+% classSecond : sommet choisi à la 2e individualisation de la branche
+% classAuto   : sommet distingué automatiquement (dernier de sa classe)
+
+\definecolor{classRoot}{HTML}{2166AC}
+\definecolor{classGroup}{HTML}{E08214}
+\definecolor{classFirst}{HTML}{B2182B}
+\definecolor{classSecond}{HTML}{762A83}
+\definecolor{classAuto}{HTML}{1B7837}
+
+\tikzset{
+  styGroup/.style ={draw=classGroup,  fill=classGroup!20,  text=classGroup},
+  styFirst/.style ={draw=classFirst,  fill=classFirst!20,  text=classFirst,  double},
+  stySecond/.style={draw=classSecond, fill=classSecond!20, text=classSecond, double},
+  styAuto/.style  ={draw=classAuto,   fill=classAuto!20,   text=classAuto},
+}
+
 \newcommand{\ktgraph}[4][black]{%
 \begin{tikzpicture}[
     scale=0.42,
     every node/.style={
         circle,
         draw=#1,
+        fill=#1!20,
         text=#1,
         inner sep=0pt,
         minimum size=6mm,
@@ -40,7 +61,6 @@
         line width=0.5pt
     }
 ]
-
 \node (g0) at (0,0) {0};
 
 \node[#2] (g1) at (-1.15,1.15) {1};
@@ -63,14 +83,14 @@
 
 \node[anchor=north,align=center] (init) at (4.75,14)
 {
-    \ktgraph{}{}{}
+    \ktgraph[classGroup]{}{}{}
 };
 
 % ---------- First refinement ----------
 
 \node[anchor=north,align=center] (root) at (4.75,10)
 {
-    \ktgraph{}{}{}
+    \ktgraph[classRoot]{styGroup}{styGroup}{styGroup}
 };
 
 \draw[
@@ -84,12 +104,12 @@
 
 \node[anchor=north,align=center] (A) at (-2.25,6)
 {
-    \ktgraph{double}{}{}
+    \ktgraph[classRoot]{styFirst}{styGroup}{styGroup}
 };
 
 \node[anchor=north,align=center] (B) at (4.75,6)
 {
-    \ktgraph{}{double}{}
+    \ktgraph[classRoot]{styGroup}{styFirst}{styGroup}
 };
 
 \node[
@@ -101,7 +121,7 @@
     inner sep=4pt
 ] (C) at (11.75,6)
 {
-    \ktgraph[gray]{}{}{double}\\[2pt]
+    \ktgraph[classRoot]{styGroup}{styGroup}{styFirst}\\[2pt]
     {\scriptsize\itshape\color{gray} Élagage $(2\ 3)$}
 };
 
@@ -110,17 +130,17 @@
 
 \node[anchor=north,align=center] (L1) at (-4,1.2)
 {
-    \ktgraph{double}{double}{}
+    \ktgraph[classRoot]{styFirst}{stySecond}{styAuto}
 };
 
 \node[anchor=north,align=center] (L2) at (-0.5,1.2)
 {
-    \ktgraph{double}{}{double}
+    \ktgraph[classRoot]{styFirst}{styAuto}{stySecond}
 };
 
 \node[anchor=north,align=center] (L3) at (3,1.2)
 {
-    \ktgraph{}{double}{}
+    \ktgraph[classRoot]{stySecond}{styFirst}{styAuto}
 };
 
 \node[
@@ -132,7 +152,7 @@
     inner sep=4pt
 ] (L4) at (6.5,1.2)
 {
-    \ktgraph[gray]{}{double}{double}\\[2pt]
+    \ktgraph[classRoot]{styAuto}{styFirst}{stySecond}\\[2pt]
     {\scriptsize\itshape\color{gray} Élagage $(1\ 3)$}
 };
 

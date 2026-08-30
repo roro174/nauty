@@ -317,15 +317,15 @@ Principe: Problème d'équivalence en problème d'égalité
 \begin{frame}{Complexité supplémentaire}
 
 \begin{itemize}
-    \item pas \NPC{} car ETH
+    \item Probablement pas \NPC{} car ETH
     \item avant 2016: meilleur algorithme en $e^{\mathcal{O}(\sqrt{n \log n})}$
     \item Algorithme quasi-polynomial, purement théorique pour l'instant
     \item appartient à \SPP{}
-    \item Différentes complexité en fonction de la famille de graphe
+    \item Différentes complexités en fonction de la famille de graphe
 \end{itemize}    
 \end{frame}
 
-\begin{frame}{colour refinement (1/2)}
+\begin{frame}{Colour refinement (1/2)}
 
 
         \begin{algorithmic}[1]
@@ -351,7 +351,7 @@ Principe: Problème d'équivalence en problème d'égalité
 
 \end{frame}
 
-\begin{frame}{colour refinement (2/2)}
+\begin{frame}{Colour refinement (2/2)}
 
 \begin{itemize}
     \item \textit{Nauty} se base dessus mais avec des différences
@@ -362,10 +362,14 @@ Principe: Problème d'équivalence en problème d'égalité
 \end{frame}
 
 \begin{frame}{Différents types d'invariants}
-    
-\end{frame}
 
-\begin{frame}{Schreier-Sims}
+\begin{itemize}
+    \item Nombre de triangle par couleur: $O(n \cdot d^2)$
+    \item 2-chemin depuis une couleur: $O(n+m)$
+    \item Triple par couleur: $O(n^4)$
+    \item Invariant sommet par \textit{Nauty}
+    \item Changement d'invariant à faire
+\end{itemize}
     
 \end{frame}
 
@@ -394,6 +398,17 @@ Principe: Problème d'équivalence en problème d'égalité
 Cette stratégie permet d'avoir le groupe d'automorphisme. L'algorithme donne 2 choses: la forme canonique + groupe d'automorphisme au passage.
 \end{exampleblock}
 \end{frame}
+
+\begin{frame}{Schreier-Sims}
+
+    \begin{itemize}
+        \item Utilisé pour $\mathcal{P}_C$
+        \item Garde le groupe d'automorphisme
+        \item Complexité en $O(n^2 \log^3 |G| + tn \log |G|)$
+        \item Existe une version randomisée:  $O(n^3 \log^c n)$
+    \end{itemize}
+        
+    \end{frame}
 
 
 
