@@ -60,6 +60,27 @@
 
 \definecolor{mydarkgray}{gray}{0.25} % 0=noir, 1=blanc
 
+
+
+\definecolor{leafA}{HTML}{E63946} % feuille 1
+\definecolor{leafB}{HTML}{2A9D8F} % feuille 2
+\definecolor{leafC}{HTML}{264653} % feuille 3
+
+
+\newcommand{\Kautoexample}[4]{%
+  \begin{tikzpicture}[baseline=(current bounding box.center),
+      vtx/.style={circle,draw,minimum size=5mm,inner sep=0pt}]
+    \node[vtx,fill=black!70]  (c) at (0,0)          {};
+    \node[vtx,fill=#1]        (t) at (0,0.9)         {};
+    \node[vtx,fill=#2]        (l) at (-0.78,-0.45)   {};
+    \node[vtx,fill=#3]        (r) at (0.78,-0.45)    {};
+    \draw[thick] (c) -- (t);
+    \draw[thick] (c) -- (l);
+    \draw[thick] (c) -- (r);
+    \node at (0,-1.15) {\footnotesize $#4$};
+  \end{tikzpicture}%
+}
+  
 \DeclareMathOperator{\sen}{sen}
 \DeclareMathOperator{\tg}{tg}
 
@@ -388,15 +409,20 @@ Principe: Problème d'équivalence en problème d'égalité
     \end{frame}
 
 
-\begin{frame}{Stratégie basée sur l'automorphisme}
+\begin{frame}{Exemple automorphisme}
 
-\begin{block}{$\mathcal{P}_C$}
-    Exploiter les automorphismes déjà découverts: si un automorphisme $g$ associe le nœud courant $\sigma$ à un nœud $\sigma^g$ déjà exploré, alors les deux sous-arbres sont isomorphes. L’exploration de $\sigma^g$ étant redondante, son sous-arbre est élagué.
-\end{block}
+    \centering
+    \begin{tabular}{@{}ccc@{}}
+      \Kautoexample{leafA}{leafB}{leafC}{\mathrm{id}}     &
+      \Kautoexample{leafB}{leafA}{leafC}{(1\,2)}          &
+      \Kautoexample{leafC}{leafB}{leafA}{(1\,3)}          \\[0.5cm]
+      \Kautoexample{leafA}{leafC}{leafB}{(2\,3)}          &
+      \Kautoexample{leafB}{leafC}{leafA}{(1\,2\,3)}       &
+      \Kautoexample{leafC}{leafA}{leafB}{(1\,3\,2)}
+    \end{tabular}
+  
+    \vspace{0.4cm}
 
-\begin{exampleblock}{Utilité supplémentaire}
-Cette stratégie permet d'avoir le groupe d'automorphisme. L'algorithme donne 2 choses: la forme canonique + groupe d'automorphisme au passage.
-\end{exampleblock}
 \end{frame}
 
 \begin{frame}{Schreier-Sims}
