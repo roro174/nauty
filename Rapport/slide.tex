@@ -1,0 +1,525 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[sanserif]{complexity}
+\usepackage{twemojis}
+
+
+\usepackage{algpseudocode}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric,
+                fit, backgrounds, calc}
+ 
+\tikzset{
+  stepbox/.style={
+    rectangle, rounded corners=5pt,
+    minimum width=3.8cm, minimum height=1.0cm,
+    align=center, font=\small\bfseries,
+    inner sep=6pt, draw, very thick,
+  },
+  refbox/.style={stepbox, draw=black, fill=white, text=black},
+  selbox/.style={stepbox, draw=black, fill=white, text=black},
+  invbox/.style={stepbox, draw=black, fill=white, text=black},
+  mainarrow/.style={-{Stealth[length=7pt]}, line width=1.4pt},
+  looparrow/.style={-{Stealth[length=6pt]}, line width=1.1pt, dashed, color=black},
+  every picture/.append style={node distance=1.2cm and 1.6cm},
+}
+
+\usepackage{svg}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+
+\usepackage{xcolor}
+
+\definecolor{cTriangle}{HTML}{D62728}   % tab:red
+\definecolor{cPaths}{HTML}{2CA02C}      % tab:green
+\definecolor{cTriple}{HTML}{1F77B4}     % tab:blue
+\definecolor{cNauty}{HTML}{BDB76B}      % darkkhaki
+
+% Un item de légende générique : couleur, symbole, étiquette
+\newcommand{\legenditem}[3]{{\color{#1}#2}~#3}
+
+\newcommand{\legendeInvariants}{%
+  \begin{center}
+  \Large
+  \legenditem{cTriangle}{$\blacktriangle$}{triangle}\quad
+  \legenditem{cPaths}{$\blacklozenge$}{paths}\quad
+  \legenditem{cTriple}{$\bullet$}{triple}\quad
+  \legenditem{cNauty}{$\boldsymbol{\times}$}{\textit{Nauty}}
+  \end{center}
+}
+
+\definecolor{mydarkgray}{gray}{0.25} % 0=noir, 1=blanc
+
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+\setbeamertemplate{caption}[numbered]
+
+\author[Rodolphe Prévot]{
+        Auteur: Rodolphe Prévot\\
+        Promoteur: Robin Petit\\
+        Directeur: Gwenaël Joret
+}
+
+\title[Défense Mémoire]{Canonical Labelling and Graph
+Isomorphism: A C++ Reimplementation
+of Nauty}
+
+\newcommand{\email}{rodolphe.prevot@ulb.be}
+
+\setbeamertemplate{navigation symbols}{} 
+\logo{\includegraphics[scale=0.03]{imgs/titlepage/sceau-a-quadri.jpg}} 
+\institute[]{Université libre de Bruxelles \par Département d’Informatique} 
+\date{Septembre 2026} 
+
+\bibliographystyle{apalike}
+
+\begin{document}
+
+
+\AtBeginSection[]{
+\begin{frame}[plain]
+
+\begin{tikzpicture}[remember picture,overlay]
+
+    % Bande bleue
+    \fill[blue!70!black]
+        ([yshift=-3.2cm]current page.north west)
+        rectangle
+        ([yshift=-5.4cm]current page.north east);
+
+    % Titre centré dans la bande
+    \node[
+        text=white,
+        align=center
+    ] at ([yshift=-4.3cm]current page.north)
+    {
+        \adjustbox{max width=0.9\paperwidth}{
+            \bfseries\fontsize{26}{30}\selectfont
+            \insertsection
+        }
+    };
+
+    % Logo ULB
+    % Logo ULB sous la bande
+\node at ([yshift=-2.2cm]current page.center)
+{
+    \includegraphics[height=1.6cm]{imgs/titlepage/sceau-a-quadri.jpg}
+};
+
+\end{tikzpicture}
+
+\end{frame}
+}
+
+\begin{frame}
+\titlepage\end{frame}
+
+
+\setbeamertemplate{logo}{}
+
+\begin{frame}{Sommaire}
+\tableofcontents 
+\end{frame}
+
+\section{Contexte}
+
+\begin{frame}{Isomorphisme}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        % --- Image de gauche ---
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/slide/wikimediaimages-adrenaline-872345_1920 (1).png}
+        \end{column}
+ 
+        % --- Symbole central ---
+        \begin{column}{0.16\textwidth}
+            \centering
+            \Huge $\overset{?}{\cong}$
+        \end{column}
+        % --- Image de droite ---
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/slide/wikimediaimages-dimethoxyphenethylamine-867172.png}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small Structurellement les mêmes?
+\end{frame}
+
+\begin{frame}{Exemple (1/2)}
+
+\begin{figure}[h!]
+    \centering
+    \resizebox{0.9\textwidth}{!}{%
+    \input{figTex/slide/exIsoSlide.tex}%
+    }
+    \caption{Isomorphisme}
+    \end{figure}
+
+\end{frame}
+
+
+\begin{frame}{Exemple (2/2)}
+
+    \begin{figure}[h!]
+        \centering
+        \resizebox{0.9\textwidth}{!}{%
+        \input{figTex/slide/exNonIsomorphm.tex}%
+        }
+        \caption{Pas d'isomorphisme}
+        \end{figure}
+\end{frame}
+
+\begin{frame}{Problème général}
+
+\begin{itemize}
+    \item Problème d'isomorphisme de graphe ($\mathrm{IG}$)
+    \item Complexité: \(\mathrm{IG} \in \NP,\quad \mathrm{IG} \stackrel{?}{\in} \P{},\quad \mathrm{IG} \stackrel{?}{\in} \NPC{}\)
+    \item Considéré \NPI{}
+    \item Meilleur algorithme quasi-polynomial: László Babai (2016)
+    \item Forme canonique plus efficace en pratique (\textit{Nauty})
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Forme canonique}
+
+Principe: Problème d'équivalence en problème d'égalité
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{imgs/pré-mémoire.png}
+\end{figure}
+    
+\end{frame}
+
+\section{Nauty}
+
+\begin{frame}{Arbre de recherche}
+
+    \begin{figure}[h!]
+        \centering
+        \resizebox{0.9\textwidth}{!}{%
+        \input{figTex/slide/slideSearchTree.tex}%
+        }
+        \end{figure}
+    \end{frame}
+            
+
+\begin{frame}{Fonction: raffinement}
+
+\begin{figure}[h!]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \input{figTex/slide/slideRefinement.tex}%
+    }
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Fonction: sélection classe}
+
+\begin{figure}[h!]
+    \centering
+    \resizebox{0.5\textwidth}{!}{%
+    \input{figTex/slide/slideTarget.tex}%
+    }
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Fonction: invariant + forme canonique}
+
+    \begin{figure}[h!]
+        \centering
+        \resizebox{0.9\textwidth}{!}{%
+        \input{figTex/slide/slideInvariant.tex}%
+        }
+        \end{figure}
+\end{frame}
+            
+
+\begin{frame}{Stratégies d'élagages}
+
+\begin{itemize}
+    \item 2 stratégies basées sur l'invariant
+    \item 1 stratégie basée sur les automorphismes
+    \item Élagage par automorphisme plus performant
+    \item Groupe d'automorphisme en cadeau \twemoji{1f381}
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Élagage par automorphisme}
+    \begin{figure}[h!]
+        \makebox[\textwidth][l]{%
+            \hspace*{-0.8cm}%
+            \resizebox{\textwidth}{!}{%
+                \input{figTex/slide/Slideprunned.tex}%
+            }%
+        }
+    \end{figure}
+\end{frame}
+
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+\begin{itemize}
+    \item \textit{Nauty}: incontournable pour résoudre $\mathrm{IG}$
+    \item Fonctionnalités rajoutées entre temps
+    \item Implémentation moins bonne  mais respecte bien la logique
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+    
+\centering
+\Large Merci pour votre attention!
+
+\vspace{1cm}
+
+\Large Questions?
+
+\vspace{1cm}
+
+\email{}
+
+\end{frame}
+
+\section{Annexe}
+
+\begin{frame}{Polynomial-Time Hierarchy}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{imgs/Complexity-classes-the-polynomial-hierarchy-Stockmeyer-1976.png}
+\end{figure}
+    
+\end{frame}
+
+\begin{frame}{Complexité supplémentaire}
+
+\begin{itemize}
+    \item pas \NPC{} car ETH
+    \item avant 2016: meilleur algorithme en $e^{\mathcal{O}(\sqrt{n \log n})}$
+    \item Algorithme quasi-polynomial, purement théorique pour l'instant
+    \item appartient à \SPP{}
+    \item Différentes complexité en fonction de la famille de graphe
+\end{itemize}    
+\end{frame}
+
+\begin{frame}{colour refinement (1/2)}
+
+
+        \begin{algorithmic}[1]
+        
+            \State \textbf{Input:} A graph $G=(V,E)$
+            
+            \State \textbf{Initialisation:} Assign the same colour to every vertex.
+        
+            \Repeat
+                \State \textbf{Refinement Step:}
+                
+                \ForAll{vertices $v,w$ with the same colour}
+                    \If{$v$ and $w$ have different numbers of neighbours in some colour class}
+                        \State Assign different colours to $v$ and $w$.
+                    \EndIf
+                \EndFor
+                
+            \Until{the colouring is stable}
+        
+            \State \textbf{Return:} the stable colouring.
+        
+        \end{algorithmic}
+
+\end{frame}
+
+\begin{frame}{colour refinement (2/2)}
+
+\begin{itemize}
+    \item \textit{Nauty} se base dessus mais avec des différences
+    \item Identifie un graphe $G$ s’il permet de le distinguer de tous les graphes non isomorphes à $G$
+    \item Nécessaire mais pas suffisante
+\end{itemize}
+    
+\end{frame}
+
+\begin{frame}{Différents types d'invariants}
+    
+\end{frame}
+
+\begin{frame}{Schreier-Sims}
+    
+\end{frame}
+
+\begin{frame}{Stratégie basée sur l'invariant}
+    \begin{block}{$\mathcal{P}_A$}
+        Éliminer les branches dont l’invariant ne peut pas atteindre la valeur maximale: à chaque niveau de l’arbre, on conserve le meilleur invariant trouvé jusqu’à présent, et tout autre nœud situé au même niveau dont l’invariant est strictement inférieur voit sa branche élaguée.
+    \end{block}
+
+    \begin{block}{$\mathcal{P}_B$}
+        Les noeuds sont comparés à un nœud de référence (noeud sur le chemin de la première feuille rencontrée). Si les deux invariants diffèrent, le sous-arbre courant est élagué. L’objectif n’est pas réellement de trouver le meilleur invariant, mais plutôt de trouver des nouveaux automorphismes.
+    \end{block}
+
+    \begin{alertblock}{En pratique}
+        Il faut que les 2 conditions soient combinées pour élaguer le noeud.
+    \end{alertblock}
+    \end{frame}
+
+
+\begin{frame}{Stratégie basée sur l'automorphisme}
+
+\begin{block}{$\mathcal{P}_C$}
+    Exploiter les automorphismes déjà découverts: si un automorphisme $g$ associe le nœud courant $\sigma$ à un nœud $\sigma^g$ déjà exploré, alors les deux sous-arbres sont isomorphes. L’exploration de $\sigma^g$ étant redondante, son sous-arbre est élagué.
+\end{block}
+
+\begin{exampleblock}{Utilité supplémentaire}
+Cette stratégie permet d'avoir le groupe d'automorphisme. L'algorithme donne 2 choses: la forme canonique + groupe d'automorphisme au passage.
+\end{exampleblock}
+\end{frame}
+
+
+
+\begin{frame}{Experimentation}
+
+\begin{itemize}
+    \item Plusieurs experimentation faites
+    \item Temps d'éxécution: avec élagage vs sans
+    \item 6 types de graphes
+    \item Performance sur l'élagage
+    \item Légende graphiques ci-dessous
+    \item absice = nombre de sommets; ordonné = temps en ms
+\end{itemize}
+
+\legendeInvariants{}
+    
+\end{frame}
+
+\begin{frame}{Temps d'éxécution (1/6)}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/test/bipartite.pdf}
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/WithoutPrunning/bipartiteWP.pdf}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small Biparti
+\end{frame}
+
+
+\begin{frame}{Temps d'éxécution (2/6)}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/test/random.pdf}
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/WithoutPrunning/randomWP.pdf}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small graphe aléatoire $\mathcal{G}(n, 1/2)$
+\end{frame}
+
+
+\begin{frame}{Temps d'éxécution (3/6)}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/test/hypercube.pdf}
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/WithoutPrunning/hypercubeWP.pdf}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small Hypercube
+\end{frame}
+
+\begin{frame}{Temps d'éxécution (4/6)}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/test/trees.pdf}
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/WithoutPrunning/treesWP.pdf}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small Arbres
+\end{frame}
+
+\begin{frame}{Temps d'éxécution (5/6)}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/test/sparse.pdf}
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/WithoutPrunning/sparseWP.pdf}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small Biparti
+\end{frame}
+
+\begin{frame}{Temps d'éxécution (6/6)}
+    \begin{columns}[c] % [c] = alignement vertical centré des colonnes
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/test/paley.pdf}
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{imgs/WithoutPrunning/paleyWP.pdf}
+        \end{column}
+    \end{columns}
+ 
+    \vspace{1em}
+    \centering
+    \small Paley
+\end{frame}
+
+\begin{frame}{Performance élagage}
+
+
+
+\end{frame}
+\end{document}
+
